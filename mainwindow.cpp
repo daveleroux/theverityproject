@@ -17,7 +17,7 @@ using namespace std;
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 {
-    setWindowTitle("Bible Displayer");
+    setWindowTitle("Verity");
     setMinimumSize(1000, 700);
     move(QPoint(QApplication::desktop()->width()/2-500, QApplication::desktop()->height()/2-350));
     browser = new BibleTextBrowser();
