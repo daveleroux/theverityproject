@@ -103,7 +103,6 @@ int BibleTextBrowser::insertParagraphIntoDocument(int id, QList<TextInfo> textIn
          }
          if(textInfo.verse == 1 && textInfo.numberInVerse == 1)
          {
-             currentTextCursor->insertText("\n");
              currentTextCursor->insertText("Ch "+QString().setNum(textInfo.chapter), boldFormat);
              currentTextCursor->insertText("\n");
              currentTextCursor->setCharFormat(defaultFormat);
