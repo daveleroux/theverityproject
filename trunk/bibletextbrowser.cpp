@@ -208,7 +208,7 @@ void BibleTextBrowser::display(VerseReference verseReference)
 
        ensureCursorVisible();
 
-       window()->setWindowTitle("Bible Displayer - " + verseReference.stringRepresentation);
+       window()->setWindowTitle("Verity - " + verseReference.stringRepresentation);
     }
     else
     {
