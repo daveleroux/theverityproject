@@ -23,14 +23,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     browser = new BibleTextBrowser();
     setCentralWidget(browser);
 
-    QDockWidget* hoverDock = new QDockWidget("Parsing", this);
-    hoverDock->setAllowedAreas(Qt::BottomDockWidgetArea);
-
-    hoverBrowser = new ParsingDisplayBrowser(hoverDock);
-    hoverDock->setWidget(hoverBrowser);
-    connect(browser, SIGNAL(wordHoveredOver(TextInfo)), this, SLOT(wordHoveredOver(TextInfo)));
-
-    addDockWidget(Qt::BottomDockWidgetArea, hoverDock);
+//    QDockWidget* hoverDock = new QDockWidget("Parsing", this);
+//    hoverDock->setAllowedAreas(Qt::BottomDockWidgetArea);
+//
+//    hoverBrowser = new ParsingDisplayBrowser(hoverDock);
+//    hoverDock->setWidget(hoverBrowser);
+//    connect(browser, SIGNAL(wordHoveredOver(TextInfo)), this, SLOT(wordHoveredOver(TextInfo)));
+//
+//    addDockWidget(Qt::BottomDockWidgetArea, hoverDock);
 
 
     QDockWidget* selectedDock = new QDockWidget("Selected Parsing", this);
@@ -65,10 +65,10 @@ void MainWindow::lookupVerse()
     cout << "total: " << t << endl;
 }
 
-void MainWindow::wordHoveredOver(TextInfo textInfo)
-{
-    hoverBrowser->display(textInfo);
-}
+//void MainWindow::wordHoveredOver(TextInfo textInfo)
+//{
+//    hoverBrowser->display(textInfo);
+//}
 
 void MainWindow::wordClicked(TextInfo textInfo)
 {

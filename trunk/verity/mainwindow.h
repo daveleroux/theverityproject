@@ -17,7 +17,7 @@ protected:
      QLineEdit* verseLineEdit;
      void keyPressEvent(QKeyEvent* keyEvent);
 
-     ParsingDisplayBrowser* hoverBrowser;
+//     ParsingDisplayBrowser* hoverBrowser;
      ParsingDisplayBrowser* selectedBrowser;
 public:
     MainWindow(QWidget *parent = 0);
@@ -27,7 +27,7 @@ public:
 
 public slots:
     void lookupVerse();
-    void wordHoveredOver(TextInfo textInfo);
+//    void wordHoveredOver(TextInfo textInfo);
     void wordClicked(TextInfo textInfo);
 
 };

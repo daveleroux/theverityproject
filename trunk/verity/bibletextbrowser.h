@@ -7,33 +7,35 @@
 #include "basetextunit.h"
 #include "textinfo.h"
 #include "versereference.h"
+#include "documentrepresentation.h"
 
 class BibleTextBrowser : public QTextBrowser
 {
      Q_OBJECT
 
 private:
-    BaseTextUnit key(QPoint point);
+    DocumentRepresentation* documentRepresentation;
 
 public:
     BibleTextBrowser();
     void display(VerseReference verseReference);
 
 protected:
-     QTextDocument* currentTextDocument;
-     QTextCursor* currentTextCursor;
 
     void mouseMoveEvent (QMouseEvent* e);
     void mousePressEvent ( QMouseEvent * e );
 
-    QMap<BaseTextUnit, TextInfo> textUnits;
 
-    QList<TextInfo> readInParagraph(int paragraph);
-    int insertParagraphIntoDocument(int id, QList<TextInfo> textInfos);
+    void wheelEvent ( QWheelEvent * e );
+
+public slots:
+    void select(int, int);
+    void tmp(QList<int>);
 
 signals:
-     void wordHoveredOver(TextInfo textInfo);
+//     void wordHoveredOver(TextInfo textInfo);
      void wordClicked(TextInfo textInfo);
+     void chapterStarts(QList<int>);
 };
 
 #endif // BIBLETEXTBROWSER_H
