@@ -249,40 +249,40 @@ VerseReference VerseReferenceParser::_parse(QString string)
 
     separatorIndex = qMax(string.indexOf("."), string.indexOf(":"));
 
-        bool ok=false;
-        int verseTest = string.mid(separatorIndex+1).toInt(&ok);
-        if(ok)
-            verse = verseTest;
+    bool ok=false;
+    int verseTest = string.mid(separatorIndex+1).toInt(&ok);
+    if(ok)
+        verse = verseTest;
 
-        int numeralIndex = separatorIndex;
+    int numeralIndex = separatorIndex;
 
-        while(string.at(numeralIndex-1).digitValue() != -1)
-        {
-            numeralIndex = numeralIndex - 1;
-        }
+    while(string.at(numeralIndex-1).digitValue() != -1)
+    {
+        numeralIndex = numeralIndex - 1;
+    }
 
-        int chapterTest = string.mid(numeralIndex, separatorIndex-numeralIndex).toInt(&ok);
-        if(ok)
-            chapter = chapterTest;
+    int chapterTest = string.mid(numeralIndex, separatorIndex-numeralIndex).toInt(&ok);
+    if(ok)
+        chapter = chapterTest;
 
-        bookString = string.mid(0, numeralIndex);
+    bookString = string.mid(0, numeralIndex);
 
 
     bookString = bookString.trimmed().toLower();
 
     if(hash.contains(bookString))
     {
-       book = hash.value(bookString);
+        book = hash.value(bookString);
     }
 
     return VerseReference(book,chapter,verse, calculateStringRepresentation(book, chapter, verse));
 }
 
- VerseReferenceParser& VerseReferenceParser::instance()
- {
-      static VerseReferenceParser singleton;
-      return singleton;
- }
+VerseReferenceParser& VerseReferenceParser::instance()
+{
+    static VerseReferenceParser singleton;
+    return singleton;
+}
 
 VerseReference VerseReferenceParser::parse(QString string)
 {

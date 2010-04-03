@@ -14,7 +14,9 @@ SOURCES += main.cpp \
     parseattribute.cpp \
     parsingdecoder.cpp \
     morphattribute.cpp \
-    parsingdisplaybrowser.cpp
+    parsingdisplaybrowser.cpp \
+    documentrepresentation.cpp \
+    chapterrepresentation.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -25,4 +27,6 @@ HEADERS += mainwindow.h \
     parsingdecoder.h \
     morphattribute.h \
     parsingdisplaybrowser.h \
-    timer.h
+    timer.h \
+    documentrepresentation.h \
+    chapterrepresentation.h

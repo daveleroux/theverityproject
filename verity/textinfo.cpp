@@ -9,6 +9,7 @@ TextInfo::TextInfo(int id,
                    int chapter,
                    int verse,
                    int numberInVerse,
+                   bool paragraph,
                    QString text,
                    QString morphologicalTag,
                    QBitArray normalisedMorphTag,
@@ -22,6 +23,7 @@ TextInfo::TextInfo(int id,
     this->verse = verse;
     this->numberInVerse = numberInVerse;
     this->text = text;
+    this->paragraph = paragraph;
     this->morphologicalTag = morphologicalTag;
     this->normalisedMorphTag = normalisedMorphTag;
     this->strongsNumber = strongsNumber;
