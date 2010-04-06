@@ -16,7 +16,8 @@ SOURCES += main.cpp \
     morphattribute.cpp \
     parsingdisplaybrowser.cpp \
     documentrepresentation.cpp \
-    chapterrepresentation.cpp
+    chapterrepresentation.cpp \
+    globalvariables.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -29,4 +30,5 @@ HEADERS += mainwindow.h \
     parsingdisplaybrowser.h \
     timer.h \
     documentrepresentation.h \
-    chapterrepresentation.h
+    chapterrepresentation.h \
+    globalvariables.h

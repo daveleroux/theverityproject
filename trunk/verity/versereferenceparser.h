@@ -9,7 +9,7 @@
 
 class VerseReferenceParser
 {
-    private:
+private:
     QHash<QString, int> hash;
     QHash<int, QString> normalisedBookNames;
 
