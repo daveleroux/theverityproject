@@ -8,26 +8,30 @@
 #include <QLineEdit>
 
 
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 protected:
-     BibleTextBrowser* browser;
-     QLineEdit* verseLineEdit;
-     void keyPressEvent(QKeyEvent* keyEvent);
 
-//     ParsingDisplayBrowser* hoverBrowser;
-     ParsingDisplayBrowser* selectedBrowser;
+    BibleTextBrowser* browser;
+    QLineEdit* verseLineEdit;
+    void keyPressEvent(QKeyEvent* keyEvent);
+
+    //     ParsingDisplayBrowser* hoverBrowser;
+    ParsingDisplayBrowser* selectedBrowser;
+
+    void closeEvent(QCloseEvent *event);
 public:
     MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ~MainWindow();    
 
     void display(int wordNumber);
 
 public slots:
     void lookupVerse();
-//    void wordHoveredOver(TextInfo textInfo);
+    //    void wordHoveredOver(TextInfo textInfo);
     void wordClicked(TextInfo textInfo);
 
 };

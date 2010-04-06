@@ -63,7 +63,7 @@ private:
     void scrollToCentre(int normCh, int fromPos, int toPos);
     void scrollDown(int pixels);
     void scrollUp(int pixels);
-//    void unloadDistantChapters();
+
     bool canUnloadFirstChapter();
     bool canUnloadLastChapter();
     void unloadFirstChapter();
@@ -80,11 +80,9 @@ public:
     void mousePressed(QPoint point);
 
 signals:
-     void selectionRequest(int startPos, int endPos);
-     void wordClicked(TextInfo textInfo);
-     void chapterStarts(QList<int>);
-
-
+    void selectionRequest(int startPos, int endPos);
+    void wordClicked(TextInfo textInfo);
+    void chapterStarts(QList<int>);
 };
 
 #endif // DOCUMENTREPRESENTATION_H

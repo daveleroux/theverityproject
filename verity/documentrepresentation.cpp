@@ -4,6 +4,8 @@
 #include <QDebug>
 #include <QScrollBar>
 #include "timer.h"
+#include "globalvariables.h"
+#include "versereferenceparser.h"
 #include <iostream>
 using namespace std;
 
@@ -19,7 +21,7 @@ DocumentRepresentation::DocumentRepresentation(QTextDocument* textDocument, QTex
 void DocumentRepresentation::openDatabase()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("bibles.sqlite");
+    db.setDatabaseName(DATA_PATH + "/bibles.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
@@ -310,7 +312,6 @@ bool DocumentRepresentation::mustAppend()
 
 bool DocumentRepresentation::mustPrepend(int min, int max, int value, int pageStep)
 {
-    //    qDebug() << "must prepend:" << min << max << value << pageStep << ":" << (value <= (min+pageStep));
     return value <= (min + pageStep);
 }
 
@@ -325,6 +326,8 @@ void DocumentRepresentation::display(VerseReference verseReference)
     VerseLocation* newVerseLocation = getVerseLocation(verseReference);
     if(newVerseLocation != 0)
     {
+        textBrowser->window()->setWindowTitle(PROGRAM_NAME + " - " + verseReference.stringRepresentation);
+
         if(verseLocation != 0)
             delete verseLocation;
 
@@ -385,20 +388,6 @@ void DocumentRepresentation::display(VerseReference verseReference)
     }
 }
 
-//struct Range
-//{
-//    int from;
-//    int to;
-//    Range(int from, int to)
-//    {
-//        this->from = from;
-//        this->to = to;
-//    }
-//    bool contains(int x)
-//    {
-//        return x >= from && x <= to;
-//    }
-//};
 
 int DocumentRepresentation::getCurrentChapter()
 {
@@ -426,9 +415,6 @@ void DocumentRepresentation::unloadLastChapter()
 {
     QScrollBar* scrollBar = textBrowser->verticalScrollBar();
 
-    //    int originalHeight = textDocument->size().height();
-    //    int originalValue = scrollBar->value();
-
     ChapterRepresentation chRep = chapters.values().at(chapters.values().size()-1);
 
 
@@ -448,10 +434,6 @@ void DocumentRepresentation::unloadLastChapter()
     textCursor.deletePreviousChar();
 
     textCursor.endEditBlock();
-
-    //    int newHeight = textDocument->size().height();
-
-    //    textBrowser->verticalScrollBar()->setValue(originalValue - (originalHeight-newHeight));
 
     chapters.remove(chRep.normalisedChapter);
 
@@ -560,74 +542,6 @@ bool DocumentRepresentation::canUnloadFirstChapter()
     }
     return false;
 }
-
-//void DocumentRepresentation::unloadDistantChapters()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    if(scrollBar->isVisible())
-//    {
-//        QPoint centre(textBrowser->viewport()->width()/2, textBrowser->viewport()->height()/2);
-//        QTextCursor centreCursor = textBrowser->cursorForPosition(centre);
-//        int centralPos = centreCursor.position();
-//
-//        int chContainingCentralPos = 0;
-//
-//        for(int i=0; i<chapters.values().size(); i++)
-//        {
-//            ChapterRepresentation chRep = chapters.values().at(i);
-//
-//            int globalPos = convertPosToGlobal(chRep.normalisedChapter, 0);
-//            if(centralPos < globalPos)
-//                break;
-//
-//            chContainingCentralPos = chRep.normalisedChapter;
-//        }
-//
-//        int previousRangeEnd = 0;
-//
-//        QList<Range> list;
-//        for(int i=0; i<chapters.values().size(); i++)
-//        {
-//            ChapterRepresentation chRep = chapters.values().at(i);
-//
-//
-//            QMap<BaseTextUnit, TextInfo>::iterator it = chRep.textUnits.end();
-//            it--;
-//            BaseTextUnit finalTextUnit = it.key();
-//
-//            int endGlobalPos = convertPosToGlobal(chRep.normalisedChapter, finalTextUnit.end+2);
-//
-//            QTextCursor textCursor(textDocument);
-//            textCursor.setPosition(endGlobalPos);
-//
-//            QRect rect = textBrowser->cursorRect(textCursor);
-//
-//            list.append(Range(previousRangeEnd + 1, rect.bottom()));
-//
-//            previousRangeEnd = rect.bottom();
-//        }
-//        int docHeight = textDocument->size().height();
-//
-//        list.at(list.size()-1).to = textDocument->size().height();
-//
-//        int reachStart = scrollBar->value()-2*scrollBar->pageStep();
-//        if(reachStart < 0)
-//            reachStart = 0;
-//
-//        int reachEnd = scrollBar->value()+3*scrollBar->pageStep();
-//        if(reachEnd > docHeight)
-//            reachEnd = docHeight;
-//
-//        for(int i=0; i<chapters.values().size(); i++)
-//        {
-//            ChapterRepresentation chRep = chapters.values().at(i);
-//            if(chRep.normalisedChapter < chContainingCentralPos -1 || chRep.normalisedChapter > chContainingCentralPos + 1)
-//            {
-//
-//            }
-//        }
-//    }
-//}
 
 void DocumentRepresentation::checkCanScroll()
 {

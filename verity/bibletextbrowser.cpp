@@ -28,31 +28,26 @@ void BibleTextBrowser::display(VerseReference verseReference)
     documentRepresentation->display(verseReference);
 }
 
-//BaseTextUnit BibleTextBrowser::key(QPoint point)
-//{
-//    QTextCursor textCursor = cursorForPosition(point);
-//    return BaseTextUnit(textCursor.position(), textCursor.position());
-//}
 
 void BibleTextBrowser::mouseMoveEvent ( QMouseEvent * e )
 {
-//    qDebug() << "mouse at position: " << cursorForPosition(e->pos()).position();
-//    BaseTextUnit keyTextUnit = key(e->pos());
-//    if(textUnits.contains(keyTextUnit))
-//    {
-//        emit wordHoveredOver(textUnits.value(keyTextUnit));
-//    }
+    //    qDebug() << "mouse at position: " << cursorForPosition(e->pos()).position();
+    //    BaseTextUnit keyTextUnit = key(e->pos());
+    //    if(textUnits.contains(keyTextUnit))
+    //    {
+    //        emit wordHoveredOver(textUnits.value(keyTextUnit));
+    //    }
 
     QTextBrowser::mouseMoveEvent(e);
 }
 
 void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 {
-//    BaseTextUnit keyTextUnit = key(e->pos());
-//    if(textUnits.contains(keyTextUnit))
-//    {
-//        emit wordClicked(textUnits.value(keyTextUnit));
-//    }
+    //    BaseTextUnit keyTextUnit = key(e->pos());
+    //    if(textUnits.contains(keyTextUnit))
+    //    {
+    //        emit wordClicked(textUnits.value(keyTextUnit));
+    //    }
 
     documentRepresentation->mousePressed(e->pos());
 

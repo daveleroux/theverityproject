@@ -11,7 +11,7 @@
 
 class BibleTextBrowser : public QTextBrowser
 {
-     Q_OBJECT
+    Q_OBJECT
 
 private:
     DocumentRepresentation* documentRepresentation;
@@ -33,9 +33,9 @@ public slots:
     void tmp(QList<int>);
 
 signals:
-//     void wordHoveredOver(TextInfo textInfo);
-     void wordClicked(TextInfo textInfo);
-     void chapterStarts(QList<int>);
+    //     void wordHoveredOver(TextInfo textInfo);
+    void wordClicked(TextInfo textInfo);
+    void chapterStarts(QList<int>);
 };
 
 #endif // BIBLETEXTBROWSER_H
