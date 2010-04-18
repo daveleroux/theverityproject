@@ -8,6 +8,7 @@
 #include "textinfo.h"
 #include "versereference.h"
 #include "documentrepresentation.h"
+#include "markedscrollbar.h"
 
 class BibleTextBrowser : public QTextBrowser
 {
@@ -20,7 +21,11 @@ public:
     BibleTextBrowser();
     void display(VerseReference verseReference);
 
+
+
 protected:
+
+    MarkedScrollBar* markedScrollBar;
 
     void mouseMoveEvent (QMouseEvent* e);
     void mousePressEvent ( QMouseEvent * e );

@@ -19,6 +19,9 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     connect(documentRepresentation, SIGNAL(wordClicked(TextInfo)), this, SIGNAL(wordClicked(TextInfo)));
     connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
+    markedScrollBar = new MarkedScrollBar(this);
+    setVerticalScrollBar(markedScrollBar);
+
     connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
 }
 
@@ -56,9 +59,12 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 
 void BibleTextBrowser::tmp(QList<int> pixelStarts)
 {
-    for(int i=0; i<pixelStarts.size(); i++)
+    markedScrollBar->removeAllMarks();
+
+    for(int i=0;i<pixelStarts.size();i++)
     {
-        qDebug() << "chapter start:" << pixelStarts.at(i);
+        if(i!=0)
+            markedScrollBar->addMark(pixelStarts.at(i),QColor(Qt::black),"");
     }
 }
 void BibleTextBrowser::wheelEvent ( QWheelEvent * e )

@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     resize(settings.value(SIZE_SETTING, QSize(1000, 700)).toSize());
     move(settings.value(POS_SETTING, QPoint(QApplication::desktop()->width()/2-500, QApplication::desktop()->height()/2-350)).toPoint());
 
+
 //    DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
     DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
@@ -64,6 +65,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     verseLineEdit->setMaximumWidth(300);
     toolbar->addWidget(verseLineEdit);
     addToolBar(toolbar);
+}
+
+void MainWindow::afterShown()
+{
     verseLineEdit->setFocus();
 }
 
@@ -84,7 +89,6 @@ void MainWindow::lookupVerse()
 {
     timer t;
     t.start();
-
     QString verse = verseLineEdit->text();
     VerseReference verseReference = VerseReferenceParser::parse(verse);   
 

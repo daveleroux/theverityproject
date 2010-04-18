@@ -17,7 +17,8 @@ SOURCES += main.cpp \
     parsingdisplaybrowser.cpp \
     documentrepresentation.cpp \
     chapterrepresentation.cpp \
-    globalvariables.cpp
+    globalvariables.cpp \
+    markedscrollbar.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -31,4 +32,5 @@ HEADERS += mainwindow.h \
     timer.h \
     documentrepresentation.h \
     chapterrepresentation.h \
-    globalvariables.h
+    globalvariables.h \
+    markedscrollbar.h
