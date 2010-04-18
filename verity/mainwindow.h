@@ -13,6 +13,14 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
+    public:
+
+    MainWindow(QWidget *parent = 0);
+    ~MainWindow();
+    void afterShown();
+
+    void display(int wordNumber);
+
 protected:
 
     BibleTextBrowser* browser;
@@ -23,11 +31,6 @@ protected:
     ParsingDisplayBrowser* selectedBrowser;
 
     void closeEvent(QCloseEvent *event);
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();    
-
-    void display(int wordNumber);
 
 public slots:
     void lookupVerse();

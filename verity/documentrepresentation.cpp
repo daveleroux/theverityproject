@@ -354,8 +354,19 @@ void DocumentRepresentation::display(VerseReference verseReference)
         }
         scrollToCentre(verseLocation->normalisedChapter, fromPosLocal, toPosLocal);
 
-        emit selectionRequest(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal),
-                              convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal));
+        QTextCursor cursor(textDocument);
+        cursor.setPosition(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal));
+        QTextCharFormat format;// = cursor.charFormat();
+
+        while(cursor.position() < convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal))
+            cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+
+
+        format.setBackground(QBrush(Qt::lightGray));
+
+        cursor.setCharFormat(format);
+//        emit selectionRequest(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal),
+//                              convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal));
 
 
         while(mustPrepend())
