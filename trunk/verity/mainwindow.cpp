@@ -37,6 +37,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
     browser = new BibleTextBrowser();
+//    vscroll = new QSnapScrollBar(browser);
+//    vscroll->setParent(browser);
+//    browser->setVerticalScrollBar(vscroll);
+//    connect(browser, SIGNAL(chapterStarts(QList<int>)), vscroll, SLOT(defineSnapPoints(QList<int>)));
     setCentralWidget(browser);
 
     //    QDockWidget* hoverDock = new QDockWidget("Parsing", this);
@@ -65,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     verseLineEdit->setMaximumWidth(300);
     toolbar->addWidget(verseLineEdit);
     addToolBar(toolbar);
+    this->setWindowIcon(QIcon("verity.ico"));
 }
 
 void MainWindow::afterShown()
