@@ -18,6 +18,7 @@ SOURCES += main.cpp \
     documentrepresentation.cpp \
     chapterrepresentation.cpp \
     globalvariables.cpp \
+    qsnapscrollbar.cpp \
     markedscrollbar.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
@@ -33,4 +34,5 @@ HEADERS += mainwindow.h \
     documentrepresentation.h \
     chapterrepresentation.h \
     globalvariables.h \
+    qsnapscrollbar.h \
     markedscrollbar.h

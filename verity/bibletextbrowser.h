@@ -8,7 +8,7 @@
 #include "textinfo.h"
 #include "versereference.h"
 #include "documentrepresentation.h"
-#include "markedscrollbar.h"
+#include "qsnapscrollbar.h"
 
 class BibleTextBrowser : public QTextBrowser
 {
@@ -25,7 +25,7 @@ public:
 
 protected:
 
-    MarkedScrollBar* markedScrollBar;
+    QSnapScrollBar* markedScrollBar;
 
     void mouseMoveEvent (QMouseEvent* e);
     void mousePressEvent ( QMouseEvent * e );

@@ -108,6 +108,7 @@ ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(int
     textCursor.beginEditBlock();
 
     QTextCharFormat defaultFormat;
+    defaultFormat.setFont(QFont("SBL Greek", 13));
 
 
     QTextCharFormat superscriptFormat;
@@ -209,7 +210,7 @@ void DocumentRepresentation::calculateAndSendChapterStarts()
         textCursor.setPosition(chStartPositions.at(i));
         QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
 
-        chStartPixels.append(textBrowser->verticalScrollBar()->value()+rect.top());
+        chStartPixels.append(textBrowser->verticalScrollBar()->value()+rect.bottom());
     }
 
     emit chapterStarts(chStartPixels);

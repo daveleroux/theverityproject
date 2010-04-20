@@ -19,9 +19,10 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     connect(documentRepresentation, SIGNAL(wordClicked(TextInfo)), this, SIGNAL(wordClicked(TextInfo)));
     connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
-    markedScrollBar = new MarkedScrollBar(this);
+    markedScrollBar = new QSnapScrollBar(this);
     setVerticalScrollBar(markedScrollBar);
 
+    connect(this, SIGNAL(chapterStarts(QList<int>)), markedScrollBar, SLOT(defineSnapPoints(QList<int>)));
     connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
 }
 

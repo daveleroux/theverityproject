@@ -5,6 +5,7 @@
 #include <QList>
 #include "bibletextbrowser.h"
 #include "parsingdisplaybrowser.h"
+#include "qsnapscrollbar.h"
 #include <QLineEdit>
 
 
