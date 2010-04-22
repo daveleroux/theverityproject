@@ -65,9 +65,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     QToolBar* toolbar = new QToolBar();
     verseLineEdit = new QLineEdit();
+    verseLineOutput = new QLabel();
+    connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
     connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(lookupVerse()));
     verseLineEdit->setMaximumWidth(300);
     toolbar->addWidget(verseLineEdit);
+    toolbar->addWidget(verseLineOutput);
     addToolBar(toolbar);
     this->setWindowIcon(QIcon("verity.ico"));
 }
@@ -132,4 +135,9 @@ void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
     {
         QWidget::keyPressEvent(keyEvent);
     }
+}
+
+void MainWindow::verseLineEditChanged(QString text)
+{
+    verseLineOutput->setText(VerseReferenceParser::parse(text).stringRepresentation);
 }
