@@ -21,7 +21,7 @@ public:
     BibleTextBrowser();
     void display(VerseReference verseReference);
 
-
+    void writeOutSettings();
 
 protected:
 

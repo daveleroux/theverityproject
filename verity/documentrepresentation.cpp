@@ -9,10 +9,12 @@
 #include <iostream>
 using namespace std;
 
-DocumentRepresentation::DocumentRepresentation(QTextDocument* textDocument, QTextBrowser* textBrowser) : QObject()
+DocumentRepresentation::DocumentRepresentation(QTextDocument* textDocument, QTextBrowser* textBrowser, QString fontFamily) : QObject()
 {
     this->textDocument = textDocument;
     this->textBrowser = textBrowser;
+    defaultFormat.setFontFamily(fontFamily);
+
     verseLocation = 0;
     openDatabase(); //need to put these data retrieval details behind an interface
     initialiseMinAndMaxChapters();
@@ -106,9 +108,6 @@ ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(int
     QTextDocument document;
     QTextCursor textCursor(&document);
     textCursor.beginEditBlock();
-
-    QTextCharFormat defaultFormat;
-    defaultFormat.setFont(QFont("SBL Greek", 13));
 
 
     QTextCharFormat superscriptFormat;
@@ -233,13 +232,11 @@ void DocumentRepresentation::addChapter(ChapterRepresentation chapterRepresentat
 
 void DocumentRepresentation::appendChapter(ChapterRepresentation chapterRepresentation)
 {
-    qDebug() << "appending " << chapterRepresentation.normalisedChapter;
     addChapter(chapterRepresentation, true);
 }
 
 void DocumentRepresentation::prependChapter(ChapterRepresentation chapterRepresentation)
 {
-    qDebug() << "prepending" << chapterRepresentation.normalisedChapter;
     addChapter(chapterRepresentation, false);
 }
 
@@ -340,35 +337,15 @@ void DocumentRepresentation::display(VerseReference verseReference)
         int fromPosLocal;
         int toPosLocal;
 
-        for(int i= verseLocation->normalisedChapter-1; i<=verseLocation->normalisedChapter+1; i++)
-        {
-            if(validChapter(i))
-            {
-                ChapterRepresentation chapterRepresentation = constructChapterRepresentation(i);
-                appendChapter(chapterRepresentation);
-                if(i == verseLocation->normalisedChapter)
-                {
-                    fromPosLocal = chapterRepresentation.selectionStart;
-                    toPosLocal = chapterRepresentation.selectionEnd;
-                }
-            }
-        }
+
+        ChapterRepresentation chapterRepresentation = constructChapterRepresentation(verseLocation->normalisedChapter);
+        appendChapter(chapterRepresentation);
+
+        fromPosLocal = chapterRepresentation.selectionStart;
+        toPosLocal = chapterRepresentation.selectionEnd;
+
+
         scrollToCentre(verseLocation->normalisedChapter, fromPosLocal, toPosLocal);
-
-        QTextCursor cursor(textDocument);
-        cursor.setPosition(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal));
-        QTextCharFormat format;// = cursor.charFormat();
-
-        while(cursor.position() < convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal))
-            cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-
-
-        format.setBackground(QBrush(Qt::lightGray));
-
-        cursor.setCharFormat(format);
-//        emit selectionRequest(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal),
-//                              convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal));
-
 
         while(mustPrepend())
         {
@@ -397,6 +374,21 @@ void DocumentRepresentation::display(VerseReference verseReference)
                 break;
             }
         }
+
+        QTextCursor cursor(textDocument);
+        cursor.setPosition(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal));
+
+        while(cursor.position() < convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal))
+            cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+
+
+        QTextCharFormat format = defaultFormat;
+        format.setBackground(QBrush(Qt::lightGray));
+
+        cursor.setCharFormat(format);
+        //        emit selectionRequest(convertPosToGlobal(verseLocation->normalisedChapter,fromPosLocal),
+        //                              convertPosToGlobal(verseLocation->normalisedChapter, toPosLocal));
+
     }
 }
 
