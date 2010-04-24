@@ -2,19 +2,31 @@
 #include <QtSql>
 
 #include <QTextCursor>
+#include <QApplication>
 
 #include "bibletextbrowser.h"
 #include "timer.h"
+#include "globalvariables.h"
+
 #include <iostream>
 using namespace std;
 
 BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
 {
+    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
+    settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
+
+
+    QString fontFamily = settings.value(FONT_FAMILY_SETTING,QApplication::font().family()).toString();
+
+    settings.endGroup();
+
+
     setUndoRedoEnabled(false);
     setMouseTracking(true);
-    zoomIn(3);
+    zoomIn(3);    
 
-    documentRepresentation = new DocumentRepresentation(document(), this);
+    documentRepresentation = new DocumentRepresentation(document(), this, fontFamily);
     connect(documentRepresentation, SIGNAL(selectionRequest(int,int)), this, SLOT(select(int,int)));
     connect(documentRepresentation, SIGNAL(wordClicked(TextInfo)), this, SIGNAL(wordClicked(TextInfo)));
     connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
@@ -26,6 +38,14 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
 }
 
+void BibleTextBrowser::writeOutSettings()
+{
+    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
+
+    settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
+    settings.setValue(FONT_FAMILY_SETTING, documentRepresentation->defaultFormat.fontFamily());
+    settings.endGroup();
+}
 
 void BibleTextBrowser::display(VerseReference verseReference)
 {

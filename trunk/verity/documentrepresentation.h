@@ -24,6 +24,7 @@ class DocumentRepresentation : public QObject
     Q_OBJECT
 
 private:
+
     QTextDocument* textDocument;
     QTextBrowser* textBrowser;
 
@@ -74,10 +75,12 @@ private:
     void calculateAndSendChapterStarts();
 
 public:
-    DocumentRepresentation(QTextDocument* textDocument, QTextBrowser* textBrowser);
+    DocumentRepresentation(QTextDocument* textDocument, QTextBrowser* textBrowser, QString fontFamily);
     void display(VerseReference verseReference);
     void checkCanScroll();
     void mousePressed(QPoint point);
+    QTextCharFormat defaultFormat;
+
 
 signals:
     void selectionRequest(int startPos, int endPos);

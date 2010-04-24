@@ -9,9 +9,10 @@ class ParsingDisplayBrowser : public QTextBrowser
     Q_OBJECT
 
 public:
-    ParsingDisplayBrowser();
-    ParsingDisplayBrowser(QWidget* parent);
-    void display(TextInfo textInfo, bool showDefinition=false);
+    ParsingDisplayBrowser(QWidget* parent);    
+
+public slots:
+    void display(TextInfo textInfo);
 };
 
 #endif // PARSINGDISPLAYBROWSER_H

@@ -4,7 +4,6 @@
 #include <QtGui/QMainWindow>
 #include <QList>
 #include "bibletextbrowser.h"
-#include "parsingdisplaybrowser.h"
 #include "qsnapscrollbar.h"
 #include <QLineEdit>
 #include <QLabel>
@@ -30,14 +29,15 @@ protected:
     void keyPressEvent(QKeyEvent* keyEvent);
 
     //     ParsingDisplayBrowser* hoverBrowser;
-    ParsingDisplayBrowser* selectedBrowser;
+    //ParsingDisplayBrowser* selectedBrowser;
 
     void closeEvent(QCloseEvent *event);
+    void writeOutSettings();
 
 public slots:
     void lookupVerse();
     //    void wordHoveredOver(TextInfo textInfo);
-    void wordClicked(TextInfo textInfo);
+//    void wordClicked(TextInfo textInfo);
     void verseLineEditChanged(QString text);
 
 };

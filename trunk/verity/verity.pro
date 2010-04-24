@@ -1,7 +1,8 @@
 # -------------------------------------------------
 # Project created by QtCreator 2010-03-03T18:41:14
 # -------------------------------------------------
-QT += sql
+QT += sql \
+    xmlpatterns
 TARGET = verity
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -19,7 +20,8 @@ SOURCES += main.cpp \
     chapterrepresentation.cpp \
     globalvariables.cpp \
     qsnapscrollbar.cpp \
-    markedscrollbar.cpp
+    markedscrollbar.cpp \
+    dictionarybrowser.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -35,4 +37,5 @@ HEADERS += mainwindow.h \
     chapterrepresentation.h \
     globalvariables.h \
     qsnapscrollbar.h \
-    markedscrollbar.h
+    markedscrollbar.h \
+    dictionarybrowser.h

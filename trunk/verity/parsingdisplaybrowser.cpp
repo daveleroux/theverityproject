@@ -4,15 +4,11 @@
 #include <QDebug>
 #include <QtSql>
 
-ParsingDisplayBrowser::ParsingDisplayBrowser()
-{
-}
-
 ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(parent)
 {
 }
 
-void ParsingDisplayBrowser::display(TextInfo textInfo, bool showDefinition)
+void ParsingDisplayBrowser::display(TextInfo textInfo)
 {
     clear();
 
@@ -25,14 +21,16 @@ void ParsingDisplayBrowser::display(TextInfo textInfo, bool showDefinition)
 
     QTextCharFormat normalFormat;
 
-    textCursor.insertText("Parsing\n", boldFormat);
+    textCursor.insertHtml("<h3>Parsing</h3>");
+    textCursor.insertText("\n");
+
 
     QTextTableFormat tableFormat;
     tableFormat.setCellPadding(1);
     tableFormat.setBorder(0);
 
 
-    QTextTable* textTable = textCursor.insertTable(attributes.size(), 2, tableFormat);
+    QTextTable* textTable = textCursor.insertTable(attributes.size() + 1, 2, tableFormat);
 
 
     if(attributes.size() > 0)
@@ -48,42 +46,12 @@ void ParsingDisplayBrowser::display(TextInfo textInfo, bool showDefinition)
         textCursor.movePosition(QTextCursor::NextBlock);
     }
 
-    if(showDefinition && attributes.size() > 0)
-    {
-        textCursor.insertText("\n\n", boldFormat);
+    textCursor.insertText("Lemma:");
+    textCursor.movePosition(QTextCursor::NextBlock);
 
-        if(textInfo.strongsLemma == textInfo.fribergLemma)
-            textCursor.insertText(textInfo.strongsLemma + "\n\n", boldFormat);
-        else
-            textCursor.insertText(textInfo.strongsLemma + "/" + textInfo.fribergLemma + "\n\n", boldFormat);
+    if(textInfo.strongsLemma == textInfo.fribergLemma)
+        textCursor.insertText(textInfo.strongsLemma, boldFormat);
+    else
+        textCursor.insertText(textInfo.strongsLemma + "/" + textInfo.fribergLemma, boldFormat);
 
-        QSqlQuery query;
-        if(!query.exec("select strongs_def, kjv_def, strongs_derivation, strongs_other from strongs where strongs_number = " + QString().setNum(textInfo.strongsNumber)))
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-
-        if(query.next())
-        {
-            QString strongsDef = query.value(0).toString();
-            QString kjvDef = query.value(1).toString();
-            QString strongsDerivation = query.value(2).toString();
-            QString strongsOther = query.value(3).toString();
-
-            textCursor.insertText("Strong's Definition\n", boldFormat);
-            textCursor.insertText(strongsDef.trimmed() + "\n\n", normalFormat);
-
-            textCursor.insertText("KJV Definition\n", boldFormat);
-            textCursor.insertText(kjvDef.trimmed() + "\n\n", normalFormat);
-
-            textCursor.insertText("Strong's Derivation\n", boldFormat);
-            textCursor.insertText(strongsDerivation.trimmed() + "\n\n", normalFormat);
-
-
-            textCursor.insertText("Strong's Other\n", boldFormat);
-            textCursor.insertText(strongsOther.trimmed() + "\n\n", normalFormat);
-
-        }
-    }
 }
