@@ -67,9 +67,32 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
-    dictionaryDock->setAllowedAreas(Qt::RightDockWidgetArea);    
-    DictionaryBrowser* dictionaryBrowser = new DictionaryBrowser(dictionaryDock);
-    dictionaryDock->setWidget(dictionaryBrowser);
+    dictionaryDock->setAllowedAreas(Qt::RightDockWidgetArea);
+
+    QWidget* layoutWidget = new QWidget(dictionaryDock);
+    QToolBar* dictionaryToolBar = new QToolBar();
+    QPushButton* backButton = new QPushButton("<-");
+    backButton->setEnabled(false);
+    dictionaryToolBar->addWidget(backButton);
+    QPushButton* forwardButton = new QPushButton("->");
+    forwardButton->setEnabled(false);
+    dictionaryToolBar->addWidget(forwardButton);
+    DictionaryBrowser* dictionaryBrowser = new DictionaryBrowser();    
+
+    connect(dictionaryBrowser, SIGNAL(backwardAvailable(bool)), backButton, SLOT(setEnabled(bool)));
+    connect(dictionaryBrowser, SIGNAL(forwardAvailable(bool)), forwardButton, SLOT(setEnabled(bool)));
+    connect(backButton, SIGNAL(clicked()), dictionaryBrowser, SLOT(backward()));
+    connect(forwardButton, SIGNAL(clicked()), dictionaryBrowser, SLOT(forward()));
+
+    QLayout* layout = new QVBoxLayout();
+    layout->setContentsMargins(0,0,0,0);
+    layout->setSpacing(0);
+    layout->addWidget(dictionaryToolBar);
+    layout->addWidget(dictionaryBrowser);
+
+    layoutWidget->setLayout(layout);
+
+    dictionaryDock->setWidget(layoutWidget);
     connect(browser, SIGNAL(wordClicked(TextInfo)), dictionaryBrowser, SLOT(display(TextInfo)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 

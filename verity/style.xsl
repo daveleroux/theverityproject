@@ -25,7 +25,7 @@
 
             <xsl:template  match="*[name()='strongsref']">
                   <xsl:element  name="a" >
-			<xsl:attribute name="href"><xsl:value-of  select="@language"/>:<xsl:value-of select="@strongs_number"/></xsl:attribute>
+			<xsl:attribute name="href"><xsl:value-of  select="@language"/>://<xsl:value-of select="@strongs_number"/></xsl:attribute>
                         <xsl:apply-templates/>
                   </xsl:element>
             </xsl:template>
@@ -33,7 +33,7 @@
             <xsl:template  match="*[name()='see']">
 		<br/>see
                   <xsl:element  name="a" >
-			<xsl:attribute name="href"><xsl:value-of  select="@language"/>:<xsl:value-of select="@strongs_number"/></xsl:attribute>
+			<xsl:attribute name="href"><xsl:value-of  select="@language"/>://<xsl:value-of select="@strongs_number"/></xsl:attribute>
                         <xsl:apply-templates/>
                   </xsl:element>
             </xsl:template>
@@ -54,9 +54,9 @@
             <xsl:template  match="*[name()='kjv_definition']">
 		 <h3><u>KJV Definition</u></h3>
 		 <br/>
-                  <xsl:element  name="b" >
+<!--                  <xsl:element  name="b" >  -->
                         <xsl:apply-templates/>
-                  </xsl:element>
+ <!--                 </xsl:element> -->
 		  <br/>
             </xsl:template>
 

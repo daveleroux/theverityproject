@@ -28,11 +28,12 @@ QString convertToXmlStringStart(QDomNode node)
         if(node.nodeName() == "strongsref")
         {
             QString language = node.toElement().attribute("language");
+            language = language.toLower();
             QString strongsNumber = node.toElement().attribute("strongs");
             int strongsNumberInt = strongsNumber.toInt();
             strongsNumber = QString().setNum(strongsNumberInt);
 
-            if(language == "GREEK")
+            if(language == "greek")
             {
                 return "<strongsref language='" + language + "' strongs_number='" + strongsNumber + "'>"
                         + strongsNumberToGreek.value(strongsNumberInt) + "</strongsref>";
@@ -42,11 +43,12 @@ QString convertToXmlStringStart(QDomNode node)
         else if(node.nodeName() == "see")
         {
             QString language = node.toElement().attribute("language");
+            language = language.toLower();
             QString strongsNumber = node.toElement().attribute("strongs");
             int strongsNumberInt = strongsNumber.toInt();
             strongsNumber = QString().setNum(strongsNumberInt);
 
-            if(language == "GREEK")
+            if(language == "greek")
             {
                 return "<see language='" + language + "' strongs_number='" + strongsNumber + "'>"
                         + strongsNumberToGreek.value(strongsNumberInt) + "</see>";
@@ -64,7 +66,7 @@ QString convertToXmlStringStart(QDomNode node)
         }
         else if(node.nodeName() == "greek")
         {
-            return node.toElement().attribute("unicode");
+            return node.toElement().attribute("unicode") + " ";
         }
         else if(node.nodeName() == "latin")
         {
@@ -184,7 +186,7 @@ int main(int argc, char *argv[])
         QDomNode greekNode = ((QDomElement&)entryNode).elementsByTagName("greek").at(0);
         QString greek = ((QDomElement&)greekNode).attribute("unicode");
 
-        entryNode.removeChild(greekNode);
+//        entryNode.removeChild(greekNode);
 
         QString* result = new QString();
 
