@@ -421,10 +421,6 @@ void DocumentRepresentation::unloadLastChapter()
 
     ChapterRepresentation chRep = chapters.values().at(chapters.values().size()-1);
 
-
-    qDebug() << "unloading last" << chRep.normalisedChapter;
-
-
     QTextCursor textCursor(textDocument);
 
     textCursor.beginEditBlock();
@@ -455,8 +451,6 @@ void DocumentRepresentation::unloadFirstChapter()
     QMap<BaseTextUnit, TextInfo>::iterator it = chRep.textUnits.end();
     it--;
     BaseTextUnit finalTextUnit = it.key();
-
-    qDebug() << "unloading first" << chRep.normalisedChapter;
 
     int endPos = finalTextUnit.end+2;
 

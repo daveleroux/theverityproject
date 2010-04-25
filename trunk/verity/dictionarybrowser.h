@@ -9,15 +9,14 @@ class DictionaryBrowser : public QTextBrowser
     Q_OBJECT
 
 public:    
-    DictionaryBrowser(QWidget* parent);
+    DictionaryBrowser(QWidget* parent=0);
 
 protected:
-    QString convertDefinitionToHTML(QString input);
+    QString convertDefinitionToHTML(QString input);    
+    QVariant loadResource(int type, const QUrl& name);
 
 public slots:
-    void display(QUrl);
     void display(TextInfo);
-
 };
 
 #endif // DICTIONARYBROWSER_H
