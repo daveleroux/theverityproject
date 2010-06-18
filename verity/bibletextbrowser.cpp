@@ -106,3 +106,4 @@ void BibleTextBrowser::select(int startPos, int endPos)
 }
 
 
+

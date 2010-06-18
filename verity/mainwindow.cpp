@@ -11,7 +11,7 @@
 #include <QDebug>
 #include <QToolBar>
 #include <QLineEdit>
-#include <QPushButton>
+#include <QToolButton>
 #include <QDockWidget>
 #include <QSettings>
 #include <QLayout>
@@ -60,21 +60,23 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     QDockWidget* selectedDock = new QDockWidget("Parsing", this);
-    selectedDock->setAllowedAreas(Qt::RightDockWidgetArea);
+    selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
     connect(browser, SIGNAL(wordClicked(TextInfo)), selectedBrowser, SLOT(display(TextInfo)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
-    dictionaryDock->setAllowedAreas(Qt::RightDockWidgetArea);
+    dictionaryDock->setAllowedAreas(Qt::AllDockWidgetAreas);
 
     QWidget* layoutWidget = new QWidget(dictionaryDock);
     QToolBar* dictionaryToolBar = new QToolBar();
-    QPushButton* backButton = new QPushButton("<-");
+    QToolButton* backButton = new QToolButton();
+    backButton->setArrowType(Qt::LeftArrow);
     backButton->setEnabled(false);
     dictionaryToolBar->addWidget(backButton);
-    QPushButton* forwardButton = new QPushButton("->");
+    QToolButton* forwardButton = new QToolButton();
+    forwardButton->setArrowType(Qt::RightArrow);
     forwardButton->setEnabled(false);
     dictionaryToolBar->addWidget(forwardButton);
     DictionaryBrowser* dictionaryBrowser = new DictionaryBrowser();    

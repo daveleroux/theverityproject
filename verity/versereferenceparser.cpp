@@ -256,7 +256,7 @@ VerseReference VerseReferenceParser::_parse(QString string)
 
     int numeralIndex = separatorIndex;
 
-    while(string.at(numeralIndex-1).digitValue() != -1)
+    while(numeralIndex>0 && string.at(numeralIndex-1).digitValue() != -1)
     {
         numeralIndex = numeralIndex - 1;
     }
