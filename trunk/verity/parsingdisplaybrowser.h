@@ -11,6 +11,9 @@ class ParsingDisplayBrowser : public QTextBrowser
 public:
     ParsingDisplayBrowser(QWidget* parent);    
 
+protected:
+    QMimeData* createMimeDataFromSelection() const;
+
 public slots:
     void display(TextInfo textInfo);
 };

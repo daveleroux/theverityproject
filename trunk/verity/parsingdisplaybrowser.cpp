@@ -55,3 +55,11 @@ void ParsingDisplayBrowser::display(TextInfo textInfo)
         textCursor.insertText(textInfo.strongsLemma + "/" + textInfo.fribergLemma, boldFormat);
 
 }
+
+QMimeData* ParsingDisplayBrowser::createMimeDataFromSelection() const
+{
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setText(textCursor().selectedText());
+    return mimeData;
+}
+
