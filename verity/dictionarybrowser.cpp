@@ -1,4 +1,5 @@
 #include "dictionarybrowser.h"
+#include "globalvariables.h"
 
 #include <QtSql>
 #include <QXmlQuery>
@@ -7,7 +8,6 @@
 
 DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent)
 {
-
 }
 
 
@@ -17,39 +17,66 @@ QVariant DictionaryBrowser::loadResource(int type, const QUrl& url)
 
     QString urlString = url.toString();
 
-    if(type == QTextDocument::HtmlResource && urlString.startsWith("greek://"))
+    if(type == QTextDocument::HtmlResource)
     {
-        QString strongsNumber = urlString.replace("greek://","");
-
-        QSqlQuery query;
-        if(!query.exec("select greek, definition from strongs where strongs_number = " + strongsNumber))
+        if(urlString.startsWith("greek://"))
         {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
+            QString strongsNumber = urlString.replace("greek://","");
+
+            QSqlQuery query;
+            if(!query.exec("select greek, definition from strongs where strongs_number = " + strongsNumber))
+            {
+                qDebug() << "failed: " << query.lastError() << endl;
+                exit(1);
+            }
+
+            if(query.next())
+            {
+                QString greek = query.value(0).toString();
+                QString definition = query.value(1).toString();
+
+                result.append("<h3>"+greek+"</h3>");
+
+                result.append(convertDefinitionToHTML("style.xsl", definition));
+            }
         }
-
-
-        if(query.next())
+        else if(urlString.startsWith("hebrew://"))
         {
-            QString greek = query.value(0).toString();
-            QString definition = query.value(1).toString();
+            QString strongsNumber = urlString.replace("hebrew://","");
 
-            result.append("<h3>"+greek+"</h3>");
+            QSqlQuery query;
+            if(!query.exec("select  definition from strongs_hebrew where strongs_number = " + strongsNumber))
+            {
+                qDebug() << "failed: " << query.lastError() << endl;
+                exit(1);
+            }
 
-            result.append(convertDefinitionToHTML(definition));
+
+            if(query.next())
+            {
+                QString definition = query.value(0).toString();
+                result.append(convertDefinitionToHTML("hebrew-style.xsl", definition));
+            }
+
         }
 
     }
     return result;
 }
 
-void DictionaryBrowser::display(TextInfo textInfo)
+void DictionaryBrowser::display(QString text, TextInfo textInfo)
 {
-    QUrl url("greek://"+ QString().setNum(textInfo.strongsNumber));
+    QString prefix;
+    if(text == "tisch")
+        prefix = "greek://";
+    else if(text == "wlc")
+        prefix = "hebrew://";
+
+    QUrl url(prefix+ QString().setNum(textInfo.strongsNumber));
     setSource(url);
 }
 
-QString DictionaryBrowser::convertDefinitionToHTML(QString input)
+QString DictionaryBrowser::convertDefinitionToHTML(QString stylesheet, QString input)
 {
     QXmlQuery query(QXmlQuery::XSLT20);
 
@@ -58,12 +85,12 @@ QString DictionaryBrowser::convertDefinitionToHTML(QString input)
     QBuffer buffer(&byteArray);
     buffer.open(QBuffer::ReadWrite);
 
-     query.setFocus(&buffer);
+    query.setFocus(&buffer);
 
-     query.setQuery(QUrl("style.xsl"));
+    query.setQuery(QUrl(DATA_PATH + "/" + stylesheet));
 
-     QString result;
-     query.evaluateTo(&result);
+    QString result;
+    query.evaluateTo(&result);
 
-     return result;
+    return result;
 }

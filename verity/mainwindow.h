@@ -7,6 +7,7 @@
 #include "qsnapscrollbar.h"
 #include <QLineEdit>
 #include <QLabel>
+#include <QComboBox>
 
 
 class MainWindow : public QMainWindow
@@ -24,6 +25,7 @@ class MainWindow : public QMainWindow
 protected:
 
     BibleTextBrowser* browser;
+    QComboBox* textComboBox;
     QLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
@@ -38,7 +40,7 @@ public slots:
     void lookupVerse();
     //    void wordHoveredOver(TextInfo textInfo);
 //    void wordClicked(TextInfo textInfo);
-    void verseLineEditChanged(QString text);
+    void verseLineEditChanged(QString string);
 
 };
 
