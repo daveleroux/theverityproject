@@ -15,7 +15,7 @@ protected:
     QMimeData* createMimeDataFromSelection() const;
 
 public slots:
-    void display(TextInfo textInfo);
+    void display(QString, TextInfo textInfo);
 };
 
 #endif // PARSINGDISPLAYBROWSER_H

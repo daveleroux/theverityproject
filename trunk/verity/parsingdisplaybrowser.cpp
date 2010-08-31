@@ -8,7 +8,7 @@ ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(par
 {
 }
 
-void ParsingDisplayBrowser::display(TextInfo textInfo)
+void ParsingDisplayBrowser::display(QString text, TextInfo textInfo)
 {
     clear();
 

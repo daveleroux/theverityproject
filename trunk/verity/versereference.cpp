@@ -1,7 +1,8 @@
 #include "versereference.h"
 
-VerseReference::VerseReference(int book, int chapter, int verse, QString stringRepresentation)
+VerseReference::VerseReference(QString text, int book, int chapter, int verse, QString stringRepresentation)
 {
+    this->text = text;
     this->book = book;
     this->chapter = chapter;
     this->verse = verse;

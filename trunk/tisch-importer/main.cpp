@@ -316,8 +316,8 @@ int main(int argc, char *argv[])
      }
 
      QSqlQuery query;
-     query.exec("drop table bible");
-     if(!query.exec("create table bible (id integer primary key autoincrement, "
+     query.exec("drop table tisch");
+     if(!query.exec("create table tisch (id integer primary key autoincrement, "
                 "book_number int, book varchar(20), normalised_chapter integer, chapter integer, "
                 "verse integer, number_in_verse integer, paragraph bool, text varchar(50), "
                 "morphological_tag varchar(20), normalised_morph_tag blob, strongs_number integer, strongs_lemma varchar(50), friberg_lemma varchar(50))"))
@@ -436,12 +436,12 @@ int main(int argc, char *argv[])
                         }
 
 
-                        query.prepare("insert into bible values(:id,:book_number,:book,:normalised_chapter,"
+                        query.prepare("insert into tisch values(:id,:book_number,:book,:normalised_chapter,"
                                       ":chapter, :verse, :number_in_verse , :paragraph, :text, :morphological_tag, "
                                       ":normalised_morph_tag, :strongs_number, :strongs_lemma, :friberg_lemma)");
 
                         query.bindValue(":id", QVariant(QVariant::Int));
-                                   query.bindValue(":book_number", i+1);
+                                   query.bindValue(":book_number", i+40);
                                    query.bindValue(":book", book     );
                                    query.bindValue(":normalised_chapter", normalisedChapter);
                                    query.bindValue(":chapter", chapter);
@@ -474,8 +474,7 @@ int main(int argc, char *argv[])
         }
     }
 
-    query.exec("create index idx_bible on bible (book, book_number, normalised_chapter, chapter, verse, number_in_verse)");
-    //or should we be doing this once installed to save on dowload size
+    query.exec("create index idx_tisch on tisch (book, book_number, normalised_chapter, chapter, verse, number_in_verse)");
 
     db.close();
     return 0;

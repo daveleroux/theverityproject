@@ -7,6 +7,7 @@
 #include "chapterrepresentation.h"
 #include "textinfo.h"
 #include "versereference.h"
+#include "textspecificdata.h"
 
 struct VerseLocation
 {
@@ -29,8 +30,11 @@ private:
     QTextBrowser* textBrowser;
 
     QMap<int, ChapterRepresentation> chapters;
-    int minChapter;
-    int maxChapter;
+    QMap<QString, TextSpecificData*> textSpecificDataMap;
+    TextSpecificData* currentTextSpecificData;
+
+    void setCurrentTextSpecificData(QString text);
+
     VerseLocation* verseLocation;
 
     void openDatabase();
@@ -38,14 +42,14 @@ private:
     VerseLocation* getVerseLocation(VerseReference verseReference);
 
 
-    void initialiseMinAndMaxChapters();
+    TextSpecificData* calculateMinAndMaxChapters(QString text);
 
-    ChapterRepresentation constructChapterRepresentation(int normalisedChapter);
+    ChapterRepresentation constructChapterRepresentation(QString text, int normalisedChapter);
     void addChapter(ChapterRepresentation chRep, bool append);
     void appendChapter(ChapterRepresentation chapterRepresentation);
     void prependChapter(ChapterRepresentation chapterRepresentation);
 
-    QList<TextInfo> readInChapterData(int normalisedChapter);
+    QList<TextInfo> readInChapterData(QString text, int normalisedChapter);
 
 
     int convertPosToGlobal(int normCh, int pos);
@@ -84,7 +88,7 @@ public:
 
 signals:
     void selectionRequest(int startPos, int endPos);
-    void wordClicked(TextInfo textInfo);
+    void wordClicked(QString text, TextInfo textInfo);
     void chapterStarts(QList<int>);
 };
 

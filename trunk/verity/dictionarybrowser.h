@@ -12,11 +12,11 @@ public:
     DictionaryBrowser(QWidget* parent=0);
 
 protected:
-    QString convertDefinitionToHTML(QString input);    
+    QString convertDefinitionToHTML(QString stylesheet, QString input);
     QVariant loadResource(int type, const QUrl& name);
 
 public slots:
-    void display(TextInfo);
+    void display(QString, TextInfo);
 };
 
 #endif // DICTIONARYBROWSER_H

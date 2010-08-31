@@ -21,7 +21,8 @@ SOURCES += main.cpp \
     globalvariables.cpp \
     qsnapscrollbar.cpp \
     markedscrollbar.cpp \
-    dictionarybrowser.cpp
+    dictionarybrowser.cpp \
+    textspecificdata.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -38,4 +39,12 @@ HEADERS += mainwindow.h \
     globalvariables.h \
     qsnapscrollbar.h \
     markedscrollbar.h \
-    dictionarybrowser.h
+    dictionarybrowser.h \
+    textspecificdata.h
+INSTALLS += target \
+    datatarget
+target.path = /usr/bin
+datatarget.path = /usr/share/verity/
+datatarget.files += bibles.sqlite
+datatarget.files += style.xsl
+datatarget.files += hebrew-style.xsl

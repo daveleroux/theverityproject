@@ -15,6 +15,7 @@
 #include <QDockWidget>
 #include <QSettings>
 #include <QLayout>
+#include <QComboBox>
 
 #include <iostream>
 using namespace std;
@@ -32,13 +33,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if(settings.value(WINDOW_STATE_SETTING, true).toBool())
         setWindowState(Qt::WindowMaximized);
 
-    //    DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
-    DATA_PATH = ".";
+        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
+//    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
     settings.endGroup();
-
-    QString blah = (QString)"hi";
 
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
@@ -63,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
-    connect(browser, SIGNAL(wordClicked(TextInfo)), selectedBrowser, SLOT(display(TextInfo)));
+    connect(browser, SIGNAL(wordClicked(QString, TextInfo)), selectedBrowser, SLOT(display(QString, TextInfo)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
@@ -95,7 +94,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     layoutWidget->setLayout(layout);
 
     dictionaryDock->setWidget(layoutWidget);
-    connect(browser, SIGNAL(wordClicked(TextInfo)), dictionaryBrowser, SLOT(display(TextInfo)));
+    connect(browser, SIGNAL(wordClicked(QString, TextInfo)), dictionaryBrowser, SLOT(display(QString, TextInfo)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
 
@@ -103,13 +102,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
+    textComboBox = new QComboBox();
+    textComboBox->insertItem(0, "tisch");
+    textComboBox->insertItem(1, "wlc");
+
     verseLineEdit = new QLineEdit();
+    verseLineEdit->setMaximumWidth(300);
+
     verseLineOutput = new QLabel();
+
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
     connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(lookupVerse()));
-    verseLineEdit->setMaximumWidth(300);
+
+    toolbar->addWidget(textComboBox);
     toolbar->addWidget(verseLineEdit);
     toolbar->addWidget(verseLineOutput);
+
     addToolBar(toolbar);
     this->setWindowIcon(QIcon("verity.ico"));
 }
@@ -129,7 +137,7 @@ void MainWindow::writeOutSettings()
     settings.setValue(SIZE_SETTING, size());
     settings.setValue(POS_SETTING, pos());
     settings.setValue(WINDOW_STATE_SETTING, (windowState() & Qt::WindowMaximized) > 0);
-    //    settings.setValue(DATA_PATH_SETTING, DATA_PATH);
+        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
     settings.endGroup();
 
 }
@@ -143,12 +151,13 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::lookupVerse()
 {
     QString verse = verseLineEdit->text();
+    QString text = textComboBox->currentText();
     if(verse.length() > 0)
     {
         timer t;
         t.start();
 
-        VerseReference verseReference = VerseReferenceParser::parse(verse);
+        VerseReference verseReference = VerseReferenceParser::parse(text, verse);
 
         browser->display(verseReference);
 
@@ -184,8 +193,8 @@ void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
     }
 }
 
-void MainWindow::verseLineEditChanged(QString text)
+void MainWindow::verseLineEditChanged(QString string)
 {
-    if(text.length() > 0)
-        verseLineOutput->setText(VerseReferenceParser::parse(text).stringRepresentation);
+    if(string.length() > 0)
+        verseLineOutput->setText(VerseReferenceParser::parse(textComboBox->currentText(), string).stringRepresentation);
 }

@@ -39,7 +39,7 @@ public slots:
 
 signals:
     //     void wordHoveredOver(TextInfo textInfo);
-    void wordClicked(TextInfo textInfo);
+    void wordClicked(QString, TextInfo textInfo);
     void chapterStarts(QList<int>);
 };
 

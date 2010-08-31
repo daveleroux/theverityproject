@@ -17,7 +17,6 @@ DocumentRepresentation::DocumentRepresentation(QTextDocument* textDocument, QTex
 
     verseLocation = 0;
     openDatabase(); //need to put these data retrieval details behind an interface
-    initialiseMinAndMaxChapters();
 }
 
 void DocumentRepresentation::openDatabase()
@@ -31,10 +30,10 @@ void DocumentRepresentation::openDatabase()
     }
 }
 
-void DocumentRepresentation::initialiseMinAndMaxChapters()
+TextSpecificData* DocumentRepresentation::calculateMinAndMaxChapters(QString text)
 {
     QSqlQuery query;
-    if(!query.exec("select min(normalised_chapter), max(normalised_chapter) from bible"))
+    if(!query.exec("select min(normalised_chapter), max(normalised_chapter) from " + text))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
@@ -42,8 +41,9 @@ void DocumentRepresentation::initialiseMinAndMaxChapters()
 
     if(query.next())
     {
-        minChapter = query.value(0).toInt();
-        maxChapter = query.value(1).toInt();
+        int minChapter = query.value(0).toInt();
+        int maxChapter = query.value(1).toInt();
+        return new TextSpecificData(text, minChapter, maxChapter);
     }
     else
     {
@@ -53,66 +53,120 @@ void DocumentRepresentation::initialiseMinAndMaxChapters()
 
 }
 
-QList<TextInfo> DocumentRepresentation::readInChapterData(int normalisedChapter)
+QList<TextInfo> DocumentRepresentation::readInChapterData(QString text, int normalisedChapter)
 {
     QList<TextInfo> textInfos;
 
-    QSqlQuery query;
-    query.setForwardOnly(true);
-
-    if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
-                   ", morphological_tag, normalised_morph_tag, strongs_number, strongs_lemma, friberg_lemma "
-                   "from bible where normalised_chapter = "
-                   + QString().setNum(normalisedChapter) +
-                   " order by id asc"))
-
-
+    if(text == "tisch") //DODGY - should remove this kind of thing, needs some thinking
     {
-        qDebug() << "failed: " << query.lastError() << endl;
-        exit(1);
-    }
+        QSqlQuery query;
+        query.setForwardOnly(true);
 
-    while(query.next())
+        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                       ", morphological_tag, normalised_morph_tag, strongs_number, strongs_lemma, friberg_lemma "
+                       "from tisch where normalised_chapter = "
+                       + QString().setNum(normalisedChapter) +
+                       " order by id asc"))
+
+
+        {
+            qDebug() << "failed: " << query.lastError() << endl;
+            exit(1);
+        }
+
+        while(query.next())
+        {
+            int id = query.value(0).toInt();
+            QString book = query.value(1).toString();
+            int chapter = query.value(2).toInt();
+            int verse = query.value(3).toInt();
+            int numberInVerse = query.value(4).toInt();
+            bool paragraph = query.value(5).toBool();
+            QString text = query.value(6).toString();
+            QString morphologicalTag = query.value(7).toString();
+
+
+            QByteArray normalisedMorphTagBytes = QByteArray::fromBase64(query.value(8).toByteArray());
+            QDataStream stream(normalisedMorphTagBytes);
+            QBitArray normalisedMorphTag(81);
+            stream >> normalisedMorphTag;
+
+            int strongsNumber = query.value(9).toInt();
+            QString strongsLemma = query.value(10).toString();
+            QString fribergLemma = query.value(11).toString();
+
+            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, morphologicalTag, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
+            textInfos.append(textInfo);
+        }
+    }
+    else if(text == "wlc")
     {
-        int id = query.value(0).toInt();
-        QString book = query.value(1).toString();
-        int chapter = query.value(2).toInt();
-        int verse = query.value(3).toInt();
-        int numberInVerse = query.value(4).toInt();
-        bool paragraph = query.value(5).toBool();
-        QString text = query.value(6).toString();
-        QString morphologicalTag = query.value(7).toString();
+        QSqlQuery query;
+        query.setForwardOnly(true);
+
+        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                       ", morphological_tag, normalised_morph_tag, strongs_number "
+                       "from wlc where normalised_chapter = "
+                       + QString().setNum(normalisedChapter) +
+                       " order by id asc"))
 
 
-        QByteArray normalisedMorphTagBytes = QByteArray::fromBase64(query.value(8).toByteArray());
-        QDataStream stream(normalisedMorphTagBytes);
-        QBitArray normalisedMorphTag(81);
-        stream >> normalisedMorphTag;
+        {
+            qDebug() << "failed: " << query.lastError() << endl;
+            exit(1);
+        }
 
-        int strongsNumber = query.value(9).toInt();
-        QString strongsLemma = query.value(10).toString();
-        QString fribergLemma = query.value(11).toString();
+        while(query.next())
+        {
+            int id = query.value(0).toInt();
+            QString book = query.value(1).toString();
+            int chapter = query.value(2).toInt();
+            int verse = query.value(3).toInt();
+            int numberInVerse = query.value(4).toInt();
+            bool paragraph = query.value(5).toBool();
+            QString text = query.value(6).toString();
 
-        TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, morphologicalTag, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
-        textInfos.append(textInfo);
+
+            int strongsNumber = query.value(9).toInt();
+
+            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), strongsNumber, "", "");
+            textInfos.append(textInfo);
+        }
     }
-
     return textInfos;
 }
 
-ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(int normalisedChapter)
+ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(QString text, int normalisedChapter)
 {
-    QList<TextInfo> textInfos = readInChapterData(normalisedChapter);
+    bool hebrew = false;
+    if(text == "wlc")
+        hebrew = true;
+
+
+    QList<TextInfo> textInfos = readInChapterData(text, normalisedChapter);
     QMap<BaseTextUnit, TextInfo> textUnits;
 
     QTextDocument document;
     QTextCursor textCursor(&document);
     textCursor.beginEditBlock();
 
+    QTextBlockFormat textBlockFormat;
+    if(hebrew)
+    {
+        textBlockFormat.setLayoutDirection(Qt::RightToLeft);
+        textBlockFormat.setRightMargin(10);
+    }
+    else
+    {
+        textBlockFormat.setAlignment(Qt::AlignLeft);
+    }
+
+    textCursor.setBlockFormat(textBlockFormat);
 
     QTextCharFormat superscriptFormat;
     superscriptFormat.setForeground(QBrush(Qt::red));
     superscriptFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+
 
     QTextCharFormat boldFormat;
     boldFormat.setFontWeight(QFont::Bold);
@@ -121,6 +175,7 @@ ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(int
 
     int selectionStart = -1;
     int selectionEnd = -1;
+
 
     textCursor.setCharFormat(defaultFormat);
     for(int i=0; i<textInfos.size(); i++)
@@ -147,7 +202,7 @@ ChapterRepresentation DocumentRepresentation::constructChapterRepresentation(int
         if(textInfo.numberInVerse == 1)
         {
             if(selectionStart != -1 && selectionEnd == -1)
-                selectionEnd = textCursor.position();
+                selectionEnd = textCursor.position();            
             textCursor.insertText(QString().setNum(textInfo.verse), superscriptFormat);
             textCursor.setCharFormat(defaultFormat);
         }
@@ -227,6 +282,7 @@ void DocumentRepresentation::addChapter(ChapterRepresentation chapterRepresentat
 
     textCursor.insertFragment(chapterRepresentation.textDocumentFragment);
 
+
     calculateAndSendChapterStarts();
 }
 
@@ -293,7 +349,7 @@ int DocumentRepresentation::getLastNormChapter()
 
 bool DocumentRepresentation::validChapter(int proposedChapter)
 {
-    return proposedChapter <= maxChapter && proposedChapter >= minChapter;
+    return proposedChapter <= currentTextSpecificData->maxChapter && proposedChapter >= currentTextSpecificData->minChapter;
 }
 
 bool DocumentRepresentation::mustAppend(int min, int max, int value, int pageStep)
@@ -319,11 +375,27 @@ bool DocumentRepresentation::mustPrepend()
     return mustPrepend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
 }
 
+void DocumentRepresentation::setCurrentTextSpecificData(QString text)
+{
+    if(textSpecificDataMap.contains(text))
+    {
+        currentTextSpecificData = textSpecificDataMap.value(text);
+    }
+    else
+    {
+        currentTextSpecificData = calculateMinAndMaxChapters(text);
+        textSpecificDataMap.insert(text, currentTextSpecificData);
+    }
+}
+
 void DocumentRepresentation::display(VerseReference verseReference)
 {    
+
     VerseLocation* newVerseLocation = getVerseLocation(verseReference);
     if(newVerseLocation != 0)
     {
+        setCurrentTextSpecificData(verseReference.text);
+
         textBrowser->window()->setWindowTitle(PROGRAM_NAME + " - " + verseReference.stringRepresentation);
 
         if(verseLocation != 0)
@@ -334,11 +406,16 @@ void DocumentRepresentation::display(VerseReference verseReference)
         textDocument->clear();
         chapters.clear();
 
+        bool hebrew = false;
+        if(verseReference.text == "wlc")
+            hebrew = true;
+
+
         int fromPosLocal;
         int toPosLocal;
 
 
-        ChapterRepresentation chapterRepresentation = constructChapterRepresentation(verseLocation->normalisedChapter);
+        ChapterRepresentation chapterRepresentation = constructChapterRepresentation(currentTextSpecificData->text, verseLocation->normalisedChapter);
         appendChapter(chapterRepresentation);
 
         fromPosLocal = chapterRepresentation.selectionStart;
@@ -351,7 +428,7 @@ void DocumentRepresentation::display(VerseReference verseReference)
         {
             if(validChapter(getFirstNormChapter()-1))
             {
-                ChapterRepresentation chRep = constructChapterRepresentation(getFirstNormChapter()-1);
+                ChapterRepresentation chRep = constructChapterRepresentation(currentTextSpecificData->text, getFirstNormChapter()-1);
                 prependChapter(chRep);
                 scrollToCentre(verseLocation->normalisedChapter, fromPosLocal, toPosLocal);
             }
@@ -365,7 +442,7 @@ void DocumentRepresentation::display(VerseReference verseReference)
         {
             if(validChapter(getLastNormChapter()+1))
             {
-                ChapterRepresentation chRep = constructChapterRepresentation(getLastNormChapter()+1);
+                ChapterRepresentation chRep = constructChapterRepresentation(currentTextSpecificData->text, getLastNormChapter()+1);
                 appendChapter(chRep);
                 scrollToCentre(verseLocation->normalisedChapter, fromPosLocal, toPosLocal);
             }
@@ -417,8 +494,6 @@ int DocumentRepresentation::getCurrentChapter()
 
 void DocumentRepresentation::unloadLastChapter()
 {
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
     ChapterRepresentation chRep = chapters.values().at(chapters.values().size()-1);
 
     QTextCursor textCursor(textDocument);
@@ -548,7 +623,7 @@ void DocumentRepresentation::checkCanScroll()
         if(validChapter(getFirstNormChapter()-1))
         {
             int originalHeight = textDocument->size().height();
-            ChapterRepresentation chRep = constructChapterRepresentation(getFirstNormChapter()-1);
+            ChapterRepresentation chRep = constructChapterRepresentation(currentTextSpecificData->text, getFirstNormChapter()-1);
             prependChapter(chRep);
             int newHeight = textDocument->size().height();
             scrollDown(newHeight-originalHeight);
@@ -561,10 +636,12 @@ void DocumentRepresentation::checkCanScroll()
 
     while(mustAppend())
     {
+
         if(validChapter(getLastNormChapter()+1))
         {
-            ChapterRepresentation chRep = constructChapterRepresentation(getLastNormChapter()+1);
+            ChapterRepresentation chRep = constructChapterRepresentation(currentTextSpecificData->text, getLastNormChapter()+1);
             appendChapter(chRep);
+
         }
         else
         {
@@ -581,30 +658,30 @@ void DocumentRepresentation::checkCanScroll()
 
 VerseLocation* DocumentRepresentation::getVerseLocation(VerseReference verseReference)
 {
-    QSqlQuery query;
+        QSqlQuery query;
 
-    QString queryString;
-    QTextStream(&queryString) << "select normalised_chapter, id from bible where book_number=" << verseReference.book
-            << " and chapter=" << verseReference.chapter
-            << " and verse=" << verseReference.verse << " and number_in_verse=1";
+        QString queryString;
+        QTextStream(&queryString) << "select normalised_chapter, id from " << verseReference.text << " where book_number=" << verseReference.book
+                << " and chapter=" << verseReference.chapter
+                << " and verse=" << verseReference.verse << " and number_in_verse=1";
 
-    if(!query.exec(queryString))
-    {
-        qDebug() << "failed: " << query.lastError() << endl;
-        exit(1);
-    }
-    if(query.next())
-    {
-        int normalisedChapter = query.value(0).toInt();
-        int id = query.value(1).toInt();
+        if(!query.exec(queryString))
+        {
+            qDebug() << "failed: " << query.lastError() << endl;
+            exit(1);
+        }
+        if(query.next())
+        {
+            int normalisedChapter = query.value(0).toInt();
+            int id = query.value(1).toInt();
 
-        return new VerseLocation(id, normalisedChapter);
-    }
-    else
-    {
-        qDebug() << "did not find chapter bible verse";
-        return 0;
-    }
+            return new VerseLocation(id, normalisedChapter);
+        }
+        else
+        {
+            qDebug() << "did not find chapter bible verse";
+            return 0;
+        }
 }
 
 QList<int> DocumentRepresentation::chapterStartPositions()
@@ -640,6 +717,6 @@ void DocumentRepresentation::mousePressed(QPoint point)
 
         BaseTextUnit key(localPos, localPos);
         if(chRep.textUnits.contains(key))
-            emit wordClicked(chRep.textUnits.value(key));
+            emit wordClicked(currentTextSpecificData->text, chRep.textUnits.value(key));
     }
 }
