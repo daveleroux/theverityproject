@@ -133,6 +133,37 @@ QList<TextInfo> DocumentRepresentation::readInChapterData(QString text, int norm
             textInfos.append(textInfo);
         }
     }
+    else if(text == "esv")
+    {
+        QSqlQuery query;
+        query.setForwardOnly(true);
+
+        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                       ", morphological_tag, normalised_morph_tag, strongs_number "
+                       "from esv where normalised_chapter = "
+                       + QString().setNum(normalisedChapter) +
+                       " order by id asc"))
+
+
+        {
+            qDebug() << "failed: " << query.lastError() << endl;
+            exit(1);
+        }
+
+        while(query.next())
+        {
+            int id = query.value(0).toInt();
+            QString book = query.value(1).toString();
+            int chapter = query.value(2).toInt();
+            int verse = query.value(3).toInt();
+            int numberInVerse = query.value(4).toInt();
+            bool paragraph = query.value(5).toBool();
+            QString text = query.value(6).toString();
+
+            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "");
+            textInfos.append(textInfo);
+        }
+    }
     return textInfos;
 }
 
