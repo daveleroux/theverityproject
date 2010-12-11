@@ -3,6 +3,7 @@
 #include <QList>
 #include "standardrule.h"
 #include <QDateTime>
+#include "gen32wlcrule.h"
 
 DbUpdater::DbUpdater()
 {
@@ -29,6 +30,10 @@ QSqlQuery DbUpdater::queryAndCheck(QString queryString)
 void DbUpdater::updateWlc()
 {
     QList<Rule*> rules;
+
+    Gen32WlcRule gen32WlcRule(this);
+    rules.append(&gen32WlcRule);
+
     StandardRule standardRule(this);
     rules.append(&standardRule);
 
@@ -55,6 +60,7 @@ void DbUpdater::updateWlc()
             if(rule->applies(verseReference))
             {
                 wlcSyncNumberMap.insert(verseReference, rule->getSyncNumber(verseReference));
+                break;
             }
         }
 

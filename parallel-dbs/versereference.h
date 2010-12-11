@@ -11,8 +11,15 @@ struct VerseReference
     int chapter;
     int verse;
 
+    VerseReference();
     VerseReference(int book, int chapter, int verse);
-    bool operator<(const VerseReference& rhs) const;
+    bool operator<(const VerseReference& rhs) const;    
+    bool operator<=(const VerseReference& rhs) const;
+    bool operator>(const VerseReference& rhs) const;
+    bool operator>=(const VerseReference& rhs) const;
+    bool operator==(const VerseReference& rhs) const;
+    bool operator!=(const VerseReference& rhs) const;
+
     QString toString();
 };
 

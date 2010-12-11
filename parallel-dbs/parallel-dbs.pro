@@ -12,9 +12,11 @@ SOURCES += main.cpp \
     globalvariables.cpp \
     dbupdater.cpp \
     rule.cpp \
-    standardrule.cpp
+    standardrule.cpp \
+    gen32wlcrule.cpp
 HEADERS += versereference.h \
     globalvariables.h \
     dbupdater.h \
     rule.h \
-    standardrule.h
+    standardrule.h \
+    gen32wlcrule.h

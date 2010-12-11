@@ -2,6 +2,13 @@
 #include <QDebug>
 #include <QTextStream>
 
+VerseReference::VerseReference()
+{
+    book = 0;
+    chapter = 0;
+    verse = 0;
+}
+
 VerseReference::VerseReference(int book, int chapter, int verse)
 {
     this->book = book;
@@ -41,17 +48,29 @@ bool VerseReference::operator<(const VerseReference& rhs) const
     }
 
     return false;
+}
 
-//    QString lhsString;
-//    QTextStream lhsStream(&lhsString);
-//    lhsStream << book << "." << chapter << "." << verse;
-//
-//    QString rhsString;
-//    QTextStream rhsStream(&rhsString);
-//    rhsStream << rhs.book << "." << rhs.chapter << "." << rhs.verse;
-//
-//
-//
-//    qDebug() << "failed, got an equal verse reference: " << lhsString << " vs " << rhsString;
-//    exit(1);
+bool VerseReference::operator<=(const VerseReference& rhs) const
+{
+    return (*this<rhs) || (*this==rhs);
+}
+
+bool VerseReference::operator>(const VerseReference& rhs) const
+{
+    return !(*this<rhs) && !(*this==rhs);
+}
+
+bool VerseReference::operator>=(const VerseReference& rhs) const
+{
+    return (*this>rhs) || (*this==rhs);
+}
+
+bool VerseReference::operator==(const VerseReference& rhs) const
+{
+    return !(*this<rhs) && !(rhs<*this);
+}
+
+bool VerseReference::operator!=(const VerseReference& rhs) const
+{
+    return !(*this==rhs);
 }
