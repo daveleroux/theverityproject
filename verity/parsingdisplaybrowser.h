@@ -3,6 +3,7 @@
 
 #include <QTextBrowser>
 #include "textinfo.h"
+#include "textandtextinfo.h"
 
 class ParsingDisplayBrowser : public QTextBrowser
 {
@@ -15,7 +16,7 @@ protected:
     QMimeData* createMimeDataFromSelection() const;
 
 public slots:
-    void display(QString, TextInfo textInfo);
+    void display(TextAndTextInfo*);
 };
 
 #endif // PARSINGDISPLAYBROWSER_H

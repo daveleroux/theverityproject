@@ -8,11 +8,11 @@ ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(par
 {
 }
 
-void ParsingDisplayBrowser::display(QString text, TextInfo textInfo)
+void ParsingDisplayBrowser::display(TextAndTextInfo* textAndTextInfo)
 {
     clear();
 
-    QList<ParseAttribute> attributes = ParsingDecoder::parse(textInfo.normalisedMorphTag);
+    QList<ParseAttribute> attributes = ParsingDecoder::parse(textAndTextInfo->textInfo.normalisedMorphTag);
 
     QTextCursor textCursor(document());
 
@@ -49,10 +49,10 @@ void ParsingDisplayBrowser::display(QString text, TextInfo textInfo)
     textCursor.insertText("Lemma:");
     textCursor.movePosition(QTextCursor::NextBlock);
 
-    if(textInfo.strongsLemma == textInfo.fribergLemma)
-        textCursor.insertText(textInfo.strongsLemma, boldFormat);
+    if(textAndTextInfo->textInfo.strongsLemma == textAndTextInfo->textInfo.fribergLemma)
+        textCursor.insertText(textAndTextInfo->textInfo.strongsLemma, boldFormat);
     else
-        textCursor.insertText(textInfo.strongsLemma + "/" + textInfo.fribergLemma, boldFormat);
+        textCursor.insertText(textAndTextInfo->textInfo.strongsLemma + "/" + textAndTextInfo->textInfo.fribergLemma, boldFormat);
 
 }
 

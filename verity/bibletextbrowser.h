@@ -9,21 +9,27 @@
 #include "versereference.h"
 #include "documentrepresentation.h"
 #include "qsnapscrollbar.h"
+#include "chapterdisplayer.h"
 
 class BibleTextBrowser : public QTextBrowser
 {
     Q_OBJECT
 
 private:
-    DocumentRepresentation* documentRepresentation;
+//    DocumentRepresentation* documentRepresentation;
+    QString fontFamily;
+    ChapterDisplayer* chapterDisplayer;
 
 public:
     BibleTextBrowser();
-    void display(VerseReference verseReference);
+
+    void display(QList<QString> texts, VerseReference verseReference);
 
     void writeOutSettings();
 
 protected:
+
+    void display(QList<QString> texts, int idLocation, int normalisedChapterLocaction);
 
     QSnapScrollBar* markedScrollBar;
 
@@ -34,12 +40,11 @@ protected:
     void wheelEvent ( QWheelEvent * e );
 
 public slots:
-    void select(int, int);
-    void tmp(QList<int>);
+//    void select(int, int);
+//    void tmp(QList<int>);
 
 signals:
-    //     void wordHoveredOver(TextInfo textInfo);
-    void wordClicked(QString, TextInfo textInfo);
+    void wordClicked(TextAndTextInfo*);
     void chapterStarts(QList<int>);
 };
 

@@ -7,6 +7,9 @@
 #include "bibletextbrowser.h"
 #include "timer.h"
 #include "globalvariables.h"
+#include "biblequerier.h"
+#include "paralleltextchapterdisplayer.h"
+#include "singletextchapterdisplayer.h"
 
 #include <iostream>
 using namespace std;
@@ -17,7 +20,7 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
 
 
-    QString fontFamily = settings.value(FONT_FAMILY_SETTING,QApplication::font().family()).toString();
+    fontFamily = settings.value(FONT_FAMILY_SETTING,QApplication::font().family()).toString();
 
     settings.endGroup();
 
@@ -26,16 +29,17 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     setMouseTracking(true);
     zoomIn(3);    
 
-    documentRepresentation = new DocumentRepresentation(document(), this, fontFamily);
-    connect(documentRepresentation, SIGNAL(selectionRequest(int,int)), this, SLOT(select(int,int)));
-    connect(documentRepresentation, SIGNAL(wordClicked(QString, TextInfo)), this, SIGNAL(wordClicked(QString, TextInfo)));
-    connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
+//    documentRepresentation = new DocumentRepresentation(document(), this, fontFamily);
+//    connect(documentRepresentation, SIGNAL(selectionRequest(int,int)), this, SLOT(select(int,int)));
+
+//    connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
     markedScrollBar = new QSnapScrollBar(this);
     setVerticalScrollBar(markedScrollBar);
 
     connect(this, SIGNAL(chapterStarts(QList<int>)), markedScrollBar, SLOT(defineSnapPoints(QList<int>)));
-    connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
+//    connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
+    chapterDisplayer = 0;
 }
 
 void BibleTextBrowser::writeOutSettings()
@@ -43,67 +47,88 @@ void BibleTextBrowser::writeOutSettings()
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
 
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
-    settings.setValue(FONT_FAMILY_SETTING, documentRepresentation->defaultFormat.fontFamily());
+    settings.setValue(FONT_FAMILY_SETTING, fontFamily);
     settings.endGroup();
 }
 
-void BibleTextBrowser::display(VerseReference verseReference)
+void BibleTextBrowser::display(QList<QString> texts, int idLocation, int normalisedChapterLocaction)
 {
-    documentRepresentation->display(verseReference);
+    document()->clear();
+
+    if(chapterDisplayer != 0)
+    {
+        delete chapterDisplayer;
+    }
+
+    if(texts.size() > 1)
+    {
+        chapterDisplayer = new ParallelTextChapterDisplayer(this, idLocation, normalisedChapterLocaction, texts);
+    }
+    else
+    {
+        chapterDisplayer = new SingleTextChapterDisplayer(this, idLocation, normalisedChapterLocaction, texts);
+    }
+
+    connect(chapterDisplayer, SIGNAL(wordClicked(TextAndTextInfo*)), this, SIGNAL(wordClicked(TextAndTextInfo*)));
+
+    chapterDisplayer->display();
+}
+
+void BibleTextBrowser::display(QList<QString> texts, VerseReference verseReference)
+{
+    if(texts.size() > 0)
+    {
+        VerseLocation* newVerseLocation = BibleQuerier::getVerseLocation(texts.at(0), verseReference);
+
+        if(newVerseLocation != 0)
+        {
+            int idLocation = newVerseLocation->id;
+            int normalisedChapterLocation = newVerseLocation->normalisedChapter;
+            delete newVerseLocation;
+
+            window()->setWindowTitle(PROGRAM_NAME + " - " + verseReference.stringRepresentation);
+
+            display(texts, idLocation, normalisedChapterLocation);
+        }
+    }
 }
 
 
 void BibleTextBrowser::mouseMoveEvent ( QMouseEvent * e )
 {
-    //    qDebug() << "mouse at position: " << cursorForPosition(e->pos()).position();
-    //    BaseTextUnit keyTextUnit = key(e->pos());
-    //    if(textUnits.contains(keyTextUnit))
-    //    {
-    //        emit wordHoveredOver(textUnits.value(keyTextUnit));
-    //    }
-
     QTextBrowser::mouseMoveEvent(e);
 }
 
 void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 {
-    //    BaseTextUnit keyTextUnit = key(e->pos());
-    //    if(textUnits.contains(keyTextUnit))
-    //    {
-    //        emit wordClicked(textUnits.value(keyTextUnit));
-    //    }
-
-    documentRepresentation->mousePressed(e->pos());
-
+    chapterDisplayer->mousePressed(e->pos());
     QTextBrowser::mousePressEvent(e);
 }
 
-void BibleTextBrowser::tmp(QList<int> pixelStarts)
-{
-    markedScrollBar->removeAllMarks();
+//void BibleTextBrowser::tmp(QList<int> pixelStarts)
+//{
+//    markedScrollBar->removeAllMarks();
 
-    for(int i=0;i<pixelStarts.size();i++)
-    {
-        if(i!=0)
-            markedScrollBar->addMark(pixelStarts.at(i),QColor(Qt::black),"");
-    }
-}
+//    for(int i=0;i<pixelStarts.size();i++)
+//    {
+//        if(i!=0)
+//            markedScrollBar->addMark(pixelStarts.at(i),QColor(Qt::black),"");
+//    }
+//}
+
 void BibleTextBrowser::wheelEvent ( QWheelEvent * e )
 {
     QTextBrowser::wheelEvent(e);
-    documentRepresentation->checkCanScroll();
+    chapterDisplayer->checkCanScroll();
 }
 
-void BibleTextBrowser::select(int startPos, int endPos)
-{
-    QTextCursor cursor = textCursor();
-    cursor.setPosition(startPos);
-    while(cursor.position() < endPos)
-    {
-        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-    }
-    setTextCursor(cursor);
-}
-
-
-
+//void BibleTextBrowser::select(int startPos, int endPos)
+//{
+//    QTextCursor cursor = textCursor();
+//    cursor.setPosition(startPos);
+//    while(cursor.position() < endPos)
+//    {
+//        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+//    }
+//    setTextCursor(cursor);
+//}
