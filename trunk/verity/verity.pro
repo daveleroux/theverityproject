@@ -22,7 +22,13 @@ SOURCES += main.cpp \
     qsnapscrollbar.cpp \
     markedscrollbar.cpp \
     dictionarybrowser.cpp \
-    textspecificdata.cpp
+    textspecificdata.cpp \
+    biblequerier.cpp \
+    verselocation.cpp \
+    chapterdisplayer.cpp \
+    singletextchapterdisplayer.cpp \
+    paralleltextchapterdisplayer.cpp \
+    textandtextinfo.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -40,7 +46,13 @@ HEADERS += mainwindow.h \
     qsnapscrollbar.h \
     markedscrollbar.h \
     dictionarybrowser.h \
-    textspecificdata.h
+    textspecificdata.h \
+    biblequerier.h \
+    verselocation.h \
+    chapterdisplayer.h \
+    singletextchapterdisplayer.h \
+    paralleltextchapterdisplayer.h \
+    textandtextinfo.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

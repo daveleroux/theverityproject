@@ -22,10 +22,10 @@ private:
 
     QString calculateStringRepresentation(int book, int chapter, int verse);
 
-    VerseReference _parse(QString text, QString string);
+    VerseReference _parse(QString string);
 
 public:
-    static VerseReference parse(QString text, QString string);
+    static VerseReference parse(QString string);
 };
 
 #endif // VERSEREFERENCEPARSER_H

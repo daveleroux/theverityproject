@@ -3,6 +3,7 @@
 
 #include <QTextBrowser>
 #include "textinfo.h"
+#include "textandtextinfo.h"
 
 class DictionaryBrowser : public QTextBrowser
 {
@@ -16,7 +17,7 @@ protected:
     QVariant loadResource(int type, const QUrl& name);
 
 public slots:
-    void display(QString, TextInfo);
+    void display(TextAndTextInfo*);
 };
 
 #endif // DICTIONARYBROWSER_H

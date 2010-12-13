@@ -8,6 +8,7 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QComboBox>
+#include <QPushButton>
 
 
 class MainWindow : public QMainWindow
@@ -25,22 +26,18 @@ class MainWindow : public QMainWindow
 protected:
 
     BibleTextBrowser* browser;
-    QComboBox* textComboBox;
     QLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
-
-    //     ParsingDisplayBrowser* hoverBrowser;
-    //ParsingDisplayBrowser* selectedBrowser;
+    QList<QString> texts;
 
     void closeEvent(QCloseEvent *event);
     void writeOutSettings();
 
 public slots:
     void lookupVerse();
-    //    void wordHoveredOver(TextInfo textInfo);
-//    void wordClicked(TextInfo textInfo);
     void verseLineEditChanged(QString string);
+    void textToggled(bool);
 
 };
 

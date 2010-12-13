@@ -5,6 +5,7 @@
 #include "globalvariables.h"
 #include "dictionarybrowser.h"
 #include "parsingdisplaybrowser.h"
+#include "textandtextinfo.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -42,27 +43,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
     browser = new BibleTextBrowser();
-    //    vscroll = new QSnapScrollBar(browser);
-    //    vscroll->setParent(browser);
-    //    browser->setVerticalScrollBar(vscroll);
-    //    connect(browser, SIGNAL(chapterStarts(QList<int>)), vscroll, SLOT(defineSnapPoints(QList<int>)));
     setCentralWidget(browser);
-
-    //    QDockWidget* hoverDock = new QDockWidget("Parsing", this);
-    //    hoverDock->setAllowedAreas(Qt::BottomDockWidgetArea);
-    //
-    //    hoverBrowser = new ParsingDisplayBrowser(hoverDock);
-    //    hoverDock->setWidget(hoverBrowser);
-    //    connect(browser, SIGNAL(wordHoveredOver(TextInfo)), this, SLOT(wordHoveredOver(TextInfo)));
-    //
-    //    addDockWidget(Qt::BottomDockWidgetArea, hoverDock);
-
 
     QDockWidget* selectedDock = new QDockWidget("Parsing", this);
     selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
-    connect(browser, SIGNAL(wordClicked(QString, TextInfo)), selectedBrowser, SLOT(display(QString, TextInfo)));
+    connect(browser, SIGNAL(wordClicked(TextAndTextInfo*)), selectedBrowser, SLOT(display(TextAndTextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
@@ -94,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     layoutWidget->setLayout(layout);
 
     dictionaryDock->setWidget(layoutWidget);
-    connect(browser, SIGNAL(wordClicked(QString, TextInfo)), dictionaryBrowser, SLOT(display(QString, TextInfo)));
+    connect(browser, SIGNAL(wordClicked(TextAndTextInfo*)), dictionaryBrowser, SLOT(display(TextAndTextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
 
@@ -102,10 +89,19 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
-    textComboBox = new QComboBox();    
-    textComboBox->insertItem(0, "esv");
-    textComboBox->insertItem(0, "tisch");
-    textComboBox->insertItem(1, "wlc");
+    QPushButton* esvButton = new QPushButton("esv");
+    esvButton->setCheckable(true);
+    connect(esvButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
+    esvButton->setChecked(true);
+
+    QPushButton* tischButton = new QPushButton("tisch");
+    tischButton->setCheckable(true);
+    connect(tischButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
+
+    QPushButton* wlcButton = new QPushButton("wlc");
+    wlcButton->setCheckable(true);
+    connect(wlcButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
+
 
     verseLineEdit = new QLineEdit();
     verseLineEdit->setMaximumWidth(300);
@@ -115,12 +111,30 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
     connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(lookupVerse()));
 
-    toolbar->addWidget(textComboBox);
+    toolbar->addWidget(esvButton);
+    toolbar->addWidget(tischButton);
+    toolbar->addWidget(wlcButton);
+
     toolbar->addWidget(verseLineEdit);
     toolbar->addWidget(verseLineOutput);
 
+
     addToolBar(toolbar);
     this->setWindowIcon(QIcon("verity.ico"));
+}
+
+void MainWindow::textToggled(bool checked)
+{
+    QPushButton* sender = (QPushButton*)QObject::sender();
+    QString text = sender->text();
+    if(checked)
+    {
+        texts.append(text);
+    }
+    else
+    {
+        texts.removeAt(texts.indexOf(text));
+    }
 }
 
 void MainWindow::afterShown()
@@ -152,24 +166,18 @@ void MainWindow::closeEvent(QCloseEvent *event)
 void MainWindow::lookupVerse()
 {
     QString verse = verseLineEdit->text();
-    QString text = textComboBox->currentText();
     if(verse.length() > 0)
     {
         timer t;
         t.start();
 
-        VerseReference verseReference = VerseReferenceParser::parse(text, verse);
+        VerseReference verseReference = VerseReferenceParser::parse(verse);
 
-        browser->display(verseReference);
+        browser->display(texts, verseReference);
 
         cout << "total: " << t << endl;
     }
 }
-
-//void MainWindow::wordHoveredOver(TextInfo textInfo)
-//{
-//    hoverBrowser->display(textInfo);
-//}
 
 
 MainWindow::~MainWindow()
@@ -197,5 +205,5 @@ void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
 void MainWindow::verseLineEditChanged(QString string)
 {
     if(string.length() > 0)
-        verseLineOutput->setText(VerseReferenceParser::parse(textComboBox->currentText(), string).stringRepresentation);
+        verseLineOutput->setText(VerseReferenceParser::parse(string).stringRepresentation);
 }

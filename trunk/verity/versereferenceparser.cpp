@@ -348,7 +348,7 @@ QString VerseReferenceParser::calculateStringRepresentation(int book, int chapte
     return  normalisedBookNames.value(book) + " " + QString().setNum(chapter) + ":" + QString().setNum(verse);
 }
 
-VerseReference VerseReferenceParser::_parse(QString text, QString string)
+VerseReference VerseReferenceParser::_parse(QString string)
 {
     string = string.trimmed();
 
@@ -391,7 +391,7 @@ VerseReference VerseReferenceParser::_parse(QString text, QString string)
         book = hash.value(bookString);
     }
 
-    return VerseReference(text, book,chapter,verse, calculateStringRepresentation(book, chapter, verse));
+    return VerseReference(book,chapter,verse, calculateStringRepresentation(book, chapter, verse));
 }
 
 VerseReferenceParser& VerseReferenceParser::instance()
@@ -400,8 +400,8 @@ VerseReferenceParser& VerseReferenceParser::instance()
     return singleton;
 }
 
-VerseReference VerseReferenceParser::parse(QString text, QString string)
+VerseReference VerseReferenceParser::parse(QString string)
 {
-    return instance()._parse(text, string);
+    return instance()._parse(string);
 }
 

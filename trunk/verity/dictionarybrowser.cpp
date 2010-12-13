@@ -64,15 +64,15 @@ QVariant DictionaryBrowser::loadResource(int type, const QUrl& url)
     return result;
 }
 
-void DictionaryBrowser::display(QString text, TextInfo textInfo)
+void DictionaryBrowser::display(TextAndTextInfo* textAndTextInfo)
 {
     QString prefix;
-    if(text == "tisch")
+    if(textAndTextInfo->text == "tisch")
         prefix = "greek://";
-    else if(text == "wlc")
+    else if(textAndTextInfo->text == "wlc")
         prefix = "hebrew://";
 
-    QUrl url(prefix+ QString().setNum(textInfo.strongsNumber));
+    QUrl url(prefix+ QString().setNum(textAndTextInfo->textInfo.strongsNumber));
     setSource(url);
 }
 
