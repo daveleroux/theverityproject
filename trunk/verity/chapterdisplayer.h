@@ -20,9 +20,11 @@ protected:
     void scrollToCentre(int normCh, int fromPosLocal, int toPosLocal);
     int convertPosToGlobal(int normCh, int localPos);
 
-    virtual ChapterRepresentation insertFirstChapter(int normalisedChapter, int idLocation) = 0;
-    virtual ChapterRepresentation appendChapter() = 0;
-    virtual ChapterRepresentation prependChapter() = 0;
+    ChapterRepresentation insertFirstChapter(int normalisedChapter, int idLocation);
+    ChapterRepresentation appendChapter();
+    ChapterRepresentation prependChapter();
+
+    virtual ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
 
     void addChapter(ChapterRepresentation chapterRepresentation, bool append);
 
@@ -43,12 +45,16 @@ protected:
     bool canUnloadLastChapter();
     bool canUnloadFirstChapter();
 
+    int getCurrentChapter();
+
     void unloadLastChapter();
     void unloadFirstChapter();
 
     QList<int> chapterStartPositions();
 
     bool validChapter(int proposedChapter);
+
+    void highlight(int startPos, int endPos);
 
 public:
     ChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts);

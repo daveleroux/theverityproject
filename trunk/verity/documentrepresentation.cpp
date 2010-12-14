@@ -37,27 +37,6 @@ using namespace std;
 
 
 
-//int DocumentRepresentation::getCurrentChapter()
-//{
-//    QPoint centre(textBrowser->viewport()->width()/2, textBrowser->viewport()->height()/2);
-//    QTextCursor centreCursor = textBrowser->cursorForPosition(centre);
-//    int centralPos = centreCursor.position();
-
-//    int chContainingCentralPos = 0;
-
-//    for(int i=0; i<chapters.values().size(); i++)
-//    {
-//        ChapterRepresentation chRep = chapters.values().at(i);
-
-//        int globalPos = convertPosToGlobal(chRep.normalisedChapter, 0);
-//        if(centralPos < globalPos)
-//            break;
-
-//        chContainingCentralPos = chRep.normalisedChapter;
-//    }
-
-//    return chContainingCentralPos;
-//}
 
 
 

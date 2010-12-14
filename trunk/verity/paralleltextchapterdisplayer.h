@@ -8,9 +8,8 @@ class ParallelTextChapterDisplayer : public ChapterDisplayer
     Q_OBJECT
 
 protected:
-    ChapterRepresentation insertFirstChapter(int normalisedChapter, int idLocation);
-    ChapterRepresentation appendChapter();
-    ChapterRepresentation prependChapter();
+    ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
+
 public:
     ParallelTextChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts);
 };
