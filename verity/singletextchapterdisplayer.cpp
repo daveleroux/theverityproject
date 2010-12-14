@@ -11,40 +11,6 @@ QString SingleTextChapterDisplayer::getText()
     return getPrimaryText();
 }
 
-ChapterRepresentation SingleTextChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
-{
-    ChapterRepresentation chapter =  constructChapterRepresentation(normalisedChapter, idLocation);
-    addChapter(chapter, true);
-
-
-    QTextCursor cursor(textBrowser->document());
-    cursor.setPosition(chapter.getSelectionStart());
-
-    while(cursor.position() <  chapter.getSelectionEnd())
-        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-
-
-    QTextCharFormat format;// = defaultFormat;
-    format.setBackground(QBrush(Qt::lightGray));
-
-    cursor.setCharFormat(format);
-
-    return chapter;
-}
-
-ChapterRepresentation SingleTextChapterDisplayer::appendChapter()
-{
-    ChapterRepresentation chapter =  constructChapterRepresentation(getLastNormChapter()+1);
-    addChapter(chapter, true);
-    return chapter;
-}
-
-ChapterRepresentation SingleTextChapterDisplayer::prependChapter()
-{
-    ChapterRepresentation chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
-    addChapter(chapter, false);
-    return chapter;
-}
 
 ChapterRepresentation SingleTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {

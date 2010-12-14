@@ -9,11 +9,8 @@ class SingleTextChapterDisplayer : public ChapterDisplayer
 
 private:
     QString getText();
-protected:
-    ChapterRepresentation insertFirstChapter(int normalisedChapter, int idLocation);
-    ChapterRepresentation appendChapter();
-    ChapterRepresentation prependChapter();
 
+protected:
     ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
 
 public:
