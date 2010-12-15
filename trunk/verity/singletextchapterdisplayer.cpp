@@ -1,8 +1,8 @@
 #include "singletextchapterdisplayer.h"
 #include "biblequerier.h"
 
-SingleTextChapterDisplayer::SingleTextChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts) :
-        ChapterDisplayer(textBrowser, idLocation, normalisedChapterLocation, texts)
+SingleTextChapterDisplayer::SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts) :
+        ChapterDisplayer(textBrowser, texts)
 {
 }
 
@@ -12,7 +12,7 @@ QString SingleTextChapterDisplayer::getText()
 }
 
 
-ChapterRepresentation SingleTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
+ChapterRepresentation* SingleTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {
     bool hebrew = false;
     if(getText() == "wlc")
@@ -108,6 +108,6 @@ ChapterRepresentation SingleTextChapterDisplayer::constructChapterRepresentation
     if(selectionStart != -1 && selectionEnd == -1)
         selectionEnd = textCursor.position()-2;
 
-    return ChapterRepresentation(getText(), normalisedChapter,QTextDocumentFragment(&document), textUnits, selectionStart, selectionEnd);
+    return new ChapterRepresentation(getText(), normalisedChapter,QTextDocumentFragment(&document), textUnits, selectionStart, selectionEnd);
 
 }

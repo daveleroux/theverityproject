@@ -11,10 +11,10 @@ private:
     QString getText();
 
 protected:
-    ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
+    ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
 
 public:
-    SingleTextChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts);
+    SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts);
 };
 
 #endif // SINGLETEXTCHAPTERDISPLAYER_H

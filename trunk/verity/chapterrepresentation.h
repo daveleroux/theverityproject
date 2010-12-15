@@ -8,7 +8,7 @@
 
 class ChapterRepresentation
 {
-private:
+protected:
     int normalisedChapter;
     QTextDocumentFragment textDocumentFragment;
     QMap<BaseTextUnit, TextInfo> textUnits;
@@ -20,7 +20,12 @@ private:
 
 public:
     ChapterRepresentation();
-    ChapterRepresentation(QString text, int normalisedChapter, QTextDocumentFragment textDocumentFragment, QMap<BaseTextUnit, TextInfo> textUnits, int selectionStart, int selectionEnd);
+    ChapterRepresentation(QString text,
+                          int normalisedChapter,
+                          QTextDocumentFragment textDocumentFragment,
+                          QMap<BaseTextUnit, TextInfo> textUnits,
+                          int selectionStart,
+                          int selectionEnd);
     int lastPosInFragment();
     int firstPosInFragment();
 

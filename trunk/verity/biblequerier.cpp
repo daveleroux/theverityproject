@@ -66,130 +66,237 @@ TextSpecificData* BibleQuerier::calculateMinAndMaxChapters(QString text)
 
 TextSpecificData* BibleQuerier::_getTextSpecificData(QString text)
 {
-   if(textSpecificDataMap.contains(text))
+    if(textSpecificDataMap.contains(text))
     {
-       return textSpecificDataMap.value(text);
-   }
-   else
-   {
-       TextSpecificData* textSpecificData = calculateMinAndMaxChapters(text);
-       textSpecificDataMap.insert(text, textSpecificData);
-       return textSpecificData;
-   }
+        return textSpecificDataMap.value(text);
+    }
+    else
+    {
+        TextSpecificData* textSpecificData = calculateMinAndMaxChapters(text);
+        textSpecificDataMap.insert(text, textSpecificData);
+        return textSpecificData;
+    }
+}
+
+QString BibleQuerier::asString(QList<int> list)
+{
+    QString string;
+    foreach (int value, list)
+    {
+        string.append(QString().setNum(value) + ",");
+    }
+    string.remove(string.length()-1, 1);
+
+    return string;
+}
+
+QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, QSet<int> parallelSet, int idToInclude)
+{
+    QList<TextInfo> result;
+
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+    query.prepare("select min(id), max(id) from " + bibleText + " where parallel in ("+asString(parallelSet.toList())+") ");
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: " << query.lastError();
+        exit(1);
+    }
+    query.next();
+    int min  = query.value(0).toInt();
+    int max =  query.value(1).toInt();
+
+    if(min > 0 && max > 0)
+    {
+        if(idToInclude != -1)
+        {
+            if(idToInclude < min)
+                min = idToInclude;
+            if(idToInclude > max)
+                max = idToInclude;
+        }
+
+        if(bibleText == "tisch")
+            return readInTisch(min, max);
+        else if (bibleText == "wlc")
+            return readInWlc(min, max);
+        else if (bibleText == "esv")
+            return readInEsv(min, max);
+
+    }
+    return result;
+}
+
+QList<TextInfo> BibleQuerier::readInTisch(int idFrom, int idTo) //must clean up
+{
+    QList<TextInfo> textInfos;
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+    if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                   ", morphological_tag, normalised_morph_tag, strongs_number, strongs_lemma, friberg_lemma, parallel "
+                   "from tisch where id >= "
+                   + QString().setNum(idFrom) +
+                   " and id <= " + QString().setNum(idTo) +
+                   " order by id asc"))
+
+
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        int id = query.value(0).toInt();
+        QString book = query.value(1).toString();
+        int chapter = query.value(2).toInt();
+        int verse = query.value(3).toInt();
+        int numberInVerse = query.value(4).toInt();
+        bool paragraph = query.value(5).toBool();
+        QString text = query.value(6).toString();
+        QString morphologicalTag = query.value(7).toString();
+
+
+        QByteArray normalisedMorphTagBytes = QByteArray::fromBase64(query.value(8).toByteArray());
+        QDataStream stream(normalisedMorphTagBytes);
+        QBitArray normalisedMorphTag(81);
+        stream >> normalisedMorphTag;
+
+        int strongsNumber = query.value(9).toInt();
+        QString strongsLemma = query.value(10).toString();
+        QString fribergLemma = query.value(11).toString();
+        int parallel = query.value(12).toInt();
+
+        TextInfo textInfo("tisch",
+                          id,
+                          book,
+                          chapter,
+                          verse,
+                          numberInVerse,
+                          paragraph,
+                          text,
+                          morphologicalTag,
+                          normalisedMorphTag,
+                          strongsNumber,
+                          strongsLemma,
+                          fribergLemma,
+                          parallel);
+        textInfos.append(textInfo);
+    }
+
+    return textInfos;
+}
+
+QList<TextInfo> BibleQuerier::readInWlc(int idFrom, int idTo) //must clean up
+{
+    QList<TextInfo> textInfos;
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+    if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                   ", morphological_tag, normalised_morph_tag, strongs_number, parallel "
+                   "from wlc where id >= "
+                   + QString().setNum(idFrom) +
+                   " and id <= " + QString().setNum(idTo) +
+                   " order by id asc"))
+
+
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        int id = query.value(0).toInt();
+        QString book = query.value(1).toString();
+        int chapter = query.value(2).toInt();
+        int verse = query.value(3).toInt();
+        int numberInVerse = query.value(4).toInt();
+        bool paragraph = query.value(5).toBool();
+        QString text = query.value(6).toString();
+
+
+        int strongsNumber = query.value(9).toInt();
+        int parallel = query.value(10).toInt();
+
+        TextInfo textInfo("wlc", id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), strongsNumber, "", "", parallel);
+        textInfos.append(textInfo);
+    }
+    return textInfos;
+}
+
+QList<TextInfo> BibleQuerier::readInEsv(int idFrom, int idTo) //must clean up
+{
+    QList<TextInfo> textInfos;
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+    if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
+                   ", morphological_tag, normalised_morph_tag, strongs_number, parallel "
+                   "from esv where id >= "
+                   + QString().setNum(idFrom) +
+                   " and id <= " + QString().setNum(idTo) +
+                   " order by id asc"))
+
+
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        int id = query.value(0).toInt();
+        QString book = query.value(1).toString();
+        int chapter = query.value(2).toInt();
+        int verse = query.value(3).toInt();
+        int numberInVerse = query.value(4).toInt();
+        bool paragraph = query.value(5).toBool();
+        QString text = query.value(6).toString();
+        int parallel = query.value(10).toInt();
+
+        TextInfo textInfo("esv", id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "", parallel);
+        textInfos.append(textInfo);
+    }
+
+    return textInfos;
+
 }
 
 QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalisedChapter)
 {
-    QList<TextInfo> textInfos;
+    QSqlQuery query;
+    query.setForwardOnly(true);
 
-    if(bibleText == "tisch") //DODGY - should remove this kind of thing, needs some thinking
+    if(!query.exec("select min(id), max(id) from " + bibleText + " where normalised_chapter =" + QString().setNum(normalisedChapter)))
     {
-        QSqlQuery query;
-        query.setForwardOnly(true);
-
-        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
-                       ", morphological_tag, normalised_morph_tag, strongs_number, strongs_lemma, friberg_lemma "
-                       "from tisch where normalised_chapter = "
-                       + QString().setNum(normalisedChapter) +
-                       " order by id asc"))
-
-
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-
-        while(query.next())
-        {
-            int id = query.value(0).toInt();
-            QString book = query.value(1).toString();
-            int chapter = query.value(2).toInt();
-            int verse = query.value(3).toInt();
-            int numberInVerse = query.value(4).toInt();
-            bool paragraph = query.value(5).toBool();
-            QString text = query.value(6).toString();
-            QString morphologicalTag = query.value(7).toString();
-
-
-            QByteArray normalisedMorphTagBytes = QByteArray::fromBase64(query.value(8).toByteArray());
-            QDataStream stream(normalisedMorphTagBytes);
-            QBitArray normalisedMorphTag(81);
-            stream >> normalisedMorphTag;
-
-            int strongsNumber = query.value(9).toInt();
-            QString strongsLemma = query.value(10).toString();
-            QString fribergLemma = query.value(11).toString();
-
-            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, morphologicalTag, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
-            textInfos.append(textInfo);
-        }
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
     }
-    else if(bibleText == "wlc")
+
+    query.next();
+    int min  = query.value(0).toInt();
+    int max =  query.value(1).toInt();
+
+    if(min > 0 && max > 0)
     {
-        QSqlQuery query;
-        query.setForwardOnly(true);
-
-        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
-                       ", morphological_tag, normalised_morph_tag, strongs_number "
-                       "from wlc where normalised_chapter = "
-                       + QString().setNum(normalisedChapter) +
-                       " order by id asc"))
-
-
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-
-        while(query.next())
-        {
-            int id = query.value(0).toInt();
-            QString book = query.value(1).toString();
-            int chapter = query.value(2).toInt();
-            int verse = query.value(3).toInt();
-            int numberInVerse = query.value(4).toInt();
-            bool paragraph = query.value(5).toBool();
-            QString text = query.value(6).toString();
-
-
-            int strongsNumber = query.value(9).toInt();
-
-            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), strongsNumber, "", "");
-            textInfos.append(textInfo);
-        }
+        if(bibleText == "tisch")
+            return readInTisch(min, max);
+        else if (bibleText == "wlc")
+            return readInWlc(min, max);
+        else if (bibleText == "esv")
+            return readInEsv(min, max);
     }
-    else if(bibleText == "esv")
-    {
-        QSqlQuery query;
-        query.setForwardOnly(true);
 
-        if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
-                       ", morphological_tag, normalised_morph_tag, strongs_number "
-                       "from esv where normalised_chapter = "
-                       + QString().setNum(normalisedChapter) +
-                       " order by id asc"))
-
-
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-
-        while(query.next())
-        {
-            int id = query.value(0).toInt();
-            QString book = query.value(1).toString();
-            int chapter = query.value(2).toInt();
-            int verse = query.value(3).toInt();
-            int numberInVerse = query.value(4).toInt();
-            bool paragraph = query.value(5).toBool();
-            QString text = query.value(6).toString();
-
-            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "");
-            textInfos.append(textInfo);
-        }
-    }
-    return textInfos;
+    return QList<TextInfo>();
 }
 
 
@@ -202,6 +309,11 @@ BibleQuerier& BibleQuerier::instance()
 QList<TextInfo> BibleQuerier::readInChapterData(QString text, int normalisedChapter)
 {
     return instance()._readInChapterData(text, normalisedChapter);
+}
+
+QList<TextInfo> BibleQuerier::readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude)
+{
+    return instance()._readInChapterDataForParallel(text, parallels, idToInclude);
 }
 
 VerseLocation* BibleQuerier::getVerseLocation(QString text, VerseReference verseReference)

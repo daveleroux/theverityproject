@@ -11,22 +11,20 @@ class ChapterDisplayer : public QObject
 
 protected:
     QTextBrowser* textBrowser;
-    int idLocation;
-    int normalisedChapterLocation;
     QList<QString> texts;
 
-    QMap<int, ChapterRepresentation> chapters;
+    QMap<int, ChapterRepresentation*> chapters;
 
     void scrollToCentre(int normCh, int fromPosLocal, int toPosLocal);
     int convertPosToGlobal(int normCh, int localPos);
 
-    ChapterRepresentation insertFirstChapter(int normalisedChapter, int idLocation);
-    ChapterRepresentation appendChapter();
-    ChapterRepresentation prependChapter();
+    ChapterRepresentation* insertFirstChapter(int normalisedChapter, int idLocation);
+    ChapterRepresentation* appendChapter();
+    ChapterRepresentation* prependChapter();
 
-    virtual ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
+    virtual ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
 
-    void addChapter(ChapterRepresentation chapterRepresentation, bool append);
+    void addChapter(ChapterRepresentation* chapterRepresentation, bool append);
 
     bool mustAppend(int min, int max, int value, int pageStep);
     bool mustAppend();
@@ -57,8 +55,8 @@ protected:
     void highlight(int startPos, int endPos);
 
 public:
-    ChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts);
-    void display();
+    ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts);
+    void display(int id, int normalisedChapter);
     void mousePressed(QPoint point);
     void checkCanScroll();
 

@@ -8,10 +8,12 @@ class ParallelTextChapterDisplayer : public ChapterDisplayer
     Q_OBJECT
 
 protected:
-    ChapterRepresentation constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
+    ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
+
+    QSet<int> extractParallelIds(QList<TextInfo> textInfos);
 
 public:
-    ParallelTextChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts);
+    ParallelTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts);
 };
 
 #endif // PARALLELTEXTCHAPTERDISPLAYER_H
