@@ -7,6 +7,7 @@
 class TextInfo
 {
 public:
+    QString bibleText;
     int id;
     QString book;
     int chapter;
@@ -21,7 +22,8 @@ public:
     QString fribergLemma;
 
     TextInfo();
-    TextInfo(int id,
+    TextInfo(QString bibleText,
+             int id,
              QString book,
              int chapter,
              int verse,

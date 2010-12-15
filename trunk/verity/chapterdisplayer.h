@@ -3,7 +3,7 @@
 
 #include <QTextBrowser>
 #include "chapterrepresentation.h"
-#include "textandtextinfo.h"
+#include "textinfo.h"
 
 class ChapterDisplayer : public QObject
 {
@@ -63,7 +63,7 @@ public:
     void checkCanScroll();
 
 signals:
-    void wordClicked(TextAndTextInfo*);
+    void wordClicked(TextInfo*);
 };
 
 #endif // CHAPTERDISPLAYER_H

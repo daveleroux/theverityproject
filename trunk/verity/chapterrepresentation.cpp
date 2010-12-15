@@ -55,13 +55,12 @@ QTextDocumentFragment ChapterRepresentation::getTextDocumentFragment()
     return textDocumentFragment;
 }
 
-TextAndTextInfo* ChapterRepresentation::getTextAndTextInfo(int localPos)
+TextInfo* ChapterRepresentation::getTextInfo(int localPos)
 {
     BaseTextUnit key(localPos, localPos);
     if(textUnits.contains(key))
     {
-        TextInfo textInfo = textUnits.value(key);
-        return new TextAndTextInfo(text, textInfo);
+        return new TextInfo(textUnits.value(key));
     }
     return 0;
 }

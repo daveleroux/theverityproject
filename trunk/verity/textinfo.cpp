@@ -4,7 +4,8 @@ TextInfo::TextInfo()
 {
 }
 
-TextInfo::TextInfo(int id,
+TextInfo::TextInfo(QString bibleText,
+                   int id,
                    QString book,
                    int chapter,
                    int verse,
@@ -17,6 +18,7 @@ TextInfo::TextInfo(int id,
                    QString strongsLemma,
                    QString fribergLemma)
 {
+    this->bibleText = bibleText;
     this->id = id;
     this->book = book;
     this->chapter = chapter;

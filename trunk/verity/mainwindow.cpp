@@ -5,7 +5,7 @@
 #include "globalvariables.h"
 #include "dictionarybrowser.h"
 #include "parsingdisplaybrowser.h"
-#include "textandtextinfo.h"
+#include "textinfo.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -49,7 +49,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
-    connect(browser, SIGNAL(wordClicked(TextAndTextInfo*)), selectedBrowser, SLOT(display(TextAndTextInfo*)));
+    connect(browser, SIGNAL(wordClicked(TextInfo*)), selectedBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     layoutWidget->setLayout(layout);
 
     dictionaryDock->setWidget(layoutWidget);
-    connect(browser, SIGNAL(wordClicked(TextAndTextInfo*)), dictionaryBrowser, SLOT(display(TextAndTextInfo*)));
+    connect(browser, SIGNAL(wordClicked(TextInfo*)), dictionaryBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
 

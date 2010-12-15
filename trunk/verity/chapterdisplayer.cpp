@@ -1,6 +1,6 @@
 #include "chapterdisplayer.h"
 #include "biblequerier.h"
-#include "textandtextinfo.h"
+#include "textinfo.h"
 #include <QScrollBar>
 #include <QDebug>
 
@@ -386,11 +386,11 @@ void ChapterDisplayer::mousePressed(QPoint point)
 
         ChapterRepresentation chRep = chapters.values().at(index);
 
-        TextAndTextInfo* textAndTextInfo = chRep.getTextAndTextInfo(localPos);
-        if(textAndTextInfo != 0)
+        TextInfo* textInfo = chRep.getTextInfo(localPos);
+        if(textInfo != 0)
         {
-            emit wordClicked(textAndTextInfo);
-            delete textAndTextInfo;
+            emit wordClicked(textInfo);
+            delete textInfo;
         }
     }
 }

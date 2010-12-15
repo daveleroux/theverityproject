@@ -78,11 +78,11 @@ TextSpecificData* BibleQuerier::_getTextSpecificData(QString text)
    }
 }
 
-QList<TextInfo> BibleQuerier::_readInChapterData(QString text, int normalisedChapter)
+QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalisedChapter)
 {
     QList<TextInfo> textInfos;
 
-    if(text == "tisch") //DODGY - should remove this kind of thing, needs some thinking
+    if(bibleText == "tisch") //DODGY - should remove this kind of thing, needs some thinking
     {
         QSqlQuery query;
         query.setForwardOnly(true);
@@ -120,11 +120,11 @@ QList<TextInfo> BibleQuerier::_readInChapterData(QString text, int normalisedCha
             QString strongsLemma = query.value(10).toString();
             QString fribergLemma = query.value(11).toString();
 
-            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, morphologicalTag, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
+            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, morphologicalTag, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
             textInfos.append(textInfo);
         }
     }
-    else if(text == "wlc")
+    else if(bibleText == "wlc")
     {
         QSqlQuery query;
         query.setForwardOnly(true);
@@ -154,11 +154,11 @@ QList<TextInfo> BibleQuerier::_readInChapterData(QString text, int normalisedCha
 
             int strongsNumber = query.value(9).toInt();
 
-            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), strongsNumber, "", "");
+            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), strongsNumber, "", "");
             textInfos.append(textInfo);
         }
     }
-    else if(text == "esv")
+    else if(bibleText == "esv")
     {
         QSqlQuery query;
         query.setForwardOnly(true);
@@ -185,7 +185,7 @@ QList<TextInfo> BibleQuerier::_readInChapterData(QString text, int normalisedCha
             bool paragraph = query.value(5).toBool();
             QString text = query.value(6).toString();
 
-            TextInfo textInfo(id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "");
+            TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "");
             textInfos.append(textInfo);
         }
     }
