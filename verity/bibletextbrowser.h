@@ -44,7 +44,7 @@ public slots:
 //    void tmp(QList<int>);
 
 signals:
-    void wordClicked(TextAndTextInfo*);
+    void wordClicked(TextInfo*);
     void chapterStarts(QList<int>);
 };
 

@@ -27,8 +27,7 @@ SOURCES += main.cpp \
     verselocation.cpp \
     chapterdisplayer.cpp \
     singletextchapterdisplayer.cpp \
-    paralleltextchapterdisplayer.cpp \
-    textandtextinfo.cpp
+    paralleltextchapterdisplayer.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -51,8 +50,7 @@ HEADERS += mainwindow.h \
     verselocation.h \
     chapterdisplayer.h \
     singletextchapterdisplayer.h \
-    paralleltextchapterdisplayer.h \
-    textandtextinfo.h
+    paralleltextchapterdisplayer.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

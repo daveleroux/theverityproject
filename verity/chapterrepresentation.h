@@ -4,7 +4,7 @@
 #include <QTextDocumentFragment>
 #include <QMap>
 #include "basetextunit.h"
-#include "textandtextinfo.h"
+#include "textinfo.h"
 
 class ChapterRepresentation
 {
@@ -29,7 +29,7 @@ public:
     int getSelectionEnd();
     QTextDocumentFragment getTextDocumentFragment();
 
-    TextAndTextInfo* getTextAndTextInfo(int localPos);
+    TextInfo* getTextInfo(int localPos);
 };
 
 #endif // CHAPTERREPRESENTATION_H
