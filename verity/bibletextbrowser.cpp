@@ -62,16 +62,16 @@ void BibleTextBrowser::display(QList<QString> texts, int idLocation, int normali
 
     if(texts.size() > 1)
     {
-        chapterDisplayer = new ParallelTextChapterDisplayer(this, idLocation, normalisedChapterLocaction, texts);
+        chapterDisplayer = new ParallelTextChapterDisplayer(this, texts);
     }
     else
     {
-        chapterDisplayer = new SingleTextChapterDisplayer(this, idLocation, normalisedChapterLocaction, texts);
+        chapterDisplayer = new SingleTextChapterDisplayer(this, texts);
     }
 
     connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
 
-    chapterDisplayer->display();
+    chapterDisplayer->display(idLocation, normalisedChapterLocaction);
 }
 
 void BibleTextBrowser::display(QList<QString> texts, VerseReference verseReference)

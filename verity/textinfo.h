@@ -20,6 +20,7 @@ public:
     int strongsNumber;
     QString strongsLemma;
     QString fribergLemma;
+    int parallel;
 
     TextInfo();
     TextInfo(QString bibleText,
@@ -34,7 +35,8 @@ public:
              QBitArray normalisedMorphTag,
              int strongsNumber,
              QString strongsLemma,
-             QString fribergLemma);
+             QString fribergLemma,
+             int parallel);
 
 
 };

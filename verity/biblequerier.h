@@ -27,11 +27,20 @@ private:
     VerseLocation* _getVerseLocation(QString text, VerseReference verseReference);
     TextSpecificData* _getTextSpecificData(QString text);
     QList<TextInfo> _readInChapterData(QString text, int normalisedChapter);
+    QList<TextInfo> _readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude);
+
+    QString asString(QList<int> list);
+
+    QList<TextInfo> readInTisch(int idFrom, int idTo); //must clean up
+    QList<TextInfo> readInEsv(int idFrom, int idTo); //must clean up
+    QList<TextInfo> readInWlc(int idFrom, int idTo); //must clean up
+
 
 public:
     static VerseLocation* getVerseLocation(QString text, VerseReference verseReference);
     static TextSpecificData* getTextSpecificData(QString text);
     static QList<TextInfo> readInChapterData(QString text, int normalisedChapter);
+    static QList<TextInfo> readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude);
 };
 
 #endif // BIBLEQUERIER_H

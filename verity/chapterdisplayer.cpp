@@ -4,11 +4,9 @@
 #include <QScrollBar>
 #include <QDebug>
 
-ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, int idLocation, int normalisedChapterLocation, QList<QString> texts)
+ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts)
 {
     this->textBrowser = textBrowser;
-    this->idLocation = idLocation;
-    this->normalisedChapterLocation = normalisedChapterLocation;
     this->texts = texts;
 }
 
@@ -17,26 +15,30 @@ QString ChapterDisplayer::getPrimaryText()
     return texts.at(0);
 }
 
-void ChapterDisplayer::display()
+void ChapterDisplayer::display(int id, int normalisedChapter)
 {
+    for(int i=0; i<chapters.values().size(); i++)
+    {
+        delete chapters.values().at(i);
+    }
     chapters.clear();
 
     int fromPosLocal;
     int toPosLocal;
 
-    ChapterRepresentation chapterRepresentation = insertFirstChapter(normalisedChapterLocation, idLocation);
+    ChapterRepresentation* chapterRepresentation = insertFirstChapter(normalisedChapter, id);
 
-    fromPosLocal = chapterRepresentation.getSelectionStart();
-    toPosLocal = chapterRepresentation.getSelectionEnd();
+    fromPosLocal = chapterRepresentation->getSelectionStart();
+    toPosLocal = chapterRepresentation->getSelectionEnd();
 
-    scrollToCentre(normalisedChapterLocation, fromPosLocal, toPosLocal);
+    scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
 
     while(mustPrepend())
     {
         if(validChapter(getFirstNormChapter()-1))
         {
             prependChapter();
-            scrollToCentre(normalisedChapterLocation, fromPosLocal, toPosLocal);
+            scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
         }
         else
         {
@@ -49,7 +51,7 @@ void ChapterDisplayer::display()
         if(validChapter(getLastNormChapter()+1))
         {
             appendChapter();
-            scrollToCentre(normalisedChapterLocation, fromPosLocal, toPosLocal);
+            scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
         }
         else
         {
@@ -81,9 +83,9 @@ bool ChapterDisplayer::mustPrepend()
     return mustPrepend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
 }
 
-void ChapterDisplayer::addChapter(ChapterRepresentation chapterRepresentation, bool append)
+void ChapterDisplayer::addChapter(ChapterRepresentation* chapterRepresentation, bool append)
 {
-    chapters.insert(chapterRepresentation.getNormalisedChapter(), chapterRepresentation);
+    chapters.insert(chapterRepresentation->getNormalisedChapter(), chapterRepresentation);
     QTextCursor textCursor(textBrowser->document());
 
     if(append)
@@ -91,7 +93,7 @@ void ChapterDisplayer::addChapter(ChapterRepresentation chapterRepresentation, b
     else
         textCursor.movePosition(QTextCursor::Start);
 
-    textCursor.insertFragment(chapterRepresentation.getTextDocumentFragment());
+    textCursor.insertFragment(chapterRepresentation->getTextDocumentFragment());
 
 
     //    calculateAndSendChapterStarts();
@@ -105,13 +107,13 @@ bool ChapterDisplayer::validChapter(int proposedChapter)
 
 int ChapterDisplayer::getFirstNormChapter()
 {
-    QMap<int, ChapterRepresentation>::iterator it = chapters.begin();
+    QMap<int, ChapterRepresentation*>::iterator it = chapters.begin();
     return it.key();
 }
 
 int ChapterDisplayer::getLastNormChapter()
 {
-    QMap<int, ChapterRepresentation>::iterator it = chapters.end();
+    QMap<int, ChapterRepresentation*>::iterator it = chapters.end();
     it--;
     return it.key();
 }
@@ -150,9 +152,9 @@ int ChapterDisplayer::convertPosToGlobal(int normCh, int localPos)
         if(key == normCh)
             return total + localPos;
 
-        ChapterRepresentation chRep = chapters.value(key);
+        ChapterRepresentation* chRep = chapters.value(key);
 
-        total += chRep.lastPosInFragment() + 2;
+        total += chRep->lastPosInFragment() + 2;
     }
     return 0; //throw exception?
 }
@@ -219,13 +221,13 @@ int ChapterDisplayer::getCurrentChapter()
 
     for(int i=0; i<chapters.values().size(); i++)
     {
-        ChapterRepresentation chRep = chapters.values().at(i);
+        ChapterRepresentation* chRep = chapters.values().at(i);
 
-        int globalPos = convertPosToGlobal(chRep.getNormalisedChapter(), 0);
+        int globalPos = convertPosToGlobal(chRep->getNormalisedChapter(), 0);
         if(centralPos < globalPos)
             break;
 
-        chContainingCentralPos = chRep.getNormalisedChapter();
+        chContainingCentralPos = chRep->getNormalisedChapter();
     }
 
     return chContainingCentralPos;
@@ -238,14 +240,14 @@ bool ChapterDisplayer::canUnloadLastChapter()
     {
         int chContainingCentralPos = getCurrentChapter();
 
-        ChapterRepresentation chRep = chapters.values().at(chapters.values().size()-1);
+        ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
 
 
-        if( chRep.getNormalisedChapter() > chContainingCentralPos + 1 )
+        if( chRep->getNormalisedChapter() > chContainingCentralPos + 1 )
         {
             //fake remove it and see if 'mustAppend', if so then don't remove it
 
-            int firstGlobalPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
+            int firstGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->firstPosInFragment());
 
             QTextCursor textCursor(textBrowser->document());
             textCursor.setPosition(firstGlobalPos);
@@ -269,13 +271,13 @@ bool ChapterDisplayer::canUnloadFirstChapter()
     {
         int chContainingCentralPos = getCurrentChapter();
 
-        ChapterRepresentation chRep = chapters.values().at(0);
+        ChapterRepresentation* chRep = chapters.values().at(0);
 
-        if(chRep.getNormalisedChapter() < chContainingCentralPos-1)
+        if(chRep->getNormalisedChapter() < chContainingCentralPos-1)
         {
             //fake remove it and see if 'mustPrepend', if so then don't remove it
 
-            int endGlobalPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.lastPosInFragment()+2);
+            int endGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->lastPosInFragment()+2);
 
             QTextCursor textCursor(textBrowser->document());
             textCursor.setPosition(endGlobalPos);
@@ -293,7 +295,7 @@ bool ChapterDisplayer::canUnloadFirstChapter()
 void ChapterDisplayer::unloadLastChapter()
 {    
 
-    ChapterRepresentation chRep = chapters.values().at(chapters.values().size()-1);
+    ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
 
     QTextCursor textCursor(textBrowser->document());
 
@@ -304,7 +306,7 @@ void ChapterDisplayer::unloadLastChapter()
     textCursor.movePosition(QTextCursor::End);
 
 //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
-    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), 2);
+    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 2);
 
     while(textCursor.position() >  startPos)
     {
@@ -316,7 +318,8 @@ void ChapterDisplayer::unloadLastChapter()
 
     textCursor.endEditBlock();
 
-    chapters.remove(chRep.getNormalisedChapter());
+    chapters.remove(chRep->getNormalisedChapter());
+    delete chRep;
 
     //    calculateAndSendChapterStarts();
 }
@@ -328,9 +331,9 @@ void ChapterDisplayer::unloadFirstChapter()
     int originalHeight = textBrowser->document()->size().height();
     int originalValue = scrollBar->value();
 
-    ChapterRepresentation chRep = chapters.values().at(0);
+    ChapterRepresentation* chRep = chapters.values().at(0);
 
-    int endPos = chRep.lastPosInFragment()+2;
+    int endPos = chRep->lastPosInFragment()+2;
 
     QTextCursor textCursor(textBrowser->document());
 
@@ -350,7 +353,8 @@ void ChapterDisplayer::unloadFirstChapter()
 
     textBrowser->verticalScrollBar()->setValue(originalValue - (originalHeight-newHeight));
 
-    chapters.remove(chRep.getNormalisedChapter());
+    chapters.remove(chRep->getNormalisedChapter());
+    delete chRep;
 
     //    calculateAndSendChapterStarts();
 }
@@ -384,9 +388,9 @@ void ChapterDisplayer::mousePressed(QPoint point)
 
         int localPos = globalPos - startPositions.at(index);
 
-        ChapterRepresentation chRep = chapters.values().at(index);
+        ChapterRepresentation* chRep = chapters.values().at(index);
 
-        TextInfo* textInfo = chRep.getTextInfo(localPos);
+        TextInfo* textInfo = chRep->getTextInfo(localPos);
         if(textInfo != 0)
         {
             emit wordClicked(textInfo);
@@ -412,26 +416,26 @@ void ChapterDisplayer::highlight(int startPos, int endPos)
     cursor.setCharFormat(format);
 }
 
-ChapterRepresentation ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
+ChapterRepresentation* ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
 {
-    ChapterRepresentation chapter =  constructChapterRepresentation(normalisedChapter, idLocation);
+    ChapterRepresentation* chapter =  constructChapterRepresentation(normalisedChapter, idLocation);
     addChapter(chapter, true);
 
-    highlight(chapter.getSelectionStart(), chapter.getSelectionEnd());
+    highlight(chapter->getSelectionStart(), chapter->getSelectionEnd());
 
     return chapter;
 }
 
-ChapterRepresentation ChapterDisplayer::appendChapter()
+ChapterRepresentation* ChapterDisplayer::appendChapter()
 {
-    ChapterRepresentation chapter =  constructChapterRepresentation(getLastNormChapter()+1);
+    ChapterRepresentation* chapter =  constructChapterRepresentation(getLastNormChapter()+1);
     addChapter(chapter, true);
     return chapter;
 }
 
-ChapterRepresentation ChapterDisplayer::prependChapter()
+ChapterRepresentation* ChapterDisplayer::prependChapter()
 {
-    ChapterRepresentation chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
+    ChapterRepresentation* chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
     addChapter(chapter, false);
     return chapter;
 }

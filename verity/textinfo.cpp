@@ -16,7 +16,8 @@ TextInfo::TextInfo(QString bibleText,
                    QBitArray normalisedMorphTag,
                    int strongsNumber,
                    QString strongsLemma,
-                   QString fribergLemma)
+                   QString fribergLemma,
+                   int parallel)
 {
     this->bibleText = bibleText;
     this->id = id;
@@ -31,4 +32,5 @@ TextInfo::TextInfo(QString bibleText,
     this->strongsNumber = strongsNumber;
     this->strongsLemma = strongsLemma;
     this->fribergLemma = fribergLemma;
+    this->parallel = parallel;
 }
