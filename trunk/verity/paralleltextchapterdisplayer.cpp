@@ -6,8 +6,8 @@
 #include "parallelchapterrepresentation.h"
 #include "parallelgridconstructor.h"
 
-ParallelTextChapterDisplayer::ParallelTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts) :
-        ChapterDisplayer(textBrowser, texts)
+ParallelTextChapterDisplayer::ParallelTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies) :
+        ChapterDisplayer(textBrowser, texts, fontFamilies)
 {
 }
 
@@ -95,32 +95,10 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
     QTextCursor textCursor(&document);
     textCursor.beginEditBlock();
 
-    //    QTextBlockFormat textBlockFormat;
-    //    if(hebrew)
-    //    {
-    //        textBlockFormat.setLayoutDirection(Qt::RightToLeft);
-    //        textBlockFormat.setRightMargin(10);
-    //    }
-    //    else
-    //    {
-    //        textBlockFormat.setAlignment(Qt::AlignLeft);
-    //    }
 
-    //    textCursor.setBlockFormat(textBlockFormat);
+    QTextCharFormat superscriptFormat = getSuperscriptFormat();
 
-    QFont defaultFont = document.defaultFont();
-    QFont smallFont = defaultFont;
-    smallFont.setPointSize(6);
-
-
-    QTextCharFormat superscriptFormat;
-    superscriptFormat.setForeground(QBrush(Qt::red));
-    superscriptFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
-
-    QTextCharFormat defaultFormat;
-
-    QTextCharFormat boldFormat;
-    boldFormat.setFontWeight(QFont::Bold);
+    QTextCharFormat boldFormat = getBoldFormat();
 
 
     QVector<QTextLength> columnWidths;
@@ -154,8 +132,34 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
         while(cell != 0)
         {
+            QTextCharFormat defaultFormat;
+            if(cell->textInfos.size() > 0)
+            {
+                QString bibleText = cell->textInfos.at(0).bibleText;
+                defaultFormat = getDefaultFormat(bibleText);
+
+
+                QTextCharFormat textCharFormat;
+//                QTextBlockFormat textBlockFormat;
+                if(bibleText == "wlc")
+                {
+                    textCharFormat.setLayoutDirection(Qt::RightToLeft);
+
+//                    textCharFormat.setRightMargin(10);
+                }
+                else
+                {
+//                    textCharFormat.setAlignment(Qt::AlignLeft);
+//                    textCharFormat.setRightMargin(0);
+                }
+
+                table->cellAt(currentRow, currentColumn).setFormat(textCharFormat);
+            }
+
             if(selectionStart != -1 && selectionEnd == -1)
                 selectionEnd = textCursor.position()+1;
+
+            textCursor.setCharFormat(defaultFormat);
 
             textCursor.setPosition(table->cellAt(currentRow,currentColumn).firstCursorPosition().position());
 

@@ -4,6 +4,7 @@
 
 extern QString ESV;
 extern QString WLC;
+extern QString TISCH;
 
 extern int GENESIS;
 extern int EXODUS;

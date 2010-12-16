@@ -1,8 +1,8 @@
 #include "singletextchapterdisplayer.h"
 #include "biblequerier.h"
 
-SingleTextChapterDisplayer::SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts) :
-        ChapterDisplayer(textBrowser, texts)
+SingleTextChapterDisplayer::SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies) :
+        ChapterDisplayer(textBrowser, texts, fontFamilies)
 {
 }
 
@@ -39,14 +39,11 @@ ChapterRepresentation* SingleTextChapterDisplayer::constructChapterRepresentatio
 
     textCursor.setBlockFormat(textBlockFormat);
 
-    QTextCharFormat superscriptFormat;
-    superscriptFormat.setForeground(QBrush(Qt::red));
-    superscriptFormat.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+    QTextCharFormat superscriptFormat = getSuperscriptFormat();
 
-    QTextCharFormat defaultFormat;
+    QTextCharFormat defaultFormat = getDefaultFormat(getText());
 
-    QTextCharFormat boldFormat;
-    boldFormat.setFontWeight(QFont::Bold);
+    QTextCharFormat boldFormat = getBoldFormat();
 
     textCursor.insertBlock();
 
@@ -54,7 +51,7 @@ ChapterRepresentation* SingleTextChapterDisplayer::constructChapterRepresentatio
     int selectionEnd = -1;
 
 
-//    textCursor.setCharFormat(defaultFormat);
+    //    textCursor.setCharFormat(defaultFormat);
     for(int i=0; i<textInfos.size(); i++)
     {
         TextInfo textInfo = textInfos.at(i);

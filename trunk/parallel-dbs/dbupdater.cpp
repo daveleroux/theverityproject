@@ -27,23 +27,15 @@ QSqlQuery DbUpdater::queryAndCheck(QString queryString)
     return query(queryString, true);
 }
 
-void DbUpdater::updateWlc()
+void DbUpdater::updateText(QString text, QList<Rule*> rules)
 {
-    QList<Rule*> rules;
+    query("alter table " + text + " add column parallel int");
 
-    Gen32WlcRule gen32WlcRule(this);
-    rules.append(&gen32WlcRule);
+    QSqlQuery query = queryAndCheck("select book_number, chapter, verse from " + text + " group by book_number, chapter, verse");
 
-    StandardRule standardRule(this);
-    rules.append(&standardRule);
+    qDebug() << "got refs from " << text << " " << QDateTime::currentDateTime().time().toString();
 
-    query("alter table wlc add column parallel int");
-
-    QSqlQuery query = queryAndCheck("select book_number, chapter, verse from wlc group by book_number, chapter, verse");
-
-    qDebug() << "got refs from wlc" << QDateTime::currentDateTime().time().toString();
-
-    QMap<VerseReference, int> wlcSyncNumberMap;
+    QMap<VerseReference, int> syncNumberMap;
 
     while(query.next())
     {
@@ -59,30 +51,53 @@ void DbUpdater::updateWlc()
             Rule* rule = rules.at(i);
             if(rule->applies(verseReference))
             {
-                wlcSyncNumberMap.insert(verseReference, rule->getSyncNumber(verseReference));
+                syncNumberMap.insert(verseReference, rule->getSyncNumber(verseReference));
                 break;
             }
         }
 
     }
 
-    qDebug() << "applied rules to wlc, now updating wlc " << QDateTime::currentDateTime().time().toString();
+    qDebug() << "applied rules to " << text << ", now updating " << QDateTime::currentDateTime().time().toString();
 
-    for(int i=0; i<wlcSyncNumberMap.keys().size(); i++)
+    for(int i=0; i<syncNumberMap.keys().size(); i++)
     {
-        VerseReference verseReference = wlcSyncNumberMap.keys().at(i);
-        int syncNumber = wlcSyncNumberMap.value(verseReference);
+        VerseReference verseReference = syncNumberMap.keys().at(i);
+        int syncNumber = syncNumberMap.value(verseReference);
 
-        queryAndCheck("update wlc set parallel=" + QString::number(syncNumber) +
+        queryAndCheck("update " + text + " set parallel=" + QString::number(syncNumber) +
                       " where book_number=" + QString::number(verseReference.book) +
                       " and chapter="+ QString::number(verseReference.chapter) +
                       " and verse=" + QString::number(verseReference.verse));
     }
 
-    qDebug() << "updated wlc" << QDateTime::currentDateTime().time().toString();
+    qDebug() << "updated " << text << " " << QDateTime::currentDateTime().time().toString();
 
-    syncNumberMaps.insert(WLC, wlcSyncNumberMap);
+    syncNumberMaps.insert(text, syncNumberMap);
 
+}
+
+void DbUpdater::updateWlc()
+{
+    QList<Rule*> rules;
+
+    Gen32WlcRule gen32WlcRule(this);
+    rules.append(&gen32WlcRule);
+
+    StandardRule standardRule(this);
+    rules.append(&standardRule);
+
+    updateText(WLC, rules);
+}
+
+void DbUpdater::updateTisch()
+{
+    QList<Rule*> rules;
+
+    StandardRule standardRule(this);
+    rules.append(&standardRule);
+
+    updateText(TISCH, rules);
 }
 
 void DbUpdater::update()
@@ -105,7 +120,7 @@ void DbUpdater::update()
 
     QMap<VerseReference, int> esvSyncNumberMap;
 
-    highestUnusedSyncNumber = 0;
+    highestUnusedSyncNumber = 1;
 
     while(query.next())
     {
@@ -136,6 +151,7 @@ void DbUpdater::update()
     syncNumberMaps.insert(ESV, esvSyncNumberMap);
 
     updateWlc();
+    updateTisch();
 
     qDebug() << "finished: " << QDateTime::currentDateTime().time().toString();
 

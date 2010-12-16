@@ -6,6 +6,8 @@
 #include <QtSql>
 #include <QDebug>
 
+class Rule;
+
 class DbUpdater
 {
 public:
@@ -19,8 +21,11 @@ private:
     QSqlQuery query(QString queryString, bool mustCheck=false);
     QSqlQuery queryAndCheck(QString queryString);
 
-    void updateWlc();
+    void updateText(QString text, QList<Rule*> rules);
 
+
+    void updateWlc();
+    void updateTisch();
 };
 
 #endif // DBUPDATER_H

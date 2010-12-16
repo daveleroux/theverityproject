@@ -4,15 +4,21 @@
 #include <QScrollBar>
 #include <QDebug>
 
-ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts)
+ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies)
 {
     this->textBrowser = textBrowser;
     this->texts = texts;
+    this->fontFamilies = fontFamilies;
 }
 
 QString ChapterDisplayer::getPrimaryText()
 {
     return texts.at(0);
+}
+
+QString ChapterDisplayer::getFontFamily(QString text)
+{
+    return fontFamilies.value(text);
 }
 
 void ChapterDisplayer::display(int id, int normalisedChapter)
@@ -95,8 +101,7 @@ void ChapterDisplayer::addChapter(ChapterRepresentation* chapterRepresentation, 
 
     textCursor.insertFragment(chapterRepresentation->getTextDocumentFragment());
 
-
-    //    calculateAndSendChapterStarts();
+    calculateAndSendChapterStarts();
 }
 
 bool ChapterDisplayer::validChapter(int proposedChapter)
@@ -321,7 +326,7 @@ void ChapterDisplayer::unloadLastChapter()
     chapters.remove(chRep->getNormalisedChapter());
     delete chRep;
 
-    //    calculateAndSendChapterStarts();
+    calculateAndSendChapterStarts();
 }
 
 void ChapterDisplayer::unloadFirstChapter()
@@ -356,7 +361,7 @@ void ChapterDisplayer::unloadFirstChapter()
     chapters.remove(chRep->getNormalisedChapter());
     delete chRep;
 
-    //    calculateAndSendChapterStarts();
+    calculateAndSendChapterStarts();
 }
 
 QList<int> ChapterDisplayer::chapterStartPositions()
@@ -399,6 +404,28 @@ void ChapterDisplayer::mousePressed(QPoint point)
     }
 }
 
+QTextCharFormat ChapterDisplayer::getBoldFormat()
+{
+    QTextCharFormat result;
+    result.setFontWeight(QFont::Bold);
+    return result;
+}
+
+QTextCharFormat ChapterDisplayer::getSuperscriptFormat()
+{
+    QTextCharFormat result;
+    result.setForeground(QBrush(Qt::red));
+    result.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
+    return result;
+}
+
+QTextCharFormat ChapterDisplayer::getDefaultFormat(QString text)
+{
+    QTextCharFormat result;
+    result.setFontFamily(getFontFamily(text));
+    return result;
+}
+
 void ChapterDisplayer::highlight(int startPos, int endPos)
 {
     QTextCursor cursor(textBrowser->document());
@@ -410,7 +437,7 @@ void ChapterDisplayer::highlight(int startPos, int endPos)
     }
 
 
-    QTextCharFormat format;// = defaultFormat;
+    QTextCharFormat format = getDefaultFormat(getPrimaryText());
     format.setBackground(QBrush(Qt::lightGray));
 
     cursor.setCharFormat(format);
@@ -438,5 +465,21 @@ ChapterRepresentation* ChapterDisplayer::prependChapter()
     ChapterRepresentation* chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
     addChapter(chapter, false);
     return chapter;
+}
+
+void ChapterDisplayer::calculateAndSendChapterStarts()
+{
+    QList<int> chStartPositions = chapterStartPositions();
+    QList<int> chStartPixels;
+    for(int i=0; i<chStartPositions.size(); i++)
+    {
+        QTextCursor textCursor(textBrowser->document());
+        textCursor.setPosition(chStartPositions.at(i));
+        QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
+
+        chStartPixels.append(textBrowser->verticalScrollBar()->value()+rect.top());
+    }
+
+    emit chapterStarts(chStartPixels);
 }
 

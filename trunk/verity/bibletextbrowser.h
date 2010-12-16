@@ -16,8 +16,7 @@ class BibleTextBrowser : public QTextBrowser
     Q_OBJECT
 
 private:
-//    DocumentRepresentation* documentRepresentation;
-    QString fontFamily;
+    QMap<QString, QString> fontFamilies;
     ChapterDisplayer* chapterDisplayer;
 
 public:
@@ -40,8 +39,7 @@ protected:
     void wheelEvent ( QWheelEvent * e );
 
 public slots:
-//    void select(int, int);
-//    void tmp(QList<int>);
+    void tmp(QList<int>);
 
 signals:
     void wordClicked(TextInfo*);

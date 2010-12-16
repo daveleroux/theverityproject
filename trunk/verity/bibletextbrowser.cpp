@@ -19,8 +19,19 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
 
+    //    fontFamilies.insert("esv", "DejaVuSans");
+    //    fontFamilies.insert("wlc", "SBL Hebrew");
+    //    fontFamilies.insert("tisch", "DejaVuSans");
 
-    fontFamily = settings.value(FONT_FAMILY_SETTING,QApplication::font().family()).toString();
+    int size = settings.beginReadArray(FONT_FAMILY_SETTINGS);
+    for (int i = 0; i < size; i++)
+    {
+        settings.setArrayIndex(i);
+        QString text = settings.value(TEXT_SETTING).toString();
+        QString fontFamily = settings.value(FONT_SETTING).toString();
+        fontFamilies.insert(text, fontFamily);
+    }
+    settings.endArray();
 
     settings.endGroup();
 
@@ -29,16 +40,14 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     setMouseTracking(true);
     zoomIn(3);    
 
-//    documentRepresentation = new DocumentRepresentation(document(), this, fontFamily);
-//    connect(documentRepresentation, SIGNAL(selectionRequest(int,int)), this, SLOT(select(int,int)));
 
-//    connect(documentRepresentation, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
     markedScrollBar = new QSnapScrollBar(this);
     setVerticalScrollBar(markedScrollBar);
 
     connect(this, SIGNAL(chapterStarts(QList<int>)), markedScrollBar, SLOT(defineSnapPoints(QList<int>)));
-//    connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
+    connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
+
     chapterDisplayer = 0;
 }
 
@@ -47,7 +56,16 @@ void BibleTextBrowser::writeOutSettings()
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
 
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
-    settings.setValue(FONT_FAMILY_SETTING, fontFamily);
+
+    settings.beginWriteArray(FONT_FAMILY_SETTINGS);
+    for (int i = 0; i < fontFamilies.size(); i++)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue(TEXT_SETTING, fontFamilies.keys().at(i));
+        settings.setValue(FONT_SETTING, fontFamilies.value(fontFamilies.keys().at(i)));
+    }
+    settings.endArray();
+
     settings.endGroup();
 }
 
@@ -62,14 +80,15 @@ void BibleTextBrowser::display(QList<QString> texts, int idLocation, int normali
 
     if(texts.size() > 1)
     {
-        chapterDisplayer = new ParallelTextChapterDisplayer(this, texts);
+        chapterDisplayer = new ParallelTextChapterDisplayer(this, texts, fontFamilies);
     }
     else
     {
-        chapterDisplayer = new SingleTextChapterDisplayer(this, texts);
+        chapterDisplayer = new SingleTextChapterDisplayer(this, texts, fontFamilies);
     }
 
     connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
+    connect(chapterDisplayer, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
     chapterDisplayer->display(idLocation, normalisedChapterLocaction);
 }
@@ -105,30 +124,19 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
     QTextBrowser::mousePressEvent(e);
 }
 
-//void BibleTextBrowser::tmp(QList<int> pixelStarts)
-//{
-//    markedScrollBar->removeAllMarks();
+void BibleTextBrowser::tmp(QList<int> pixelStarts)
+{
+    markedScrollBar->removeAllMarks();
 
-//    for(int i=0;i<pixelStarts.size();i++)
-//    {
-//        if(i!=0)
-//            markedScrollBar->addMark(pixelStarts.at(i),QColor(Qt::black),"");
-//    }
-//}
+    for(int i=0;i<pixelStarts.size();i++)
+    {
+        if(i!=0)
+            markedScrollBar->addMark(pixelStarts.at(i),QColor(Qt::black),"");
+    }
+}
 
 void BibleTextBrowser::wheelEvent ( QWheelEvent * e )
 {
     QTextBrowser::wheelEvent(e);
     chapterDisplayer->checkCanScroll();
 }
-
-//void BibleTextBrowser::select(int startPos, int endPos)
-//{
-//    QTextCursor cursor = textCursor();
-//    cursor.setPosition(startPos);
-//    while(cursor.position() < endPos)
-//    {
-//        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-//    }
-//    setTextCursor(cursor);
-//}
