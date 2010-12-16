@@ -7,13 +7,14 @@
 
 class ChapterDisplayer : public QObject
 {
-        Q_OBJECT
+    Q_OBJECT
 
 protected:
     QTextBrowser* textBrowser;
     QList<QString> texts;
 
     QMap<int, ChapterRepresentation*> chapters;
+    QMap<QString, QString> fontFamilies;
 
     void scrollToCentre(int normCh, int fromPosLocal, int toPosLocal);
     int convertPosToGlobal(int normCh, int localPos);
@@ -48,20 +49,30 @@ protected:
     void unloadLastChapter();
     void unloadFirstChapter();
 
+    void calculateAndSendChapterStarts();
+
+
     QList<int> chapterStartPositions();
 
     bool validChapter(int proposedChapter);
 
+    QTextCharFormat getSuperscriptFormat();
+    QTextCharFormat getDefaultFormat(QString text);
+    QTextCharFormat getBoldFormat();
+
     void highlight(int startPos, int endPos);
 
+    QString getFontFamily(QString text);
+
 public:
-    ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts);
+    ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies);
     void display(int id, int normalisedChapter);
     void mousePressed(QPoint point);
     void checkCanScroll();
 
 signals:
     void wordClicked(TextInfo*);
+    void chapterStarts(QList<int>);
 };
 
 #endif // CHAPTERDISPLAYER_H

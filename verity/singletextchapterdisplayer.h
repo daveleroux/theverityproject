@@ -14,7 +14,7 @@ protected:
     ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
 
 public:
-    SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts);
+    SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies);
 };
 
 #endif // SINGLETEXTCHAPTERDISPLAYER_H

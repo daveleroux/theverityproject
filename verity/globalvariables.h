@@ -11,7 +11,9 @@ extern QString WINDOW_STATE_SETTING;
 extern QString DATA_PATH_SETTING;
 
 extern QString BIBLE_TEXT_BROWSER_SETTING_GROUP;
-extern QString FONT_FAMILY_SETTING;
+extern QString FONT_FAMILY_SETTINGS;
+extern QString TEXT_SETTING;
+extern QString FONT_SETTING;
 
 extern QString DATA_PATH;
 

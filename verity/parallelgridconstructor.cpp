@@ -67,6 +67,7 @@ VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
             {
                 VerseNode* toInsertNode = new VerseNode(node->parallelId);
                 nextChainTail->insertBelowMe(toInsertNode);
+                node->setRightOfMe(toInsertNode);
             }
             node = node->down;
         }
