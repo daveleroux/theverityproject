@@ -89,19 +89,21 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
-    QPushButton* esvButton = new QPushButton("esv");
-    esvButton->setCheckable(true);
-    connect(esvButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-    esvButton->setChecked(true);
+    QList<QString> textsAvailable;
+    textsAvailable.append("esv");
+    textsAvailable.append("kjv");
+    textsAvailable.append("tisch");
+    textsAvailable.append("wlc");
 
-    QPushButton* tischButton = new QPushButton("tisch");
-    tischButton->setCheckable(true);
-    connect(tischButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-
-    QPushButton* wlcButton = new QPushButton("wlc");
-    wlcButton->setCheckable(true);
-    connect(wlcButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-
+    for(int i=0; i< textsAvailable.size(); i++)
+    {
+        QPushButton* toggleButton = new QPushButton(textsAvailable.at(i));
+        toggleButton->setCheckable(true);
+        connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
+        if(i == 0)
+            toggleButton->setChecked(true);
+        toolbar->addWidget(toggleButton);
+    }
 
     verseLineEdit = new QLineEdit();
     verseLineEdit->setMaximumWidth(300);
@@ -110,10 +112,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
     connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(lookupVerse()));
-
-    toolbar->addWidget(esvButton);
-    toolbar->addWidget(tischButton);
-    toolbar->addWidget(wlcButton);
 
     toolbar->addWidget(verseLineEdit);
     toolbar->addWidget(verseLineOutput);

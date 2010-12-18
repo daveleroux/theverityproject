@@ -41,3 +41,9 @@ void VerseNode::setRightOfMe(VerseNode* verseNode)
     this->right = verseNode;
     verseNode->left = this;
 }
+
+VerseNode::~VerseNode()
+{
+    if(down != 0)
+        delete down;
+}

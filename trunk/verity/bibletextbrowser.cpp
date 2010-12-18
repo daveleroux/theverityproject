@@ -19,10 +19,6 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
 
-    //    fontFamilies.insert("esv", "DejaVuSans");
-    //    fontFamilies.insert("wlc", "SBL Hebrew");
-    //    fontFamilies.insert("tisch", "DejaVuSans");
-
     int size = settings.beginReadArray(FONT_FAMILY_SETTINGS);
     for (int i = 0; i < size; i++)
     {

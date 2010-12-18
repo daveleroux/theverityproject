@@ -18,12 +18,18 @@ public:
     int highestUnusedSyncNumber;
 
 private:
+    QSqlDatabase db;
+    int queryCount;
+
     QSqlQuery query(QString queryString, bool mustCheck=false);
     QSqlQuery queryAndCheck(QString queryString);
 
     void updateText(QString text, QList<Rule*> rules);
 
 
+    void updateEsv();
+
+    void updateKjv();
     void updateWlc();
     void updateTisch();
 };

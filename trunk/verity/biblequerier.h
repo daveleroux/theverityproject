@@ -32,7 +32,7 @@ private:
     QString asString(QList<int> list);
 
     QList<TextInfo> readInTisch(int idFrom, int idTo); //must clean up
-    QList<TextInfo> readInEsv(int idFrom, int idTo); //must clean up
+    QList<TextInfo> readInEsvOrKjv(int idFrom, int idTo, QString bibleText); //must clean up
     QList<TextInfo> readInWlc(int idFrom, int idTo); //must clean up
 
 
