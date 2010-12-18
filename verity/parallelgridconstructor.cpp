@@ -77,15 +77,17 @@ VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
         {
             if(nextChainNode->left == 0)
             {
-                VerseNode* justRightOfCurrentLeft = nextChainNode;
-                VerseNode* currentLeft = nextChainNode->up->left;
+                if(nextChainNode->parallelId == 31305)
+                    qDebug() << "hah";
+                VerseNode* target = nextChainNode;
+                VerseNode* currentLeft = target->up->left;
                 while(currentLeft != 0)
                 {
                     VerseNode* toInsertNode = new VerseNode(nextChainNode->parallelId);
                     currentLeft->insertBelowMe(toInsertNode);
-                    toInsertNode->setRightOfMe(justRightOfCurrentLeft);
+                    toInsertNode->setRightOfMe(target);
 
-                    justRightOfCurrentLeft = currentLeft;
+                    target = toInsertNode;
                     currentLeft = currentLeft->left;
                 }
 

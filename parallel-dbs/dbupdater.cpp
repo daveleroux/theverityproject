@@ -4,6 +4,7 @@
 #include "standardrule.h"
 #include <QDateTime>
 #include "gen32wlcrule.h"
+#include "jn1tischrule.h"
 
 DbUpdater::DbUpdater()
 {
@@ -11,6 +12,13 @@ DbUpdater::DbUpdater()
 
 QSqlQuery DbUpdater::query(QString queryString, bool mustCheck)
 {
+    queryCount++;
+    if(queryCount == 1000)
+    {
+        db.commit();
+        db.transaction();
+        queryCount = 0;
+    }
     QSqlQuery query;
     bool passed = query.exec(queryString);
     if(mustCheck && !passed)
@@ -90,9 +98,22 @@ void DbUpdater::updateWlc()
     updateText(WLC, rules);
 }
 
+void DbUpdater::updateKjv()
+{
+    QList<Rule*> rules;
+
+    StandardRule standardRule(this);
+    rules.append(&standardRule);
+
+    updateText(KJV, rules);
+}
+
 void DbUpdater::updateTisch()
 {
     QList<Rule*> rules;
+
+    Jn1TischRule jn1TischRule(this);
+    rules.append(&jn1TischRule);
 
     StandardRule standardRule(this);
     rules.append(&standardRule);
@@ -100,15 +121,33 @@ void DbUpdater::updateTisch()
     updateText(TISCH, rules);
 }
 
+void DbUpdater::updateEsv()
+{
+    QMap<VerseReference, int> esvSyncNumberMap = syncNumberMaps.value(ESV);
+    for(int i=0; i<esvSyncNumberMap.keys().size(); i++)
+    {
+        VerseReference verseReference = esvSyncNumberMap.keys().at(i);
+        int syncNumber = esvSyncNumberMap.value(verseReference);
+
+        queryAndCheck("update esv set parallel=" + QString::number(syncNumber) +
+                      " where book_number=" + QString::number(verseReference.book) +
+                      " and chapter="+ QString::number(verseReference.chapter) +
+                      " and verse=" + QString::number(verseReference.verse));
+    }
+}
+
 void DbUpdater::update()
 {
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    queryCount = 0;
+    db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("bibles.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
         exit(1);
     }
+
+    db.transaction();
 
     //queryAndCheck("alter table esv drop column parallel");//AAAH can't do this in sqlite
 
@@ -133,28 +172,22 @@ void DbUpdater::update()
         esvSyncNumberMap.insert(verseReference, highestUnusedSyncNumber++);
     }
 
+    syncNumberMaps.insert(ESV, esvSyncNumberMap);
+
     qDebug() << "starting to update esv" << QDateTime::currentDateTime().time().toString();
 
-    for(int i=0; i<esvSyncNumberMap.keys().size(); i++)
-    {
-        VerseReference verseReference = esvSyncNumberMap.keys().at(i);
-        int syncNumber = esvSyncNumberMap.value(verseReference);
-
-        queryAndCheck("update esv set parallel=" + QString::number(syncNumber) +
-                      " where book_number=" + QString::number(verseReference.book) +
-                      " and chapter="+ QString::number(verseReference.chapter) +
-                      " and verse=" + QString::number(verseReference.verse));
-    }
+    updateEsv();
 
     qDebug() << "updated esv" << QDateTime::currentDateTime().time().toString();
 
-    syncNumberMaps.insert(ESV, esvSyncNumberMap);
 
+    updateKjv();
     updateWlc();
     updateTisch();
 
     qDebug() << "finished: " << QDateTime::currentDateTime().time().toString();
 
+    db.commit();
     db.close();
 
 }

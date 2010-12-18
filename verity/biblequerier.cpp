@@ -123,8 +123,8 @@ QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, Q
             return readInTisch(min, max);
         else if (bibleText == "wlc")
             return readInWlc(min, max);
-        else if (bibleText == "esv")
-            return readInEsv(min, max);
+        else if (bibleText == "esv" || bibleText == "kjv")
+            return readInEsvOrKjv(min, max, bibleText);
 
     }
     return result;
@@ -232,7 +232,7 @@ QList<TextInfo> BibleQuerier::readInWlc(int idFrom, int idTo) //must clean up
     return textInfos;
 }
 
-QList<TextInfo> BibleQuerier::readInEsv(int idFrom, int idTo) //must clean up
+QList<TextInfo> BibleQuerier::readInEsvOrKjv(int idFrom, int idTo, QString bibleText) //must clean up
 {
     QList<TextInfo> textInfos;
 
@@ -241,7 +241,7 @@ QList<TextInfo> BibleQuerier::readInEsv(int idFrom, int idTo) //must clean up
 
     if(!query.exec("select id, book, chapter, verse, number_in_verse, paragraph, text "
                    ", morphological_tag, normalised_morph_tag, strongs_number, parallel "
-                   "from esv where id >= "
+                   "from " + bibleText + " where id >= "
                    + QString().setNum(idFrom) +
                    " and id <= " + QString().setNum(idTo) +
                    " order by id asc"))
@@ -263,7 +263,7 @@ QList<TextInfo> BibleQuerier::readInEsv(int idFrom, int idTo) //must clean up
         QString text = query.value(6).toString();
         int parallel = query.value(10).toInt();
 
-        TextInfo textInfo("esv", id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "", parallel);
+        TextInfo textInfo(bibleText, id, book, chapter, verse, numberInVerse, paragraph, text, "", QBitArray(), 0, "", "", parallel);
         textInfos.append(textInfo);
     }
 
@@ -292,8 +292,8 @@ QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalis
             return readInTisch(min, max);
         else if (bibleText == "wlc")
             return readInWlc(min, max);
-        else if (bibleText == "esv")
-            return readInEsv(min, max);
+        else if (bibleText == "esv" || bibleText == "kjv")
+            return readInEsvOrKjv(min, max, bibleText);
     }
 
     return QList<TextInfo>();

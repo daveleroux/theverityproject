@@ -20,6 +20,7 @@ public:
 
     VerseNode();
     VerseNode(int parallelId);
+    ~VerseNode();
 
     void addTextInfo(TextInfo textInfo);
     void insertBelowMe(VerseNode* verseNode);

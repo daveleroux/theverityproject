@@ -13,10 +13,12 @@ SOURCES += main.cpp \
     dbupdater.cpp \
     rule.cpp \
     standardrule.cpp \
-    gen32wlcrule.cpp
+    gen32wlcrule.cpp \
+    jn1tischrule.cpp
 HEADERS += versereference.h \
     globalvariables.h \
     dbupdater.h \
     rule.h \
     standardrule.h \
-    gen32wlcrule.h
+    gen32wlcrule.h \
+    jn1tischrule.h

@@ -217,6 +217,10 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
     selectionEnd = selectionEnd - 2;
 
+    VerseNode* value;
+    foreach(value, chainHeads)
+        delete value;
+
     return new ParallelChapterRepresentation(getPrimaryText(),
                                              normalisedChapter,
                                              QTextDocumentFragment(&document),
