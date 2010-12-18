@@ -132,6 +132,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
         while(cell != 0)
         {
+            QTextBlockFormat textBlockFormat;
             QTextCharFormat defaultFormat;
             if(cell->textInfos.size() > 0)
             {
@@ -143,12 +144,13 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 //                QTextBlockFormat textBlockFormat;
                 if(bibleText == "wlc")
                 {
-                    textCharFormat.setLayoutDirection(Qt::RightToLeft);
+                    textBlockFormat.setLayoutDirection(Qt::RightToLeft);
 
 //                    textCharFormat.setRightMargin(10);
                 }
                 else
                 {
+                    textBlockFormat.setLayoutDirection(Qt::LeftToRight);
 //                    textCharFormat.setAlignment(Qt::AlignLeft);
 //                    textCharFormat.setRightMargin(0);
                 }
@@ -162,6 +164,9 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
             textCursor.setCharFormat(defaultFormat);
 
             textCursor.setPosition(table->cellAt(currentRow,currentColumn).firstCursorPosition().position());
+
+            textCursor.setBlockFormat(textBlockFormat);
+            textCursor.insertBlock();
 
             for(int i=0; i<cell->textInfos.size(); i++)
             {

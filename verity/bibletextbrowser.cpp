@@ -29,6 +29,13 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     }
     settings.endArray();
 
+    if (size == 0)
+    {
+        fontFamilies.insert("esv", "DejaVuSans");
+        fontFamilies.insert("kjv", "DejaVuSans");
+        fontFamilies.insert("tisch", "DejaVuSans");
+        fontFamilies.insert("wlc", "SBL Hebrew");
+    }
     settings.endGroup();
 
 
