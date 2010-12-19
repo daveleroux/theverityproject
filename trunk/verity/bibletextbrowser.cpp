@@ -123,7 +123,8 @@ void BibleTextBrowser::mouseMoveEvent ( QMouseEvent * e )
 
 void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 {
-    chapterDisplayer->mousePressed(e->pos());
+    if(chapterDisplayer != 0)
+        chapterDisplayer->mousePressed(e->pos());
     QTextBrowser::mousePressEvent(e);
 }
 
