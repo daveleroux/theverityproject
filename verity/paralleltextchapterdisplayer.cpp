@@ -166,7 +166,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
             textCursor.setPosition(table->cellAt(currentRow,currentColumn).firstCursorPosition().position());
 
             textCursor.setBlockFormat(textBlockFormat);
-            textCursor.insertBlock();
+//            textCursor.insertBlock();
 
             for(int i=0; i<cell->textInfos.size(); i++)
             {

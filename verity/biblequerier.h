@@ -22,7 +22,7 @@ private:
     BibleQuerier& operator=(const BibleQuerier&);      // Prevent assignment
 
 
-    TextSpecificData* calculateMinAndMaxChapters(QString text);
+    TextSpecificData* __getTextSpecificData(QString text);
 
     VerseLocation* _getVerseLocation(QString text, VerseReference verseReference);
     TextSpecificData* _getTextSpecificData(QString text);
