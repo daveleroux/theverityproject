@@ -30,7 +30,8 @@ SOURCES += main.cpp \
     paralleltextchapterdisplayer.cpp \
     parallelchapterrepresentation.cpp \
     versenode.cpp \
-    parallelgridconstructor.cpp
+    parallelgridconstructor.cpp \
+    minandmaxidsforchapter.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -56,7 +57,8 @@ HEADERS += mainwindow.h \
     paralleltextchapterdisplayer.h \
     parallelchapterrepresentation.h \
     versenode.h \
-    parallelgridconstructor.h
+    parallelgridconstructor.h \
+    minandmaxidsforchapter.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

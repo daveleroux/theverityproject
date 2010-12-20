@@ -1,11 +1,15 @@
 #include "biblequerier.h"
 #include "globalvariables.h"
 #include <QtSql>
+#include "timer.h"
+#include "minandmaxidsforchapter.h"
+#include <iostream>
+using namespace std;
 
 BibleQuerier::BibleQuerier()
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(DATA_PATH + "/bibles.sqlite");
+    db.setDatabaseName(DATA_PATH + "/bibles.sqlite");    
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
@@ -41,8 +45,11 @@ VerseLocation* BibleQuerier::_getVerseLocation(QString text, VerseReference vers
     }
 }
 
-TextSpecificData* BibleQuerier::calculateMinAndMaxChapters(QString text)
+TextSpecificData* BibleQuerier::__getTextSpecificData(QString text)
 {
+    int minChapter;
+    int maxChapter;
+
     QSqlQuery query;
     if(!query.exec("select min(normalised_chapter), max(normalised_chapter) from " + text))
     {
@@ -52,9 +59,8 @@ TextSpecificData* BibleQuerier::calculateMinAndMaxChapters(QString text)
 
     if(query.next())
     {
-        int minChapter = query.value(0).toInt();
-        int maxChapter = query.value(1).toInt();
-        return new TextSpecificData(text, minChapter, maxChapter);
+        minChapter = query.value(0).toInt();
+        maxChapter = query.value(1).toInt();
     }
     else
     {
@@ -62,6 +68,30 @@ TextSpecificData* BibleQuerier::calculateMinAndMaxChapters(QString text)
         exit(1);
     }
 
+
+    QHash<int, MinAndMaxIds> minAndMaxChapterHash;
+
+    if(!query.exec("select min(id), max(id), normalised_chapter from "+text+" group by normalised_chapter"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        int min = query.value(0).toInt();
+        int max = query.value(1).toInt();
+        int chapter = query.value(2).toInt();
+        MinAndMaxIds minAndMaxIds(min, max);
+        minAndMaxChapterHash.insert(chapter, minAndMaxIds);
+    }
+//    else
+//    {
+//        qDebug() << "could not find min and max ids for normalised chapters" << endl;
+//        exit(1);
+//    }
+
+    return new TextSpecificData(text, minChapter, maxChapter, minAndMaxChapterHash);
 }
 
 TextSpecificData* BibleQuerier::_getTextSpecificData(QString text)
@@ -72,7 +102,7 @@ TextSpecificData* BibleQuerier::_getTextSpecificData(QString text)
     }
     else
     {
-        TextSpecificData* textSpecificData = calculateMinAndMaxChapters(text);
+        TextSpecificData* textSpecificData = __getTextSpecificData(text);
         textSpecificDataMap.insert(text, textSpecificData);
         return textSpecificData;
     }
@@ -92,6 +122,9 @@ QString BibleQuerier::asString(QList<int> list)
 
 QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, QSet<int> parallelSet, int idToInclude)
 {
+    timer t;
+    t.start();
+
     QList<TextInfo> result;
 
 
@@ -108,6 +141,8 @@ QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, Q
     query.next();
     int min  = query.value(0).toInt();
     int max =  query.value(1).toInt();
+
+    cout << "\t min and max:" << t << endl;
 
     if(min > 0 && max > 0)
     {
@@ -273,18 +308,27 @@ QList<TextInfo> BibleQuerier::readInEsvOrKjv(int idFrom, int idTo, QString bible
 
 QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalisedChapter)
 {
-    QSqlQuery query;
-    query.setForwardOnly(true);
+    timer t;
+    t.start();
 
-    if(!query.exec("select min(id), max(id) from " + bibleText + " where normalised_chapter =" + QString().setNum(normalisedChapter)))
-    {
-        qDebug() << "failed: " << query.lastError() << endl;
-        exit(1);
-    }
+//    QSqlQuery query;
+//    query.setForwardOnly(true);
 
-    query.next();
-    int min  = query.value(0).toInt();
-    int max =  query.value(1).toInt();
+//    if(!query.exec("select min(id), max(id) from " + bibleText + " where normalised_chapter =" + QString().setNum(normalisedChapter)))
+//    {
+//        qDebug() << "failed: " << query.lastError() << endl;
+//        exit(1);
+//    }
+
+//    query.next();
+//    int min  = query.value(0).toInt();
+//    int max =  query.value(1).toInt();
+    TextSpecificData* textSpecificData = _getTextSpecificData(bibleText);
+    MinAndMaxIds minAndMaxIds = textSpecificData->hash.value(normalisedChapter);
+    int min = minAndMaxIds.min;
+    int max = minAndMaxIds.max;
+
+    cout << "\t min and max:" << t << endl;
 
     if(min > 0 && max > 0)
     {
@@ -308,12 +352,20 @@ BibleQuerier& BibleQuerier::instance()
 
 QList<TextInfo> BibleQuerier::readInChapterData(QString text, int normalisedChapter)
 {
-    return instance()._readInChapterData(text, normalisedChapter);
+    timer t;
+    t.start();
+    QList<TextInfo> result = instance()._readInChapterData(text, normalisedChapter);
+    cout << text.toStdString() << " ch " << normalisedChapter << ": " << t << endl;
+    return result;
 }
 
 QList<TextInfo> BibleQuerier::readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude)
 {
-    return instance()._readInChapterDataForParallel(text, parallels, idToInclude);
+    timer t;
+    t.start();
+    QList<TextInfo> result = instance()._readInChapterDataForParallel(text, parallels, idToInclude);
+    cout << text.toStdString() <<": " << t << endl;
+    return result;
 }
 
 VerseLocation* BibleQuerier::getVerseLocation(QString text, VerseReference verseReference)
