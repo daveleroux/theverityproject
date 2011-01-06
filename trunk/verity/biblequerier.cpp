@@ -71,7 +71,8 @@ TextSpecificData* BibleQuerier::__getTextSpecificData(QString text)
 
     QHash<int, MinAndMaxIds> minAndMaxChapterHash;
 
-    if(!query.exec("select min(id), max(id), normalised_chapter from "+text+" group by normalised_chapter"))
+    //    if(!query.exec("select min(id), max(id), normalised_chapter from "+text+" group by normalised_chapter"))
+    if(!query.exec("select min_id, max_id, normalised_chapter from performance where text=\""+text+"\""))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);

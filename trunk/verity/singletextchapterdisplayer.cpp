@@ -88,7 +88,14 @@ ChapterRepresentation* SingleTextChapterDisplayer::constructChapterRepresentatio
             selectionStart = start;
         }
 
-        textCursor.insertText(textInfo.text);
+        if(hebrew)
+        {
+            textCursor.insertHtml("<div style=\"font-size:x-large; font-family:"+ getFontFamily("wlc") +"\">" + textInfo.text + "</div>");
+        }
+        else
+        {
+            textCursor.insertText(textInfo.text);
+        }
         int end = textCursor.position();
 
 

@@ -24,6 +24,10 @@ QSet<int> ParallelTextChapterDisplayer::extractParallelIds(QList<TextInfo> textI
 
 ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {
+    if(normalisedChapter == 930)
+    {
+        int z = 10;
+    }
     bool prepending = false;
     bool appending = false;
 
@@ -54,6 +58,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
     for(int i=1; i<texts.size(); i++)
     {
+        QString text = texts.at(i);
         int idToInclude = -1;
         if(appending)
         {
@@ -134,6 +139,8 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
         {
             QTextBlockFormat textBlockFormat;
             QTextCharFormat defaultFormat;
+            bool hebrew = false;
+
             if(cell->textInfos.size() > 0)
             {
                 QString bibleText = cell->textInfos.at(0).bibleText;
@@ -144,6 +151,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 //                QTextBlockFormat textBlockFormat;
                 if(bibleText == "wlc")
                 {
+                    hebrew = true;
                     textBlockFormat.setLayoutDirection(Qt::RightToLeft);
 
 //                    textCharFormat.setRightMargin(10);
@@ -166,7 +174,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
             textCursor.setPosition(table->cellAt(currentRow,currentColumn).firstCursorPosition().position());
 
             textCursor.setBlockFormat(textBlockFormat);
-//            textCursor.insertBlock();
+
 
             for(int i=0; i<cell->textInfos.size(); i++)
             {
@@ -199,7 +207,15 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
                     selectionStart = start;
                 }
 
-                textCursor.insertText(textInfo.text);
+                if(hebrew)
+                {
+                    textCursor.insertHtml("<div style=\"font-size:x-large; font-family:"+ getFontFamily("wlc") +"\">" + textInfo.text + "</div>");
+                }
+                else
+                {
+                    textCursor.insertText(textInfo.text);
+                }
+
                 int end = textCursor.position();
 
                 BaseTextUnit textUnit(start, end);
@@ -207,6 +223,12 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
                 textCursor.insertText(" ");
             }
+
+            if(hebrew)
+            {
+                textCursor.insertHtml("</div>");
+            }
+
             currentColumn++;
             cell = cell->right;
         }
