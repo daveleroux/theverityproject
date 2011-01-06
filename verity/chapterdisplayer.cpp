@@ -311,7 +311,7 @@ void ChapterDisplayer::unloadLastChapter()
     textCursor.movePosition(QTextCursor::End);
 
 //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
-    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 2);
+    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 3);
 
     while(textCursor.position() >  startPos)
     {
@@ -431,13 +431,14 @@ void ChapterDisplayer::highlight(int startPos, int endPos)
     QTextCursor cursor(textBrowser->document());
     cursor.setPosition(startPos);
 
+
     while(cursor.position() <  endPos)
     {
         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     }
 
 
-    QTextCharFormat format = getDefaultFormat(getPrimaryText());
+    QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
     format.setBackground(QBrush(Qt::lightGray));
 
     cursor.setCharFormat(format);
