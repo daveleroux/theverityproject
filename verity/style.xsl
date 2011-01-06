@@ -24,15 +24,29 @@
             </xsl:template>
 
             <xsl:template  match="*[name()='strongsref']">
+		
                   <xsl:element  name="a" >
+			<xsl:if test="@language='hebrew'">
+				<xsl:attribute name="style">font-family:SBL Hebrew; font-size:x-large
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:attribute name="style">text-decoration:none</xsl:attribute>
+
 			<xsl:attribute name="href"><xsl:value-of  select="@language"/>://<xsl:value-of select="@strongs_number"/></xsl:attribute>
                         <xsl:apply-templates/>
                   </xsl:element>
+
+
             </xsl:template>
 
             <xsl:template  match="*[name()='see']">
 		<br/>see
                   <xsl:element  name="a" >
+			<xsl:if test="@language='hebrew'">
+				<xsl:attribute name="style">font-family:SBL Hebrew; font-size:x-large
+				</xsl:attribute>
+			</xsl:if>
+			<xsl:attribute name="style">text-decoration:none</xsl:attribute>
 			<xsl:attribute name="href"><xsl:value-of  select="@language"/>://<xsl:value-of select="@strongs_number"/></xsl:attribute>
                         <xsl:apply-templates/>
                   </xsl:element>
