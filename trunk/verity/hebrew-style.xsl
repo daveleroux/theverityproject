@@ -26,10 +26,12 @@
 	</xsl:template>
 
 	<xsl:template match="w">
-		<b style="font-family: SBL Hebrew; font-size:x-large">
+		<span style="font-family: SBL Hebrew; font-size:x-large">
 		<xsl:choose>
 			<xsl:when test="@src">
 				<xsl:element  name="a" >
+					<xsl:attribute name="style">text-decoration:none
+					</xsl:attribute>
 					<xsl:attribute name="href">hebrew://<xsl:value-of select="@src"/></xsl:attribute>  
 					<xsl:value-of select="@lemma"/>                     
    		               </xsl:element>
@@ -38,7 +40,7 @@
 				<xsl:value-of select="@lemma"/>
 			</xsl:otherwise>
 		</xsl:choose>
-		</b>
+		</span>
 		<xsl:if test="@morph">
 			<br>
 			<xsl:value-of select="@morph"/>

@@ -8,6 +8,7 @@
 
 
 QMap<int, QString> strongsNumberToGreek;
+QMap<int, QString> strongsNumberToHebrew;
 
 QString convertToXmlStringStart(QDomNode node)
 {
@@ -33,12 +34,18 @@ QString convertToXmlStringStart(QDomNode node)
             int strongsNumberInt = strongsNumber.toInt();
             strongsNumber = QString().setNum(strongsNumberInt);
 
+            QString lemma;
             if(language == "greek")
             {
-                return "<strongsref language='" + language + "' strongs_number='" + strongsNumber + "'>"
-                        + strongsNumberToGreek.value(strongsNumberInt) + "</strongsref>";
+                lemma = strongsNumberToGreek.value(strongsNumberInt);
             }
-            return "<strongsref language='" + language + "' strongs_number='" + strongsNumber + "'/>";
+            else if(language == "hebrew")
+            {
+                lemma = strongsNumberToHebrew.value(strongsNumberInt);
+            }
+
+            return "<strongsref language='" + language + "' strongs_number='" + strongsNumber + "'>"
+                    + lemma + "</strongsref>";
         }
         else if(node.nodeName() == "see")
         {
@@ -48,12 +55,18 @@ QString convertToXmlStringStart(QDomNode node)
             int strongsNumberInt = strongsNumber.toInt();
             strongsNumber = QString().setNum(strongsNumberInt);
 
+            QString lemma;
             if(language == "greek")
             {
-                return "<see language='" + language + "' strongs_number='" + strongsNumber + "'>"
-                        + strongsNumberToGreek.value(strongsNumberInt) + "</see>";
+                lemma = strongsNumberToGreek.value(strongsNumberInt);
             }
-            return "<see language='" + language + "' strongs_number='" + strongsNumber + "'/>";
+            else if(language == "hebrew")
+            {
+                lemma = strongsNumberToHebrew.value(strongsNumberInt);
+            }
+                return "<see language='" + language + "' strongs_number='" + strongsNumber + "'>"
+                        + lemma + "</see>";
+
 
         }
         else if(node.nodeName() == "strongs_def")
@@ -135,9 +148,19 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    if(!query.exec("select strongs_number, hebrew from strongs_hebrew"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        strongsNumberToHebrew.insert(query.value(0).toInt(), query.value(1).toString());
+    }
 
     QDomDocument doc("mydocument");
-    QFile file("StrongsGreekDictionaryXML_1.4/strongsgreek.xml");
+    QFile file("strongsgreek.xml");
     if (!file.open(QIODevice::ReadOnly))
         exit(1);
 
@@ -186,7 +209,7 @@ int main(int argc, char *argv[])
         QDomNode greekNode = ((QDomElement&)entryNode).elementsByTagName("greek").at(0);
         QString greek = ((QDomElement&)greekNode).attribute("unicode");
 
-//        entryNode.removeChild(greekNode);
+        //        entryNode.removeChild(greekNode);
 
         QString* result = new QString();
 

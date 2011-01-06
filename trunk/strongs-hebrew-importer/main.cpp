@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QSqlQuery query;
     query.exec("drop table strongs_hebrew");
 
-    if(!query.exec("create table strongs_hebrew (strongs_number integer primary key, definition varchar(5000))"))
+    if(!query.exec("create table strongs_hebrew (strongs_number integer primary key, hebrew varchar(100), definition varchar(5000))"))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
@@ -63,15 +63,20 @@ int main(int argc, char *argv[])
             QTextStream stream(&entryAsString);
             stream << divNode;
 
+            QDomNodeList wNodeList = ((QDomElement&)divNode).elementsByTagName("w");
+            QDomNode firstWNode = wNodeList.at(0);
+            QString hebrew = ((QDomElement&)firstWNode).attribute("lemma");
+
             entryAsString.remove(0, entryAsString.indexOf(">")+1);
             entryAsString.remove(entryAsString.lastIndexOf("<"),6);
 
             entryAsString.insert(0, "<?xml version='1.0' encoding='UTF-8'?><entry>");
             entryAsString.append("</entry>");
 
-            query.prepare("insert into strongs_hebrew values(?,?)");
+            query.prepare("insert into strongs_hebrew values(?,?,?)");
 
             query.addBindValue(number);
+            query.addBindValue(hebrew);
             query.addBindValue(entryAsString);
 
             if(!query.exec())
