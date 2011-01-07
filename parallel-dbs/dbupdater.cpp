@@ -4,7 +4,10 @@
 #include "standardrule.h"
 #include <QDateTime>
 #include "gen32wlcrule.h"
+#include "matchtonothingrule.h"
+#include "offsetrule.h"
 #include "jn1tischrule.h"
+#include "mt12tischrule.h"
 
 DbUpdater::DbUpdater()
 {
@@ -39,11 +42,15 @@ void DbUpdater::updateText(QString text, QList<Rule*> rules)
 {
     query("alter table " + text + " add column parallel int");
 
-    QSqlQuery query = queryAndCheck("select book_number, chapter, verse from " + text + " group by book_number, chapter, verse");
+    QSqlQuery query = queryAndCheck("select book_number, chapter, verse, parallel from " + text + " group by book_number, chapter, verse");
 
     qDebug() << "got refs from " << text << " " << QDateTime::currentDateTime().time().toString();
 
-    QMap<VerseReference, int> syncNumberMap;
+    QMap<VerseReference, int>* syncNumberMap = new QMap<VerseReference, int>();
+    QHash<VerseReference, int>* originalSyncMap = new QHash<VerseReference, int>();
+
+    syncNumberMaps.insert(text, syncNumberMap);
+    originalSyncMaps.insert(text, originalSyncMap);
 
     while(query.next())
     {
@@ -54,34 +61,49 @@ void DbUpdater::updateText(QString text, QList<Rule*> rules)
 
         VerseReference verseReference(book, chapter, verse);
 
-        for(int i=0; i< rules.size(); i++)
+        syncNumberMap->insert(verseReference, 0);
+
+        int originalSync = query.value(3).toInt();
+        originalSyncMap->insert(verseReference, originalSync);
+    }
+
+    qDebug() << "updating " << text << QDateTime::currentDateTime().time().toString();
+
+    QMapIterator<VerseReference, int> it(*syncNumberMap);
+    while (it.hasNext())
+    {
+        it.next();
+
+        VerseReference verseReference = it.key();
+
+        int syncNumber = 0;
+
+        for(int j=0; j< rules.size(); j++)
         {
-            Rule* rule = rules.at(i);
+            Rule* rule = rules.at(j);
             if(rule->applies(verseReference))
             {
-                syncNumberMap.insert(verseReference, rule->getSyncNumber(verseReference));
+                syncNumber = rule->getSyncNumber(verseReference);
+                syncNumberMap->insert(verseReference, syncNumber);
                 break;
             }
         }
 
-    }
-
-    qDebug() << "applied rules to " << text << ", now updating " << QDateTime::currentDateTime().time().toString();
-
-    for(int i=0; i<syncNumberMap.keys().size(); i++)
-    {
-        VerseReference verseReference = syncNumberMap.keys().at(i);
-        int syncNumber = syncNumberMap.value(verseReference);
-
-        queryAndCheck("update " + text + " set parallel=" + QString::number(syncNumber) +
-                      " where book_number=" + QString::number(verseReference.book) +
-                      " and chapter="+ QString::number(verseReference.chapter) +
-                      " and verse=" + QString::number(verseReference.verse));
+        if(MUST_PERSIST)
+        {
+            if(mustUpdate(text, verseReference, syncNumber))
+            {
+                queryAndCheck("update " + text + " set parallel=" + QString::number(syncNumber) +
+                              " where book_number=" + QString::number(verseReference.book) +
+                              " and chapter="+ QString::number(verseReference.chapter) +
+                              " and verse=" + QString::number(verseReference.verse));
+            }
+        }
     }
 
     qDebug() << "updated " << text << " " << QDateTime::currentDateTime().time().toString();
 
-    syncNumberMaps.insert(text, syncNumberMap);
+
 
 }
 
@@ -91,6 +113,28 @@ void DbUpdater::updateWlc()
 
     Gen32WlcRule gen32WlcRule(this);
     rules.append(&gen32WlcRule);
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(EXODUS, 7, 26), VerseReference(EXODUS, 8, 28), ESV, VerseReference(EXODUS, 8, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(EXODUS, 21, 37), VerseReference(EXODUS, 22, 30), ESV, VerseReference(EXODUS, 22, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(LEV, 5, 20), VerseReference(LEV, 6, 23), ESV, VerseReference(LEV, 6, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(NUM, 17, 1), VerseReference(NUM, 17, 28), ESV, VerseReference(NUM, 16, 36)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(NUM, 30, 1), VerseReference(NUM, 30, 17), ESV, VerseReference(NUM, 29, 40)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(DEUT, 13, 1), VerseReference(DEUT, 13, 19), ESV, VerseReference(DEUT, 12, 32)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(DEUT, 23, 1), VerseReference(DEUT, 23, 26), ESV, VerseReference(DEUT, 22, 30)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(DEUT, 28, 69), VerseReference(DEUT, 29, 28), ESV, VerseReference(DEUT, 29, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(ONE_SAM, 21, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_SAM, 21, 2), VerseReference(ONE_SAM, 21, 16), ESV, VerseReference(ONE_SAM, 21, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_SAM, 24, 1), VerseReference(ONE_SAM, 24, 23), ESV, VerseReference(ONE_SAM, 23, 29)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(TWO_SAM, 19, 1), VerseReference(TWO_SAM, 19, 44), ESV, VerseReference(TWO_SAM, 18, 33)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_KINGS, 5, 1), VerseReference(ONE_KINGS, 5, 32), ESV, VerseReference(ONE_KINGS, 4, 21)));
+    rules.append(&MatchToNothingRule(this, VerseReference(ONE_KINGS, 22, 44)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_KINGS, 22, 45), VerseReference(ONE_KINGS, 22, 54), ESV, VerseReference(ONE_KINGS, 22, 44)));
 
     StandardRule standardRule(this);
     rules.append(&standardRule);
@@ -115,29 +159,49 @@ void DbUpdater::updateTisch()
     Jn1TischRule jn1TischRule(this);
     rules.append(&jn1TischRule);
 
+    Mt12TischRule mt12TischRule(this);
+    rules.append(&mt12TischRule);
+
     StandardRule standardRule(this);
     rules.append(&standardRule);
 
     updateText(TISCH, rules);
 }
 
+bool DbUpdater::mustUpdate(QString text, VerseReference verseReference, int newSync)
+{
+    QHash<VerseReference, int>* originalHash = originalSyncMaps.value(text);
+    int oldSync = originalHash->value(verseReference);
+    return oldSync != newSync;
+}
+
 void DbUpdater::updateEsv()
 {
-    QMap<VerseReference, int> esvSyncNumberMap = syncNumberMaps.value(ESV);
-    for(int i=0; i<esvSyncNumberMap.keys().size(); i++)
+    QMapIterator<VerseReference, int> it(*syncNumberMaps.value(ESV));
+    while (it.hasNext())
     {
-        VerseReference verseReference = esvSyncNumberMap.keys().at(i);
-        int syncNumber = esvSyncNumberMap.value(verseReference);
+        it.next();
 
-        queryAndCheck("update esv set parallel=" + QString::number(syncNumber) +
-                      " where book_number=" + QString::number(verseReference.book) +
-                      " and chapter="+ QString::number(verseReference.chapter) +
-                      " and verse=" + QString::number(verseReference.verse));
+        VerseReference verseReference = it.key();
+        int syncNumber = it.value();
+
+        if(MUST_PERSIST)
+        {
+            if(mustUpdate(ESV, verseReference, syncNumber))
+            {
+                queryAndCheck("update esv set parallel=" + QString::number(syncNumber) +
+                              " where book_number=" + QString::number(verseReference.book) +
+                              " and chapter="+ QString::number(verseReference.chapter) +
+                              " and verse=" + QString::number(verseReference.verse));
+            }
+        }
     }
 }
 
 void DbUpdater::update()
 {
+    MUST_PERSIST = true;
+
     queryCount = 0;
     db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("bibles.sqlite");
@@ -149,15 +213,14 @@ void DbUpdater::update()
 
     db.transaction();
 
-    //queryAndCheck("alter table esv drop column parallel");//AAAH can't do this in sqlite
-
     query("alter table esv add column parallel int");
 
-    QSqlQuery query = queryAndCheck("select book_number, chapter, verse from esv group by book_number, chapter, verse");
+    QSqlQuery query = queryAndCheck("select book_number, chapter, verse, parallel from esv group by book_number, chapter, verse");
 
     qDebug() << "got refs from esv" << QDateTime::currentDateTime().time().toString();
 
-    QMap<VerseReference, int> esvSyncNumberMap;
+    QMap<VerseReference, int>* esvSyncNumberMap = new QMap<VerseReference, int>();
+    QHash<VerseReference, int>* originalEsvSyncMap = new QHash<VerseReference, int>();
 
     highestUnusedSyncNumber = 1;
 
@@ -167,12 +230,16 @@ void DbUpdater::update()
         int chapter = query.value(1).toInt();
         int verse = query.value(2).toInt();
 
-
         VerseReference verseReference(book, chapter, verse);
-        esvSyncNumberMap.insert(verseReference, highestUnusedSyncNumber++);
+
+        esvSyncNumberMap->insert(verseReference, highestUnusedSyncNumber++);
+
+        int originalSync = query.value(3).toInt();
+        originalEsvSyncMap->insert(verseReference, originalSync);
     }
 
     syncNumberMaps.insert(ESV, esvSyncNumberMap);
+    originalSyncMaps.insert(ESV, originalEsvSyncMap);
 
     qDebug() << "starting to update esv" << QDateTime::currentDateTime().time().toString();
 

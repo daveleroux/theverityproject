@@ -21,7 +21,13 @@ struct VerseReference
     bool operator!=(const VerseReference& rhs) const;
 
     QString toString();
+
 };
+
+inline uint qHash(const VerseReference &key)
+{
+    return key.book * 10000 + key.chapter * 100 + key.verse;
+}
 
 
 #endif // VERSEREFERENCE_H

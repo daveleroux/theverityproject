@@ -2,6 +2,7 @@
 #define DBUPDATER_H
 
 #include <QMap>
+#include <QHash>
 #include "versereference.h"
 #include <QtSql>
 #include <QDebug>
@@ -14,7 +15,10 @@ public:
     DbUpdater();
     void update();
 
-    QMap<QString, QMap<VerseReference, int> > syncNumberMaps;
+    QMap<QString, QMap<VerseReference, int>* > syncNumberMaps;
+
+    QMap<QString, QHash<VerseReference, int>* > originalSyncMaps;
+
     int highestUnusedSyncNumber;
 
 private:
@@ -32,6 +36,10 @@ private:
     void updateKjv();
     void updateWlc();
     void updateTisch();
+
+    bool mustUpdate(QString, VerseReference, int);
+
+    bool MUST_PERSIST;
 };
 
 #endif // DBUPDATER_H

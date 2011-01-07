@@ -15,7 +15,7 @@ bool Gen32WlcRule::applies(VerseReference verseReference)
 int Gen32WlcRule::getSyncNumber(VerseReference wlcVerseReference)
 {
     VerseReference esvVerseReferenceToUse;
-    QMap<VerseReference, int> esvMap = dbUpdater->syncNumberMaps.value(ESV);
+    QMap<VerseReference, int>* esvMap = dbUpdater->syncNumberMaps.value(ESV);
 
     if(wlcVerseReference == *endReference)
     {
@@ -23,12 +23,12 @@ int Gen32WlcRule::getSyncNumber(VerseReference wlcVerseReference)
     }
     else
     {
-        QList<VerseReference> esvKeys = esvMap.keys();
+        QList<VerseReference> esvKeys = esvMap->keys();
         int index = esvKeys.indexOf(wlcVerseReference);
         esvVerseReferenceToUse = esvKeys.at(index-1);
     }
 
-    return esvMap.value(esvVerseReferenceToUse);
+    return esvMap->value(esvVerseReferenceToUse);
 }
 
 Gen32WlcRule::~Gen32WlcRule()

@@ -14,7 +14,9 @@ public:
     DbUpdater* dbUpdater;
 
     int getHighestUnusedSyncNumber();
-private:
+
+protected:
+    int getIndexOf(QString text, VerseReference verseReference);
 };
 
 #endif // RULE_H
