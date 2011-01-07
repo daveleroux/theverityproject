@@ -3,6 +3,7 @@
 #include "textinfo.h"
 #include <QScrollBar>
 #include <QDebug>
+#include <QThread>
 
 ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies)
 {
@@ -166,7 +167,7 @@ int ChapterDisplayer::convertPosToGlobal(int normCh, int localPos)
 
 
 void ChapterDisplayer::checkCanScroll()
-{
+{    
     while(mustPrepend())
     {
         if(validChapter(getFirstNormChapter()-1))
@@ -200,6 +201,7 @@ void ChapterDisplayer::checkCanScroll()
 
     while(canUnloadLastChapter())
         unloadLastChapter();
+
 }
 
 void ChapterDisplayer::scrollDown(int pixels)
@@ -306,11 +308,11 @@ void ChapterDisplayer::unloadLastChapter()
 
     textCursor.beginEditBlock();
 
-//    textCursor.setPosition(textBrowser->document()->lastBlock());
+    //    textCursor.setPosition(textBrowser->document()->lastBlock());
 
     textCursor.movePosition(QTextCursor::End);
 
-//    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
+    //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
     int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 3);
 
     while(textCursor.position() >  startPos)
