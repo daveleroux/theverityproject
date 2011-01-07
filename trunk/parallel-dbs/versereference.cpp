@@ -1,6 +1,7 @@
 #include "versereference.h"
 #include <QDebug>
 #include <QTextStream>
+#include "globalvariables.h"
 
 VerseReference::VerseReference()
 {
@@ -20,7 +21,7 @@ QString VerseReference::toString()
 {
     QString result;
     QTextStream stream(&result);
-    stream << book << "." << chapter << "." << verse;
+    stream << GlobalsHelper::nameForBookNumber(book) << " " << chapter << "." << verse;
     return result;
 }
 

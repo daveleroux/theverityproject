@@ -14,11 +14,17 @@ SOURCES += main.cpp \
     rule.cpp \
     standardrule.cpp \
     gen32wlcrule.cpp \
-    jn1tischrule.cpp
+    jn1tischrule.cpp \
+    mt12tischrule.cpp \
+    offsetrule.cpp \
+    matchtonothingrule.cpp
 HEADERS += versereference.h \
     globalvariables.h \
     dbupdater.h \
     rule.h \
     standardrule.h \
     gen32wlcrule.h \
-    jn1tischrule.h
+    jn1tischrule.h \
+    mt12tischrule.h \
+    offsetrule.h \
+    matchtonothingrule.h

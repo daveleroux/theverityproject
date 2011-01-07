@@ -1,15 +1,14 @@
-#ifndef STANDARDRULE_H
-#define STANDARDRULE_H
+#ifndef MT12TISCHRULE_H
+#define MT12TISCHRULE_H
 
 #include "rule.h"
 
-class StandardRule : public Rule
+class Mt12TischRule : public Rule
 {
 public:
-    StandardRule(DbUpdater* dbUpdater);
+    Mt12TischRule(DbUpdater* dbUpdater);
     virtual int getSyncNumber(VerseReference verseReference);
     virtual bool applies(VerseReference verseReference);
-
 };
 
-#endif // STANDARDRULE_H
+#endif // MT12TISCHRULE_H
