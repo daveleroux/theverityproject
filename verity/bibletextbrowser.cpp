@@ -48,6 +48,14 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     markedScrollBar = new QSnapScrollBar(this);
     setVerticalScrollBar(markedScrollBar);
 
+    sliderBeingPressed = false;
+    ignoreSliderValueChanges = false;
+
+    connect(markedScrollBar, SIGNAL(sliderPressed()), this, SLOT(scrollbarSliderPressed()));
+    connect(markedScrollBar, SIGNAL(sliderReleased()), this, SLOT(scrollbarSliderReleased()));
+
+    connect(markedScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollbarValueChanged(int)));
+
     connect(this, SIGNAL(chapterStarts(QList<int>)), markedScrollBar, SLOT(defineSnapPoints(QList<int>)));
     connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
 
@@ -74,6 +82,8 @@ void BibleTextBrowser::writeOutSettings()
 
 void BibleTextBrowser::display(QList<QString> texts, int idLocation, int normalisedChapterLocaction)
 {
+    ignoreSliderValueChanges = true;
+
     document()->clear();
 
     if(chapterDisplayer != 0)
@@ -94,6 +104,8 @@ void BibleTextBrowser::display(QList<QString> texts, int idLocation, int normali
     connect(chapterDisplayer, SIGNAL(chapterStarts(QList<int>)), this, SIGNAL(chapterStarts(QList<int>)));
 
     chapterDisplayer->display(idLocation, normalisedChapterLocaction);
+
+    ignoreSliderValueChanges = false;
 }
 
 void BibleTextBrowser::display(QList<QString> texts, VerseReference verseReference)
@@ -128,6 +140,12 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
     QTextBrowser::mousePressEvent(e);
 }
 
+void BibleTextBrowser::resizeEvent(QResizeEvent* event)
+{
+    QTextBrowser::resizeEvent(event);
+    scrollbarValueChanged(0);
+}
+
 void BibleTextBrowser::tmp(QList<int> pixelStarts)
 {
     markedScrollBar->removeAllMarks();
@@ -139,8 +157,30 @@ void BibleTextBrowser::tmp(QList<int> pixelStarts)
     }
 }
 
-void BibleTextBrowser::wheelEvent ( QWheelEvent * e )
+void BibleTextBrowser::scrollbarValueChanged(int v)
 {
-    QTextBrowser::wheelEvent(e);
-    chapterDisplayer->checkCanScroll();
+    static bool busy = false;
+
+    if(!busy && !ignoreSliderValueChanges && chapterDisplayer != 0 && !sliderBeingPressed)
+    {
+        busy = true;
+        chapterDisplayer->checkCanScroll();
+        busy = false;
+    }
 }
+void BibleTextBrowser::scrollbarSliderPressed()
+{
+    sliderBeingPressed = true;
+}
+
+void BibleTextBrowser::scrollbarSliderReleased()
+{
+    sliderBeingPressed = false;
+    scrollbarValueChanged(0);
+}
+
+//void BibleTextBrowser::wheelEvent ( QWheelEvent * e )
+//{
+//    QTextBrowser::wheelEvent(e);
+//    chapterDisplayer->checkCanScroll();
+//}

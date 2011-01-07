@@ -123,8 +123,8 @@ QString BibleQuerier::asString(QList<int> list)
 
 QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, QSet<int> parallelSet, int idToInclude)
 {
-    timer t;
-    t.start();
+//    timer t;
+//    t.start();
 
     QList<TextInfo> result;
 
@@ -143,7 +143,7 @@ QList<TextInfo> BibleQuerier::_readInChapterDataForParallel(QString bibleText, Q
     int min  = query.value(0).toInt();
     int max =  query.value(1).toInt();
 
-    cout << "\t min and max:" << t << endl;
+//    cout << "\t min and max:" << t << endl;
 
     if(min > 0 && max > 0)
     {
@@ -309,8 +309,8 @@ QList<TextInfo> BibleQuerier::readInEsvOrKjv(int idFrom, int idTo, QString bible
 
 QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalisedChapter)
 {
-    timer t;
-    t.start();
+//    timer t;
+//    t.start();
 
 //    QSqlQuery query;
 //    query.setForwardOnly(true);
@@ -329,7 +329,7 @@ QList<TextInfo> BibleQuerier::_readInChapterData(QString bibleText, int normalis
     int min = minAndMaxIds.min;
     int max = minAndMaxIds.max;
 
-    cout << "\t min and max:" << t << endl;
+//    cout << "\t min and max:" << t << endl;
 
     if(min > 0 && max > 0)
     {
@@ -353,19 +353,19 @@ BibleQuerier& BibleQuerier::instance()
 
 QList<TextInfo> BibleQuerier::readInChapterData(QString text, int normalisedChapter)
 {
-    timer t;
-    t.start();
+//    timer t
+//    t.start();
     QList<TextInfo> result = instance()._readInChapterData(text, normalisedChapter);
-    cout << text.toStdString() << " ch " << normalisedChapter << ": " << t << endl;
+//    cout << text.toStdString() << " ch " << normalisedChapter << ": " << t << endl;
     return result;
 }
 
 QList<TextInfo> BibleQuerier::readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude)
 {
-    timer t;
-    t.start();
+//    timer t;
+//    t.start();
     QList<TextInfo> result = instance()._readInChapterDataForParallel(text, parallels, idToInclude);
-    cout << text.toStdString() <<": " << t << endl;
+//    cout << text.toStdString() <<": " << t << endl;
     return result;
 }
 

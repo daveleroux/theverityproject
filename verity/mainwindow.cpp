@@ -166,14 +166,14 @@ void MainWindow::lookupVerse()
     QString verse = verseLineEdit->text();
     if(verse.length() > 0)
     {
-        timer t;
-        t.start();
+//        timer t;
+//        t.start();
 
         VerseReference verseReference = VerseReferenceParser::parse(verse);
 
         browser->display(texts, verseReference);
 
-        cout << "total: " << t << endl;
+//        cout << "total: " << t << endl;
     }
 }
 
