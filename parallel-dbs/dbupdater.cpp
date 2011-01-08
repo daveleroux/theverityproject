@@ -136,6 +136,210 @@ void DbUpdater::updateWlc()
     rules.append(&MatchToNothingRule(this, VerseReference(ONE_KINGS, 22, 44)));
     rules.append(&OffsetRule(this, WLC, VerseReference(ONE_KINGS, 22, 45), VerseReference(ONE_KINGS, 22, 54), ESV, VerseReference(ONE_KINGS, 22, 44)));
 
+    rules.append(&OffsetRule(this, WLC, VerseReference(TWO_KINGS, 12, 1), VerseReference(TWO_KINGS, 12, 22), ESV, VerseReference(TWO_KINGS, 11, 21)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_CHRON, 5, 27), VerseReference(ONE_CHRON, 6, 66), ESV, VerseReference(ONE_CHRON, 6, 1)));
+    rules.append(&MatchToNothingRule(this, VerseReference(ONE_CHRON, 12, 5)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(ONE_CHRON, 12, 6), VerseReference(ONE_CHRON, 12, 41), ESV, VerseReference(ONE_CHRON, 12, 5)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(TWO_CHRON, 1, 18), VerseReference(TWO_CHRON, 2, 17), ESV, VerseReference(TWO_CHRON, 2, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(TWO_CHRON, 13, 23), VerseReference(TWO_CHRON, 14, 14), ESV, VerseReference(TWO_CHRON, 14, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(NEH, 3, 33), VerseReference(NEH, 4, 17), ESV, VerseReference(NEH, 4, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(NEH, 10, 1), VerseReference(NEH, 10, 40), ESV, VerseReference(NEH, 9, 38)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(JOB, 40, 25), VerseReference(JOB, 41, 26), ESV, VerseReference(JOB, 41, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 3, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 3, 2), VerseReference(PSALMS, 3, 9), ESV, VerseReference(PSALMS, 3, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 51, 1)));
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 51, 2)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 51, 3), VerseReference(PSALMS, 51, 21), ESV, VerseReference(PSALMS, 51, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 52, 1)));
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 52, 2)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 52, 3), VerseReference(PSALMS, 52, 11), ESV, VerseReference(PSALMS, 52, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 54, 1)));
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 54, 2)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 54, 3), VerseReference(PSALMS, 54, 9), ESV, VerseReference(PSALMS, 54, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 60, 1)));
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 60, 2)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 60, 3), VerseReference(PSALMS, 60, 14), ESV, VerseReference(PSALMS, 60, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 4, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 4, 2), VerseReference(PSALMS, 4, 9 ), ESV, VerseReference(PSALMS, 4, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 5, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 5, 2), VerseReference(PSALMS, 5, 13 ), ESV, VerseReference(PSALMS, 5, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 6, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 6, 2), VerseReference(PSALMS, 6, 11 ), ESV, VerseReference(PSALMS, 6, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 7, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 7, 2), VerseReference(PSALMS, 7, 18 ), ESV, VerseReference(PSALMS, 7, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 8, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 8, 2), VerseReference(PSALMS, 8, 10 ), ESV, VerseReference(PSALMS, 8, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 9, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 9, 2), VerseReference(PSALMS, 9, 21 ), ESV, VerseReference(PSALMS, 9, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 12, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 12, 2), VerseReference(PSALMS, 12, 9 ), ESV, VerseReference(PSALMS, 12, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 18, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 18, 2), VerseReference(PSALMS, 18, 51 ), ESV, VerseReference(PSALMS, 18, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 19, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 19, 2), VerseReference(PSALMS, 19, 15 ), ESV, VerseReference(PSALMS, 19, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 20, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 20, 2), VerseReference(PSALMS, 20, 10 ), ESV, VerseReference(PSALMS, 20, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 21, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 21, 2), VerseReference(PSALMS, 21, 14 ), ESV, VerseReference(PSALMS, 21, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 22, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 22, 2), VerseReference(PSALMS, 22, 32 ), ESV, VerseReference(PSALMS, 22, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 30, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 30, 2), VerseReference(PSALMS, 30, 13 ), ESV, VerseReference(PSALMS, 30, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 31, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 31, 2), VerseReference(PSALMS, 31, 25 ), ESV, VerseReference(PSALMS, 31, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 34, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 34, 2), VerseReference(PSALMS, 34, 23 ), ESV, VerseReference(PSALMS, 34, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 36, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 36, 2), VerseReference(PSALMS, 36, 13 ), ESV, VerseReference(PSALMS, 36, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 38, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 38, 2), VerseReference(PSALMS, 38, 23 ), ESV, VerseReference(PSALMS, 38, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 39, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 39, 2), VerseReference(PSALMS, 39, 14 ), ESV, VerseReference(PSALMS, 39, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 40, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 40, 2), VerseReference(PSALMS, 40, 18 ), ESV, VerseReference(PSALMS, 40, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 41, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 41, 2), VerseReference(PSALMS, 41, 14 ), ESV, VerseReference(PSALMS, 41, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 42, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 42, 2), VerseReference(PSALMS, 42, 12 ), ESV, VerseReference(PSALMS, 42, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 44, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 44, 2), VerseReference(PSALMS, 44, 27 ), ESV, VerseReference(PSALMS, 44, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 45, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 45, 2), VerseReference(PSALMS, 45, 18 ), ESV, VerseReference(PSALMS, 45, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 46, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 46, 2), VerseReference(PSALMS, 46, 12 ), ESV, VerseReference(PSALMS, 46, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 47, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 47, 2), VerseReference(PSALMS, 47, 10 ), ESV, VerseReference(PSALMS, 47, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 48, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 48, 2), VerseReference(PSALMS, 48, 15 ), ESV, VerseReference(PSALMS, 48, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 49, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 49, 2), VerseReference(PSALMS, 49, 21 ), ESV, VerseReference(PSALMS, 49, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 53, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 53, 2), VerseReference(PSALMS, 53, 7 ), ESV, VerseReference(PSALMS, 53, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 55, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 55, 2), VerseReference(PSALMS, 55, 24 ), ESV, VerseReference(PSALMS, 55, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 56, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 56, 2), VerseReference(PSALMS, 56, 14 ), ESV, VerseReference(PSALMS, 56, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 57, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 57, 2), VerseReference(PSALMS, 57, 12 ), ESV, VerseReference(PSALMS, 57, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 58, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 58, 2), VerseReference(PSALMS, 58, 12 ), ESV, VerseReference(PSALMS, 58, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 59, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 59, 2), VerseReference(PSALMS, 59, 18 ), ESV, VerseReference(PSALMS, 59, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 61, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 61, 2), VerseReference(PSALMS, 61, 9 ), ESV, VerseReference(PSALMS, 61, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 62, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 62, 2), VerseReference(PSALMS, 62, 13 ), ESV, VerseReference(PSALMS, 62, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 63, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 63, 2), VerseReference(PSALMS, 63, 12 ), ESV, VerseReference(PSALMS, 63, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 64, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 64, 2), VerseReference(PSALMS, 64, 11 ), ESV, VerseReference(PSALMS, 64, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 65, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 65, 2), VerseReference(PSALMS, 65, 14 ), ESV, VerseReference(PSALMS, 65, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 67, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 67, 2), VerseReference(PSALMS, 67, 8 ), ESV, VerseReference(PSALMS, 67, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 68, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 68, 2), VerseReference(PSALMS, 68, 36 ), ESV, VerseReference(PSALMS, 68, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 69, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 69, 2), VerseReference(PSALMS, 69, 37 ), ESV, VerseReference(PSALMS, 69, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 70, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 70, 2), VerseReference(PSALMS, 70, 6 ), ESV, VerseReference(PSALMS, 70, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 75, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 75, 2), VerseReference(PSALMS, 75, 11 ), ESV, VerseReference(PSALMS, 75, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 76, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 76, 2), VerseReference(PSALMS, 76, 13 ), ESV, VerseReference(PSALMS, 76, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 77, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 77, 2), VerseReference(PSALMS, 77, 21 ), ESV, VerseReference(PSALMS, 77, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 80, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 80, 2), VerseReference(PSALMS, 80, 20 ), ESV, VerseReference(PSALMS, 80, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 81, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 81, 2), VerseReference(PSALMS, 81, 17 ), ESV, VerseReference(PSALMS, 81, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 83, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 83, 2), VerseReference(PSALMS, 83, 19 ), ESV, VerseReference(PSALMS, 83, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 84, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 84, 2), VerseReference(PSALMS, 84, 13 ), ESV, VerseReference(PSALMS, 84, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 85, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 85, 2), VerseReference(PSALMS, 85, 14 ), ESV, VerseReference(PSALMS, 85, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 88, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 88, 2), VerseReference(PSALMS, 88, 19 ), ESV, VerseReference(PSALMS, 88, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 89, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 89, 2), VerseReference(PSALMS, 89, 53 ), ESV, VerseReference(PSALMS, 89, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 92, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 92, 2), VerseReference(PSALMS, 92, 16 ), ESV, VerseReference(PSALMS, 92, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 102, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 102, 2), VerseReference(PSALMS, 102, 29 ), ESV, VerseReference(PSALMS, 102, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 108, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 108, 2), VerseReference(PSALMS, 108, 14 ), ESV, VerseReference(PSALMS, 108, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 140, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 140, 2), VerseReference(PSALMS, 140, 14 ), ESV, VerseReference(PSALMS, 140, 1)));
+
+    rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 142, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 142, 2), VerseReference(PSALMS, 142, 8 ), ESV, VerseReference(PSALMS, 142, 1)));
+
     StandardRule standardRule(this);
     rules.append(&standardRule);
 
