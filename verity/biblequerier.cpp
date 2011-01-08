@@ -39,8 +39,7 @@ VerseLocation* BibleQuerier::_getVerseLocation(QString text, VerseReference vers
         return new VerseLocation(id, normalisedChapter);
     }
     else
-    {
-        qDebug() << "did not find chapter bible verse";
+    {        
         return 0;
     }
 }

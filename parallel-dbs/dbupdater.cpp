@@ -340,6 +340,40 @@ void DbUpdater::updateWlc()
     rules.append(&MatchToNothingRule(this, VerseReference(PSALMS, 142, 1)));
     rules.append(&OffsetRule(this, WLC, VerseReference(PSALMS, 142, 2), VerseReference(PSALMS, 142, 8 ), ESV, VerseReference(PSALMS, 142, 1)));
 
+    rules.append(&OffsetRule(this, WLC, VerseReference(ECCL, 4, 17), VerseReference(ECCL, 5, 19 ), ESV, VerseReference(ECCL, 5, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(SONG, 7, 1), VerseReference(SONG, 7, 14 ), ESV, VerseReference(SONG, 6, 13)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(IS, 8, 23), VerseReference(IS, 9, 20 ), ESV, VerseReference(IS, 9, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(JER, 8, 23), VerseReference(JER, 9, 25 ), ESV, VerseReference(JER, 9, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(EZ, 21, 1), VerseReference(EZ, 21, 37 ), ESV, VerseReference(EZ, 20, 45)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(DAN, 3, 31), VerseReference(DAN, 4, 34 ), ESV, VerseReference(DAN, 4, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(DAN, 6, 1), VerseReference(DAN, 6, 29 ), ESV, VerseReference(DAN, 5, 31)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(HOS, 2, 1), VerseReference(HOS, 2, 25 ), ESV, VerseReference(HOS, 1, 10)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(HOS, 12, 1), VerseReference(HOS, 12, 15 ), ESV, VerseReference(HOS, 11, 12)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(HOS, 14, 1), VerseReference(HOS, 14, 10 ), ESV, VerseReference(HOS, 13, 16)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(JOEL, 3, 1), VerseReference(JOEL, 3, 5 ), ESV, VerseReference(JOEL, 2, 28)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(JOEL, 4, 1), VerseReference(JOEL, 4, 21 ), ESV, VerseReference(JOEL, 3, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(JONAH, 2, 1), VerseReference(JONAH, 2, 11 ), ESV, VerseReference(JONAH, 1, 17)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(MICAH, 4, 14), VerseReference(MICAH, 5, 14 ), ESV, VerseReference(MICAH, 5, 1)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(NAHUM, 2, 1), VerseReference(NAHUM, 2, 14 ), ESV, VerseReference(NAHUM, 1, 15)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(ZECH, 2, 1), VerseReference(ZECH, 2, 17 ), ESV, VerseReference(ZECH, 1, 18)));
+
+    rules.append(&OffsetRule(this, WLC, VerseReference(MAL, 3, 19), VerseReference(MAL, 3, 24 ), ESV, VerseReference(MAL, 4, 1)));
+
     StandardRule standardRule(this);
     rules.append(&standardRule);
 

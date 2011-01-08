@@ -3,6 +3,7 @@
 
 #include <QTextCursor>
 #include <QApplication>
+#include <QMessageBox>
 
 #include "bibletextbrowser.h"
 #include "timer.h"
@@ -123,6 +124,13 @@ void BibleTextBrowser::display(QList<QString> texts, VerseReference verseReferen
             window()->setWindowTitle(PROGRAM_NAME + " - " + verseReference.stringRepresentation);
 
             display(texts, idLocation, normalisedChapterLocation);
+        }
+        else
+        {
+            QMessageBox msgBox(this);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.setText(verseReference.stringRepresentation + " could not be found in the " + texts.at(0));
+            msgBox.exec();
         }
     }
 }

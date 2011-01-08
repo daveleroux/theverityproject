@@ -42,9 +42,40 @@
 		</xsl:choose>
 		</span>
 		<xsl:if test="@morph">
-			<br>
-			<xsl:value-of select="@morph"/>
-			</br>
+			<br/>
+			<xsl:variable name="morphs" select="tokenize(@morph,' ')"/>
+
+			<xsl:for-each select="$morphs">
+     			<xsl:variable name="mymorph" select="."/>
+				<b>
+				<xsl:if test="$mymorph = 'a'">Adjective</xsl:if>
+				<xsl:if test="$mymorph = 'a-f'">Adjective Feminine</xsl:if>
+				<xsl:if test="$mymorph = 'a-m'">Adjective Masculine</xsl:if>
+				<xsl:if test="$mymorph = 'adv'">Adverb</xsl:if>
+				<xsl:if test="$mymorph = 'conj'">Conjunction</xsl:if>
+				<xsl:if test="$mymorph = 'dp'">Demonstrative Particle</xsl:if>
+				<xsl:if test="$mymorph = 'd'">Demonstrative Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'x'">Indefinite Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'inj'">Interjection</xsl:if>
+				<xsl:if test="$mymorph = 'i'">Interrogative Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'np'">Negative Particle</xsl:if>
+				<xsl:if test="$mymorph = 'n'">Noun</xsl:if>
+				<xsl:if test="$mymorph = 'n-f'">Noun Feminine</xsl:if>
+				<xsl:if test="$mymorph = 'n-m'">Noun Masculine</xsl:if>
+				<xsl:if test="$mymorph = 'n-m-loc'">Noun Masculine Location</xsl:if>
+				<xsl:if test="$mymorph = 'prt'">Particle</xsl:if>
+				<xsl:if test="$mymorph = 'p'">Personal Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'prep'">Preposition</xsl:if>
+				<xsl:if test="$mymorph = 'pron'">Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'n-pr'">Proper Name</xsl:if>
+				<xsl:if test="$mymorph = 'n-pr-f'">Proper Name Feminine</xsl:if>
+				<xsl:if test="$mymorph = 'n-pr-loc'">Proper Name Location</xsl:if>
+				<xsl:if test="$mymorph = 'n-pr-m'">Proper Name Masculine</xsl:if>
+				<xsl:if test="$mymorph = 'r'">Relative Pronoun</xsl:if>
+				<xsl:if test="$mymorph = 'v'">Verb</xsl:if>	
+				</b>		
+				<br/>
+			</xsl:for-each>
 			<br/>
 		</xsl:if>
 	</xsl:template>

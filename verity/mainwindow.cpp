@@ -203,5 +203,12 @@ void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
 void MainWindow::verseLineEditChanged(QString string)
 {
     if(string.length() > 0)
+    {
         verseLineOutput->setText(VerseReferenceParser::parse(string).stringRepresentation);
+    }
+    else
+    {
+        verseLineOutput->setText("");
+    }
+
 }
