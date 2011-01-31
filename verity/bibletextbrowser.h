@@ -50,6 +50,7 @@ public slots:
 signals:
     void wordClicked(TextInfo*);
     void chapterStarts(QList<int>);
+    void checkCanScrollSignal(int v);
 };
 
 #endif // BIBLETEXTBROWSER_H

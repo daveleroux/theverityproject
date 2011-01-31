@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if(settings.value(WINDOW_STATE_SETTING, true).toBool())
         setWindowState(Qt::WindowMaximized);
 
-//        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
-    DATA_PATH = ".";
+        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
+//    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
     settings.endGroup();
@@ -100,7 +100,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         QPushButton* toggleButton = new QPushButton(textsAvailable.at(i));
         toggleButton->setCheckable(true);
         connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-        if(i == 0)
+        if(i == 0 || i == 2)
             toggleButton->setChecked(true);
         toolbar->addWidget(toggleButton);
     }
@@ -150,7 +150,7 @@ void MainWindow::writeOutSettings()
     settings.setValue(SIZE_SETTING, size());
     settings.setValue(POS_SETTING, pos());
     settings.setValue(WINDOW_STATE_SETTING, (windowState() & Qt::WindowMaximized) > 0);
-//        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
+        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
     settings.endGroup();
 
 }
