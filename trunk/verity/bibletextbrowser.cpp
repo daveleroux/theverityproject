@@ -56,6 +56,7 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
     connect(markedScrollBar, SIGNAL(sliderReleased()), this, SLOT(scrollbarSliderReleased()));
 
     connect(markedScrollBar, SIGNAL(valueChanged(int)), this, SLOT(scrollbarValueChanged(int)));
+    connect(this, SIGNAL(checkCanScrollSignal(int)), this, SLOT(scrollbarValueChanged(int)), Qt::QueuedConnection);
 
     connect(this, SIGNAL(chapterStarts(QList<int>)), markedScrollBar, SLOT(defineSnapPoints(QList<int>)));
     connect(this, SIGNAL(chapterStarts(QList<int>)), this, SLOT(tmp(QList<int>)));
@@ -150,8 +151,10 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 
 void BibleTextBrowser::resizeEvent(QResizeEvent* event)
 {
+    ignoreSliderValueChanges =  true;
     QTextBrowser::resizeEvent(event);
-    scrollbarValueChanged(0);
+    ignoreSliderValueChanges = false;
+    emit checkCanScrollSignal(0);
 }
 
 void BibleTextBrowser::tmp(QList<int> pixelStarts)

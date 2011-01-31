@@ -202,6 +202,7 @@ void ChapterDisplayer::checkCanScroll()
     while(canUnloadLastChapter())
         unloadLastChapter();
 
+    calculateAndSendChapterStarts();
 }
 
 void ChapterDisplayer::scrollDown(int pixels)
@@ -432,15 +433,20 @@ void ChapterDisplayer::highlight(int startPos, int endPos)
 {
     QTextCursor cursor(textBrowser->document());
     cursor.setPosition(startPos);
+    QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
 
-
+    bool haveSetFormat = false;
     while(cursor.position() <  endPos)
     {
         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+        if(!haveSetFormat)
+        {
+            haveSetFormat = true;
+            format = cursor.charFormat();
+        }
     }
 
 
-    QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
     format.setBackground(QBrush(Qt::lightGray));
 
     cursor.setCharFormat(format);
