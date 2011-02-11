@@ -24,10 +24,6 @@ QSet<int> ParallelTextChapterDisplayer::extractParallelIds(QList<TextInfo> textI
 
 ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {
-    if(normalisedChapter == 930)
-    {
-        int z = 10;
-    }
     bool prepending = false;
     bool appending = false;
 

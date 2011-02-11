@@ -8,6 +8,7 @@
 
 DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent)
 {
+    zoomIn(2);
 }
 
 
