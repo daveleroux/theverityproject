@@ -6,6 +6,7 @@
 
 ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(parent)
 {
+    zoomIn(2);
 }
 
 void ParsingDisplayBrowser::display(TextInfo* textInfo)

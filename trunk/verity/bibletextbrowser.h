@@ -20,6 +20,7 @@ private:
     ChapterDisplayer* chapterDisplayer;
     bool sliderBeingPressed;
     bool ignoreSliderValueChanges;
+    bool resizing;
 
 public:
     BibleTextBrowser();

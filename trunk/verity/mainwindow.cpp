@@ -34,8 +34,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if(settings.value(WINDOW_STATE_SETTING, true).toBool())
         setWindowState(Qt::WindowMaximized);
 
-        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
-//    DATA_PATH = ".";
+//        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
+    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
     settings.endGroup();
@@ -118,7 +118,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 
     addToolBar(toolbar);
-    this->setWindowIcon(QIcon("verity.ico"));
+    this->setWindowIcon(QIcon(DATA_PATH + "/verity.ico"));
 }
 
 void MainWindow::textToggled(bool checked)
@@ -150,7 +150,7 @@ void MainWindow::writeOutSettings()
     settings.setValue(SIZE_SETTING, size());
     settings.setValue(POS_SETTING, pos());
     settings.setValue(WINDOW_STATE_SETTING, (windowState() & Qt::WindowMaximized) > 0);
-        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
+//        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
     settings.endGroup();
 
 }

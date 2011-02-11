@@ -42,7 +42,7 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
 
     setUndoRedoEnabled(false);
     setMouseTracking(true);
-    zoomIn(3);    
+    zoomIn(4);
 
 
 
@@ -51,6 +51,7 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
 
     sliderBeingPressed = false;
     ignoreSliderValueChanges = false;
+    resizing = false;
 
     connect(markedScrollBar, SIGNAL(sliderPressed()), this, SLOT(scrollbarSliderPressed()));
     connect(markedScrollBar, SIGNAL(sliderReleased()), this, SLOT(scrollbarSliderReleased()));
@@ -151,9 +152,9 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 
 void BibleTextBrowser::resizeEvent(QResizeEvent* event)
 {
-    ignoreSliderValueChanges =  true;
+    resizing =  true;
     QTextBrowser::resizeEvent(event);
-    ignoreSliderValueChanges = false;
+    resizing = false;
     emit checkCanScrollSignal(0);
 }
 
@@ -172,7 +173,7 @@ void BibleTextBrowser::scrollbarValueChanged(int v)
 {
     static bool busy = false;
 
-    if(!busy && !ignoreSliderValueChanges && chapterDisplayer != 0 && !sliderBeingPressed)
+    if(!busy && !resizing && !ignoreSliderValueChanges && chapterDisplayer != 0 && !sliderBeingPressed)
     {
         busy = true;
         chapterDisplayer->checkCanScroll();
