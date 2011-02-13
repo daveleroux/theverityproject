@@ -268,7 +268,7 @@ VerseReferenceParser::VerseReferenceParser()
     hash.insert( "third john" ,  64 );
     hash.insert( "jude" ,  65 );
     hash.insert( "jud" ,  65 );
-    hash.insert( "revelation" ,  6 );
+    hash.insert( "revelation" ,  66 );
     hash.insert( "rev" ,  66 );
     hash.insert( "re" ,  66 );
     hash.insert( "the revelation" ,  66 );
