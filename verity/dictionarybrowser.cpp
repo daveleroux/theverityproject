@@ -5,6 +5,7 @@
 #include <QXmlQuery>
 #include <QByteArray>
 #include <QDesktopServices>
+#include <QTextBrowser>
 
 DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent)
 {

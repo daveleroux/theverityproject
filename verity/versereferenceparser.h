@@ -20,12 +20,13 @@ private:
     VerseReferenceParser(const VerseReferenceParser&);                 // Prevent copy-construction
     VerseReferenceParser& operator=(const VerseReferenceParser&);      // Prevent assignment
 
-    QString calculateStringRepresentation(int book, int chapter, int verse);
+    QString _calculateStringRepresentation(int book, int chapter, int verse);
 
     VerseReference _parse(QString string);
 
 public:
     static VerseReference parse(QString string);
+    static QString calculateStringRepresentation(int book, int chapter, int verse);
 };
 
 #endif // VERSEREFERENCEPARSER_H

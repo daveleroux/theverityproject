@@ -23,7 +23,7 @@ QSet<int> ParallelTextChapterDisplayer::extractParallelIds(QList<TextInfo> textI
 }
 
 ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
-{
+{    
     bool prepending = false;
     bool appending = false;
 

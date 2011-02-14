@@ -3,6 +3,8 @@
 #include <QtSql>
 #include "timer.h"
 #include "minandmaxidsforchapter.h"
+#include "versereferenceparser.h"
+#include <QStringList>
 #include <iostream>
 using namespace std;
 
@@ -378,3 +380,81 @@ TextSpecificData* BibleQuerier::getTextSpecificData(QString text)
     return instance()._getTextSpecificData(text);
 }
 
+QStringList BibleQuerier::search(QString searchTerms)
+{
+    return instance()._search(searchTerms);
+}
+
+QStringList BibleQuerier::_search(QString searchTerms)
+{
+    /*
+        searchTerms is in the format:
+        ---
+        "s" (to distinguish from a normal reference)
+        [(not to be implemented yet - assume filled) "<>" (an optional book to search within - otherwise will search all of them - we should only search appropriate languages though)]
+        "<words>"
+
+        each element separated by a fullstop
+        words with parsing information will be "θεος@MAS" or "ἀκουω@IAP3S" (or something like that for parsing - there can be a gui to generate stuff for people unfamiliar with the syntax)
+
+        e.g. "s.esv.the first and the last"
+        (the second "the" is redundant though in our "database")
+    */
+    QStringList *searchResultList = new QStringList();
+    QStringList searchTermList = searchTerms.split(".");
+    QStringList eachWord = ((QString) searchTermList.at(2)).split(" ");
+
+//    QString sqlQuery = "select t0.id, t0.book, t0.chapter, t0.verse, t0.text";
+//    QString fromTables;
+//    QString whereCondition;
+//
+//    for (int i = 0; i < eachWord.count(); i++)
+//    {
+//        fromTables.append(", " + searchTermList.at(1) + " as t" + QString().setNum(i));
+//        whereCondition.append(" and t" + QString().setNum(i) + ".text like(\"%" + eachWord.at(i) + "%\") and t" + QString().setNum(i) + ".book = t0.book and t" + QString().setNum(i) + ".chapter = t0.chapter and t" + QString().setNum(i) + ".verse = t0.verse");
+//    }
+//    fromTables = " from" + fromTables.mid(1);
+//    whereCondition = " where" + whereCondition.mid(4);
+//    qDebug() << sqlQuery;
+//    qDebug() << "from: " << fromTables;
+//    qDebug() << "where: " << whereCondition << endl;
+//
+//    sqlQuery = sqlQuery.append(fromTables).append(whereCondition);
+//
+//    qDebug() << sqlQuery;
+
+    QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
+    QString whereCondition;
+    for (int i = 0; i < eachWord.count(); i++)
+    {
+        whereCondition.append(" or text like(\"" + eachWord.at(i) + "\")");
+    }
+    whereCondition = " where" + whereCondition.mid(3);
+    sqlQuery = sqlQuery.append(whereCondition).append(" group by book, chapter, verse");
+
+    qDebug() << sqlQuery;
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+//    if (!query.exec(sqlQuery.append(" order by t0.id asc")))
+    if(!query.exec("select id, book_number, chapter, verse, text "
+                   "from " + ((QString) searchTermList.at(1)) +
+                   " where text like (\"%" + searchTermList.at(2) + "%\")"
+                   " order by id asc"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        QString bookNumber = query.value(1).toString();
+        QString chapter = query.value(2).toString();
+        QString verse = query.value(3).toString();
+        QString text = query.value(4).toString();
+
+        searchResultList->append("<a href=\"search://" + bookNumber +"." + chapter + "." + verse + "\">" + VerseReferenceParser::calculateStringRepresentation(bookNumber.toInt(), chapter.toInt(), verse.toInt()) + "</a> \"" + text + "\"");
+    }
+    return *searchResultList;
+}

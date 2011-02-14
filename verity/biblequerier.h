@@ -28,6 +28,7 @@ private:
     TextSpecificData* _getTextSpecificData(QString text);
     QList<TextInfo> _readInChapterData(QString text, int normalisedChapter);
     QList<TextInfo> _readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude);
+    QStringList _search(QString searchTerms);
 
     QString asString(QList<int> list);
 
@@ -41,6 +42,7 @@ public:
     static TextSpecificData* getTextSpecificData(QString text);
     static QList<TextInfo> readInChapterData(QString text, int normalisedChapter);
     static QList<TextInfo> readInChapterDataForParallel(QString text, QSet<int> parallels, int idToInclude);
+    static QStringList search(QString searchTerms);
 };
 
 #endif // BIBLEQUERIER_H

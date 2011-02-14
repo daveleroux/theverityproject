@@ -2,7 +2,9 @@
 #include "biblequerier.h"
 #include "textinfo.h"
 #include <QScrollBar>
+#include <QTextBlock>
 #include <QDebug>
+#include <QBrush>
 #include <QThread>
 
 ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies)
@@ -334,6 +336,9 @@ void ChapterDisplayer::unloadLastChapter()
 
 void ChapterDisplayer::unloadFirstChapter()
 {    
+    //qDebug() << textBrowser->document()->findBlock(2).text();
+//    textBrowser->document()->findBlock(2).blockFormat().setForeground(QBrush);
+
     QScrollBar* scrollBar = textBrowser->verticalScrollBar();
 
     int originalHeight = textBrowser->document()->size().height();
@@ -432,24 +437,24 @@ QTextCharFormat ChapterDisplayer::getDefaultFormat(QString text)
 void ChapterDisplayer::highlight(int startPos, int endPos)
 {
     QTextCursor cursor(textBrowser->document());
-    cursor.setPosition(startPos);
-    QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
+     cursor.setPosition(startPos);
+     QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
 
-    bool haveSetFormat = false;
-    while(cursor.position() <  endPos)
-    {
-        cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-        if(!haveSetFormat)
-        {
-            haveSetFormat = true;
-            format = cursor.charFormat();
-        }
-    }
+     bool haveSetFormat = false;
+     while(cursor.position() <  endPos)
+     {
+         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+         if(!haveSetFormat)
+         {
+             haveSetFormat = true;
+             format = cursor.charFormat();
+         }
+     }
 
 
-    format.setBackground(QBrush(Qt::lightGray));
+     format.setBackground(QBrush(Qt::lightGray));
 
-    cursor.setCharFormat(format);
+     cursor.setCharFormat(format);
 }
 
 ChapterRepresentation* ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)

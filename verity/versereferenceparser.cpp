@@ -137,6 +137,7 @@ VerseReferenceParser::VerseReferenceParser()
     hash.insert( "col" ,  51 );
     hash.insert( "1 thessalonians" ,  52 );
     hash.insert( "1 thess" ,  52 );
+    hash.insert( "1 thes" ,  52 );
     hash.insert( "1 th" ,  52 );
     hash.insert( "i th" ,  52 );
     hash.insert( "1th" ,  52 );
@@ -268,7 +269,7 @@ VerseReferenceParser::VerseReferenceParser()
     hash.insert( "third john" ,  64 );
     hash.insert( "jude" ,  65 );
     hash.insert( "jud" ,  65 );
-    hash.insert( "revelation" ,  66 );
+    hash.insert( "revelation" ,  66);
     hash.insert( "rev" ,  66 );
     hash.insert( "re" ,  66 );
     hash.insert( "the revelation" ,  66 );
@@ -343,7 +344,7 @@ VerseReferenceParser::VerseReferenceParser()
 
 }
 
-QString VerseReferenceParser::calculateStringRepresentation(int book, int chapter, int verse)
+QString VerseReferenceParser::_calculateStringRepresentation(int book, int chapter, int verse)
 {    
     return  normalisedBookNames.value(book) + " " + QString().setNum(chapter) + ":" + QString().setNum(verse);
 }
@@ -391,7 +392,7 @@ VerseReference VerseReferenceParser::_parse(QString string)
         book = hash.value(bookString);
     }
 
-    return VerseReference(book,chapter,verse, calculateStringRepresentation(book, chapter, verse));
+    return VerseReference(book,chapter,verse, _calculateStringRepresentation(book, chapter, verse));
 }
 
 VerseReferenceParser& VerseReferenceParser::instance()
@@ -405,3 +406,7 @@ VerseReference VerseReferenceParser::parse(QString string)
     return instance()._parse(string);
 }
 
+QString VerseReferenceParser::calculateStringRepresentation(int book, int chapter, int verse)
+{
+    return instance()._calculateStringRepresentation(book, chapter, verse);
+}
