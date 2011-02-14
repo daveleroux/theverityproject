@@ -152,10 +152,10 @@ void BibleTextBrowser::mousePressEvent(QMouseEvent* e)
 
 void BibleTextBrowser::resizeEvent(QResizeEvent* event)
 {
-    resizing =  true;
-    QTextBrowser::resizeEvent(event);
-    resizing = false;
-    emit checkCanScrollSignal(0);
+        resizing =  true;
+         QTextBrowser::resizeEvent(event);
+        resizing = false;
+        emit checkCanScrollSignal(0);
 }
 
 void BibleTextBrowser::tmp(QList<int> pixelStarts)

@@ -2,6 +2,7 @@
 #include "versereferenceparser.h"
 #include "parsingdecoder.h"
 #include "timer.h"
+#include "biblequerier.h"
 #include "globalvariables.h"
 #include "dictionarybrowser.h"
 #include "parsingdisplaybrowser.h"
@@ -17,6 +18,7 @@
 #include <QSettings>
 #include <QLayout>
 #include <QComboBox>
+#include <QStringList>
 
 #include <iostream>
 using namespace std;
@@ -34,8 +36,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if(settings.value(WINDOW_STATE_SETTING, true).toBool())
         setWindowState(Qt::WindowMaximized);
 
-//        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
-    DATA_PATH = ".";
+        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
+//    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
     settings.endGroup();
@@ -54,6 +56,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
     dictionaryDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+
+    QDockWidget* searchResultsDock = new QDockWidget("Search Results", this);
+    searchResultsDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    searchBrowser = new SearchBrowser();
+    searchResultsDock->setWidget(searchBrowser);
+    addDockWidget(Qt::LeftDockWidgetArea, searchResultsDock);
+    connect(searchBrowser, SIGNAL(goToResult(QList<QString>, VerseReference)), browser, SLOT(display(QList<QString>, VerseReference)));
+//    searchResultsDock->setFloating(true);
 
     QWidget* layoutWidget = new QWidget(dictionaryDock);
     QToolBar* dictionaryToolBar = new QToolBar();
@@ -85,7 +95,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
 
-
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
@@ -104,17 +113,40 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
             toggleButton->setChecked(true);
         toolbar->addWidget(toggleButton);
     }
+//    searchBrowser->setTextsAvaiable(textsAvailable);
 
     verseLineEdit = new QLineEdit();
     verseLineEdit->setMaximumWidth(300);
 
     verseLineOutput = new QLabel();
 
+//    QComboBox *cmb = new QComboBox();
+//    cmb->setEditable(true);
+//    QStringList books;// = new QStringList();
+//    books.append("Matthew");
+//    books.append("Mark");
+//    books.append("Luke");
+//    books.append("John");
+//    books.append("Acts");
+//    books.append("Romans");
+//    books.append("1 Corinthians");
+//    books.append("2 Corinthians");
+
+//    ParsingQCompleter *completer = new ParsingQCompleter(books, this);
+
+//    completer->setCompletionMode(QCompleter::PopupCompletion);
+//    completer->setCaseSensitivity(Qt::CaseInsensitive);
+//    completer->setMaxVisibleItems(3);
+
+//    //cmb->addItems(*books);
+//    cmb->setCompleter(completer);
+
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
-    connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(lookupVerse()));
+    connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(performVerserLineEdit()));
 
     toolbar->addWidget(verseLineEdit);
     toolbar->addWidget(verseLineOutput);
+//    toolbar->addWidget(cmb);
 
 
     addToolBar(toolbar);
@@ -133,6 +165,7 @@ void MainWindow::textToggled(bool checked)
     {
         texts.removeAt(texts.indexOf(text));
     }
+    searchBrowser->setTextsAvaiable(texts);
 }
 
 void MainWindow::afterShown()
@@ -161,15 +194,19 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::lookupVerse()
+void MainWindow::performVerserLineEdit()
 {
-    QString verse = verseLineEdit->text();
-    if(verse.length() > 0)
+    QString term = verseLineEdit->text();
+    if (term.left(2) == "s.")
+    {
+        searchBrowser->performSearch(term);
+    }
+    else if(term.length() > 0)
     {
 //        timer t;
 //        t.start();
 
-        VerseReference verseReference = VerseReferenceParser::parse(verse);
+        VerseReference verseReference = VerseReferenceParser::parse(term);
 
         browser->display(texts, verseReference);
 
@@ -204,7 +241,17 @@ void MainWindow::verseLineEditChanged(QString string)
 {
     if(string.length() > 0)
     {
-        verseLineOutput->setText(VerseReferenceParser::parse(string).stringRepresentation);
+        if (string.left(2) == "s.")
+        {
+            if (verseLineOutput->text() != "will search...")
+            {
+                verseLineOutput->setText("will search...");
+            }
+        }
+        else
+        {
+           verseLineOutput->setText(VerseReferenceParser::parse(string).stringRepresentation);
+        }
     }
     else
     {

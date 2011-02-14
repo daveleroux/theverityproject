@@ -25,7 +25,6 @@ private:
 public:
     BibleTextBrowser();
 
-    void display(QList<QString> texts, VerseReference verseReference);
 
     void writeOutSettings();
 
@@ -47,6 +46,7 @@ public slots:
     void scrollbarValueChanged(int);
     void scrollbarSliderPressed();
     void scrollbarSliderReleased();
+    void display(QList<QString> texts, VerseReference verseReference);
 
 signals:
     void wordClicked(TextInfo*);

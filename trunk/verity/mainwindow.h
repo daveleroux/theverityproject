@@ -4,6 +4,7 @@
 #include <QtGui/QMainWindow>
 #include <QList>
 #include "bibletextbrowser.h"
+#include "searchbrowser.h"
 #include "qsnapscrollbar.h"
 #include <QLineEdit>
 #include <QLabel>
@@ -26,6 +27,7 @@ class MainWindow : public QMainWindow
 protected:
 
     BibleTextBrowser* browser;
+    SearchBrowser* searchBrowser;
     QLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
@@ -35,7 +37,7 @@ protected:
     void writeOutSettings();
 
 public slots:
-    void lookupVerse();
+    void performVerserLineEdit();
     void verseLineEditChanged(QString string);
     void textToggled(bool);
 
