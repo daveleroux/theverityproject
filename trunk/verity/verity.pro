@@ -31,6 +31,7 @@ SOURCES += main.cpp \
     parallelchapterrepresentation.cpp \
     versenode.cpp \
     parallelgridconstructor.cpp \
+    referencefilterproxymodel.cpp \
     minandmaxidsforchapter.cpp \
     searchbrowser.cpp
 HEADERS += mainwindow.h \
@@ -59,6 +60,7 @@ HEADERS += mainwindow.h \
     parallelchapterrepresentation.h \
     versenode.h \
     parallelgridconstructor.h \
+    referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
     searchbrowser.h
 INSTALLS += target \

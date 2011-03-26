@@ -8,7 +8,6 @@
 #include "parsingdisplaybrowser.h"
 #include "textinfo.h"
 #include "referencefilterproxymodel.h"
-#include "referencefilter.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
