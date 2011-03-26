@@ -436,25 +436,25 @@ QTextCharFormat ChapterDisplayer::getDefaultFormat(QString text)
 
 void ChapterDisplayer::highlight(int startPos, int endPos)
 {
-    QTextCursor cursor(textBrowser->document());
-     cursor.setPosition(startPos);
-     QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
-
-     bool haveSetFormat = false;
-     while(cursor.position() <  endPos)
-     {
-         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-         if(!haveSetFormat)
-         {
-             haveSetFormat = true;
-             format = cursor.charFormat();
-         }
-     }
-
-
-     format.setBackground(QBrush(Qt::lightGray));
-
-     cursor.setCharFormat(format);
+//    QTextCursor cursor(textBrowser->document());
+//     cursor.setPosition(startPos);
+//     QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
+//
+//     bool haveSetFormat = false;
+//     while(cursor.position() <  endPos)
+//     {
+//         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
+//         if(!haveSetFormat)
+//         {
+//             haveSetFormat = true;
+//             format = cursor.charFormat();
+//         }
+//     }
+//
+//
+//     format.setBackground(QBrush(Qt::lightGray));
+//
+//     cursor.setCharFormat(format);
 }
 
 ChapterRepresentation* ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)

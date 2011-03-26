@@ -37,12 +37,20 @@ BibleTextBrowser::BibleTextBrowser() : QTextBrowser()
         fontFamilies.insert("tisch", "DejaVuSans");
         fontFamilies.insert("wlc", "SBL Hebrew");
     }
+
+    if (!settings.contains("zoomIn"))
+    {
+        settings.setValue("zoomIn", 1);
+    }
+
+    int zoomInSetting = settings.value("zoomIn", 1).toInt();
+
     settings.endGroup();
 
 
     setUndoRedoEnabled(false);
     setMouseTracking(true);
-    zoomIn(4);
+    zoomIn(zoomInSetting);
 
 
 
@@ -196,3 +204,11 @@ void BibleTextBrowser::scrollbarSliderReleased()
 //    QTextBrowser::wheelEvent(e);
 //    chapterDisplayer->checkCanScroll();
 //}
+
+
+QMimeData* BibleTextBrowser::createMimeDataFromSelection() const
+{
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setText(textCursor().selectedText());
+    return mimeData;
+}

@@ -40,6 +40,7 @@ protected:
 
 
 //    void wheelEvent ( QWheelEvent * e );
+    QMimeData* createMimeDataFromSelection() const;
 
 public slots:
     void tmp(QList<int>);
