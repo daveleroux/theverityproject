@@ -11,6 +11,7 @@ QString WINDOW_STATE_SETTING = "windowStateSetting";
 QString DATA_PATH_SETTING = "dataPath";
 
 QString BIBLE_TEXT_BROWSER_SETTING_GROUP = "bibleTextBrowserSettingGroup";
+QString PARALLEL_DISPLAY_SETTINGS_GROUP = "parallelDisplaySettingsGroup";
 QString FONT_FAMILY_SETTINGS = "fontFamilySettings";
 QString TEXT_SETTING = "textSetting";
 QString FONT_SETTING = "fontSetting";
