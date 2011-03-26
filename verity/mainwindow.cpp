@@ -7,6 +7,8 @@
 #include "dictionarybrowser.h"
 #include "parsingdisplaybrowser.h"
 #include "textinfo.h"
+#include "referencefilterproxymodel.h"
+#include "referencefilter.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -17,8 +19,9 @@
 #include <QDockWidget>
 #include <QSettings>
 #include <QLayout>
-#include <QComboBox>
 #include <QStringList>
+#include <QComboBox>
+#include <QCompleter>
 
 #include <iostream>
 using namespace std;
@@ -108,11 +111,49 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     {
         QPushButton* toggleButton = new QPushButton(textsAvailable.at(i));
         toggleButton->setCheckable(true);
+        toggleButton->setIcon(QIcon("/home/j3frea/Pictures/ico.svg"));
         connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-        if(i == 0 || i == 2)
-            toggleButton->setChecked(true);
         toolbar->addWidget(toggleButton);
+//        toggleButton->setStyleSheet("border: 2px solid #8f8f91; border-radius: 6px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde); min-width: 80px;");
+        toggleButton->setStyleSheet(
+                "QPushButton:hover {"
+                    "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f3f0ef, stop: 1 #9f9fa8);"
+                "}"
+                "QPushButton:pressed {"
+                    "padding-left: 5px;"
+                    "padding-top: 5px;"
+                    "border-top: 1px solid #6f6f71;"
+                    "border-left: 1px solid #6f6f71;"
+                    "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);"
+                "}"
+                "QPushButton:checked {"
+                    "padding-left: 3px;"
+                    "padding-top: 4px;"
+                    "border-top: 1px solid #6f6f71;"
+                    "border-left: 1px solid #6f6f71;"
+                    "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #d8d2c2, stop: 1 #62528d);"
+                "}"
+                "QPushButton:flat {"
+                    "border: none;"
+                "}"
+                "QPushButton {"
+                    "border-width: 1px;"
+                    "border-color: #8f8f91;"
+                    "border-top: 1px solid #afafb1;"
+                    "border-left: 1px solid #afafb1;"
+                    "border-style: solid;"
+                    "margin: 2px;"
+                    "border-radius: 5px; padding: 3px; left: -3px;"
+                    "width: 90px;"
+                    "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e3e0cd, stop: 1 #9797a0);"
+                "}"
+            );
+        if (i == 0 || i == 2)
+            toggleButton->setChecked(true);
+
     }
+
+        this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
 //    searchBrowser->setTextsAvaiable(textsAvailable);
 
     verseLineEdit = new QLineEdit();
@@ -120,33 +161,35 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     verseLineOutput = new QLabel();
 
-//    QComboBox *cmb = new QComboBox();
-//    cmb->setEditable(true);
-//    QStringList books;// = new QStringList();
-//    books.append("Matthew");
-//    books.append("Mark");
-//    books.append("Luke");
-//    books.append("John");
-//    books.append("Acts");
-//    books.append("Romans");
-//    books.append("1 Corinthians");
-//    books.append("2 Corinthians");
+    QComboBox *cmb = new QComboBox(this);
+    cmb->setEditable(true);
+    QStringList books;
+    books << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
+    books << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
 
-//    ParsingQCompleter *completer = new ParsingQCompleter(books, this);
+    cmb->addItems(books);
+    QCompleter *completer = new QCompleter(this);
+    completer->setCompletionMode(QCompleter::UnfilteredPopupCompletion); // always show all completions
+    ReferenceFilterProxyModel *pFilterModel = new ReferenceFilterProxyModel(this);
+    pFilterModel->setSourceModel(cmb->model());
+    connect(cmb, SIGNAL(editTextChanged(const QString &)), pFilterModel, SLOT(setFilterFixedString(const QString &)));
+    completer->setModel(pFilterModel); // use the filtered proxy model to do the substring matching
 
-//    completer->setCompletionMode(QCompleter::PopupCompletion);
-//    completer->setCaseSensitivity(Qt::CaseInsensitive);
-//    completer->setMaxVisibleItems(3);
+    cmb->setCompleter(completer);
 
-//    //cmb->addItems(*books);
-//    cmb->setCompleter(completer);
+    //    QAbstractItemModel *tmp = completer->model();
+
+//    ReferenceFilter *rf;
+//    rf->setItemList(books);
+//
+//    connect(cmb, SIGNAL(textEdited(QString)), rf, SLOT(setFilter(QString)));
 
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
-    connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(performVerserLineEdit()));
+    connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(performVerseLineEdit()));
 
     toolbar->addWidget(verseLineEdit);
     toolbar->addWidget(verseLineOutput);
-//    toolbar->addWidget(cmb);
+    toolbar->addWidget(cmb);
 
 
     addToolBar(toolbar);
@@ -156,6 +199,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 void MainWindow::textToggled(bool checked)
 {
     QPushButton* sender = (QPushButton*)QObject::sender();
+
     QString text = sender->text();
     if(checked)
     {
@@ -194,7 +238,7 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-void MainWindow::performVerserLineEdit()
+void MainWindow::performVerseLineEdit()
 {
     QString term = verseLineEdit->text();
     if (term.left(2) == "s.")

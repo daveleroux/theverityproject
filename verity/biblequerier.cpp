@@ -6,6 +6,7 @@
 #include "versereferenceparser.h"
 #include <QStringList>
 #include <iostream>
+
 using namespace std;
 
 BibleQuerier::BibleQuerier()

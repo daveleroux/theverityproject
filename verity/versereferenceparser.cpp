@@ -84,6 +84,7 @@ VerseReferenceParser::VerseReferenceParser()
 
     hash.insert( "matthew" ,  40 );
     hash.insert( "matt" ,  40 );
+    hash.insert( "mat" ,  40 );
     hash.insert( "mt" ,  40 );
     hash.insert( "mark" ,  41 );
     hash.insert( "mrk" ,  41 );

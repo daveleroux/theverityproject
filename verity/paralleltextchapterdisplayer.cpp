@@ -1,8 +1,11 @@
 #include "paralleltextchapterdisplayer.h"
+#include "globalvariables.h"
 #include "biblequerier.h"
 #include <QTextTable>
 #include <QSet>
 #include <QDebug>
+#include <QBrush>
+#include <QSettings>
 #include "parallelchapterrepresentation.h"
 #include "parallelgridconstructor.h"
 
@@ -24,6 +27,9 @@ QSet<int> ParallelTextChapterDisplayer::extractParallelIds(QList<TextInfo> textI
 
 ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {    
+    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
+    settings.beginGroup(PARALLEL_DISPLAY_SETTINGS_GROUP);
+
     bool prepending = false;
     bool appending = false;
 
@@ -108,6 +114,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
         columnWidths.append(QTextLength(QTextLength::PercentageLength, percentage));
     QTextTableFormat tableFormat;
     tableFormat.setColumnWidthConstraints(columnWidths);
+    tableFormat.setCellPadding(3);
 
     int rows = 0;
 
@@ -119,6 +126,12 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
     }
 
     QTextTable* table = textCursor.insertTable(rows, texts.size(), tableFormat);
+    QTextFrameFormat tableFrameFormat = table->frameFormat();
+    tableFrameFormat.setBorderStyle(QTextFrameFormat::BorderStyle_None);
+    tableFrameFormat.setBorder(0);
+    tableFrameFormat.setPadding(2);
+    tableFrameFormat.setMargin(0);
+    table->setFrameFormat(tableFrameFormat);
 
     int selectionStart = -1;
     int selectionEnd = -1;
@@ -126,6 +139,17 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
     int currentRow = 0;
 
     VerseNode* headingDownNode = grid->down;
+
+    if (!settings.contains("rowColor"))
+        settings.setValue("rowColor", "#f8fffa");
+    if (!settings.contains("rowColorAlternate"))
+        settings.setValue("rowColorAlternate", "#e6ebf2");
+    //Lani & Jocelyn: #ffa8fa, #dcffc8
+    //Actual nice colours: #f8fffa, #e6ebf2
+
+    QBrush light = QBrush(QColor(settings.value("rowColor").toString()), Qt::SolidPattern);
+    QBrush dark = QBrush(QColor(settings.value("rowColorAlternate").toString()), Qt::SolidPattern);
+
     while(headingDownNode != 0)
     {
         int currentColumn = 0;
@@ -135,6 +159,8 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
         {
             QTextBlockFormat textBlockFormat;
             QTextCharFormat defaultFormat;
+
+
             bool hebrew = false;
 
             if(cell->textInfos.size() > 0)
@@ -224,6 +250,16 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
             {
                 textCursor.insertHtml("</div>");
             }
+
+            if (currentRow % 2)
+            {
+                defaultFormat.setBackground(light);
+            }
+            else
+            {
+                defaultFormat.setBackground(dark);
+            }
+            table->cellAt(currentRow, currentColumn).setFormat(defaultFormat);
 
             currentColumn++;
             cell = cell->right;

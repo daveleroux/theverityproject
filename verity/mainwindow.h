@@ -37,7 +37,7 @@ protected:
     void writeOutSettings();
 
 public slots:
-    void performVerserLineEdit();
+    void performVerseLineEdit();
     void verseLineEditChanged(QString string);
     void textToggled(bool);
 
