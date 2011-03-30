@@ -42,7 +42,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 //    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
-    settings.endGroup();
 
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
@@ -100,6 +99,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
+    QString activeTexts = settings.value(ACTIVE_TEXTS).toString();
+    if (activeTexts.isNull())
+    {
+        activeTexts = "esv#tisch";
+    }
+    QStringList activeTextList = activeTexts.split("#");
+
     QList<QString> textsAvailable;
     textsAvailable.append("esv");
     textsAvailable.append("kjv");
@@ -110,10 +116,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     {
         QPushButton* toggleButton = new QPushButton(textsAvailable.at(i));
         toggleButton->setCheckable(true);
-        toggleButton->setIcon(QIcon("/home/j3frea/Pictures/ico.svg"));
         connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
         toolbar->addWidget(toggleButton);
-//        toggleButton->setStyleSheet("border: 2px solid #8f8f91; border-radius: 6px; background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f6f7fa, stop: 1 #dadbde); min-width: 80px;");
         toggleButton->setStyleSheet(
                 "QPushButton:hover {"
                     "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f3f0ef, stop: 1 #9f9fa8);"
@@ -147,13 +151,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
                     "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e3e0cd, stop: 1 #9797a0);"
                 "}"
             );
-        if (i == 0 || i == 2)
+        if (activeTextList.contains(textsAvailable.at(i)))
             toggleButton->setChecked(true);
 
     }
 
-        this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
-//    searchBrowser->setTextsAvaiable(textsAvailable);
+    this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
 
     verseLineEdit = new QLineEdit();
     verseLineEdit->setMaximumWidth(300);
@@ -173,15 +176,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     pFilterModel->setSourceModel(cmb->model());
     connect(cmb, SIGNAL(editTextChanged(const QString &)), pFilterModel, SLOT(setFilterFixedString(const QString &)));
     completer->setModel(pFilterModel); // use the filtered proxy model to do the substring matching
-
     cmb->setCompleter(completer);
 
-    //    QAbstractItemModel *tmp = completer->model();
-
-//    ReferenceFilter *rf;
-//    rf->setItemList(books);
-//
-//    connect(cmb, SIGNAL(textEdited(QString)), rf, SLOT(setFilter(QString)));
 
     connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
     connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(performVerseLineEdit()));
@@ -193,6 +189,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     addToolBar(toolbar);
     this->setWindowIcon(QIcon(DATA_PATH + "/verity.ico"));
+    settings.endGroup();
 }
 
 void MainWindow::textToggled(bool checked)
@@ -225,6 +222,13 @@ void MainWindow::writeOutSettings()
     settings.beginGroup(MAIN_WINDOW_SETTING_GROUP);
     settings.setValue(SIZE_SETTING, size());
     settings.setValue(POS_SETTING, pos());
+    QString t;
+    for (int i = 0; i < texts.count(); i++)
+    {
+        t.append(texts.at(i));
+        t.append("#");
+    }
+    settings.setValue(ACTIVE_TEXTS, t.left(t.length() - 1));
     settings.setValue(WINDOW_STATE_SETTING, (windowState() & Qt::WindowMaximized) > 0);
 //        settings.setValue(DATA_PATH_SETTING, DATA_PATH);
     settings.endGroup();
@@ -246,14 +250,8 @@ void MainWindow::performVerseLineEdit()
     }
     else if(term.length() > 0)
     {
-//        timer t;
-//        t.start();
-
         VerseReference verseReference = VerseReferenceParser::parse(term);
-
         browser->display(texts, verseReference);
-
-//        cout << "total: " << t << endl;
     }
 }
 
