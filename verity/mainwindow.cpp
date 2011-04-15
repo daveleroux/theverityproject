@@ -112,9 +112,13 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     textsAvailable.append("tisch");
     textsAvailable.append("wlc");
 
+    //must be initialised before the toggleButtons get toggled since it receives focus whenever they're toggled
+    verseLineEdit = new QLineEdit();
+    verseLineEdit->setMaximumWidth(300);
+
     for(int i=0; i< textsAvailable.size(); i++)
     {
-        QPushButton* toggleButton = new QPushButton(textsAvailable.at(i));
+        QPushButton* toggleButton = new QPushButton("&" + textsAvailable.at(i));
         toggleButton->setCheckable(true);
         connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
         toolbar->addWidget(toggleButton);
@@ -158,9 +162,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
 
-    verseLineEdit = new QLineEdit();
-    verseLineEdit->setMaximumWidth(300);
-
     verseLineOutput = new QLabel();
 
     QComboBox *cmb = new QComboBox(this);
@@ -196,7 +197,8 @@ void MainWindow::textToggled(bool checked)
 {
     QPushButton* sender = (QPushButton*)QObject::sender();
 
-    QString text = sender->text();
+    //when you clean your filthy code that uses the caption on the button you can clean this up too.
+    QString text = sender->text().mid(1);
     if(checked)
     {
         texts.append(text);
@@ -206,6 +208,8 @@ void MainWindow::textToggled(bool checked)
         texts.removeAt(texts.indexOf(text));
     }
     searchBrowser->setTextsAvaiable(texts);
+
+    verseLineEdit->setFocus(Qt::OtherFocusReason);
 }
 
 void MainWindow::afterShown()
