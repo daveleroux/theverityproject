@@ -6,6 +6,7 @@
 #include "bibletextbrowser.h"
 #include "searchbrowser.h"
 #include "qsnapscrollbar.h"
+#include "locationlineedit.h"
 #include <QLineEdit>
 #include <QLabel>
 #include <QComboBox>
@@ -28,7 +29,7 @@ protected:
 
     BibleTextBrowser* browser;
     SearchBrowser* searchBrowser;
-    QLineEdit* verseLineEdit;
+    LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
     QList<QString> texts;

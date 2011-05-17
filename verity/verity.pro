@@ -33,7 +33,8 @@ SOURCES += main.cpp \
     parallelgridconstructor.cpp \
     referencefilterproxymodel.cpp \
     minandmaxidsforchapter.cpp \
-    searchbrowser.cpp
+    searchbrowser.cpp \
+    locationlineedit.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -62,7 +63,8 @@ HEADERS += mainwindow.h \
     parallelgridconstructor.h \
     referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
-    searchbrowser.h
+    searchbrowser.h \
+    locationlineedit.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin
