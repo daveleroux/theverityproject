@@ -424,7 +424,8 @@ QStringList BibleQuerier::_search(QString searchTerms)
 //
 //    qDebug() << sqlQuery;
 
-    QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
+    QString sqlQuery;
+    /*QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
     QString whereCondition;
     for (int i = 0; i < eachWord.count(); i++)
     {
@@ -433,16 +434,54 @@ QStringList BibleQuerier::_search(QString searchTerms)
     whereCondition = " where" + whereCondition.mid(3);
     sqlQuery = sqlQuery.append(whereCondition).append(" group by book, chapter, verse");
 
-    qDebug() << sqlQuery;
+    qDebug() << sqlQuery;*/
 
     QSqlQuery query;
     query.setForwardOnly(true);
 
 //    if (!query.exec(sqlQuery.append(" order by t0.id asc")))
-    if(!query.exec("select id, book_number, chapter, verse, text "
+    if (((QString)searchTermList.at(2)).contains(" ", Qt::CaseSensitive))
+    {
+        sqlQuery = "select id, book_number, chapter, verse, count(id) as hits, text, (book_number || chapter || verse) as fish "
+                   "from " + ((QString) searchTermList.at(1)) + " where";
+
+        for (int i = 0; i < eachWord.count(); i++)
+        {
+            if (i != 0)
+            {
+                sqlQuery.append(" or");
+            }
+            QString thisWord = eachWord.at(i);
+            QString parsing = eachWord.at(i);
+            QString column = "text";
+            if (thisWord.indexOf("@") != -1)
+            {
+                thisWord = thisWord.left(thisWord.indexOf("@"));
+                parsing = parsing.right(parsing.indexOf("@") + 1);
+                column = "strongs_lemma";
+            }
+            sqlQuery.append(" " + column + " like(\"%" + thisWord + "%\")");
+        }
+        sqlQuery.append(" group by fish order by hits desc");
+    }
+    else
+    {
+        QString thisWord = searchTermList.at(2);
+        QString parsing = searchTermList.at(2);
+        QString column = "text";
+        if (thisWord.indexOf("@") != -1)
+        {
+            thisWord = thisWord.left(thisWord.indexOf("@"));
+            parsing = parsing.right(parsing.indexOf("@") + 1);
+            column = "strongs_lemma";
+        }
+        sqlQuery = "select id, book_number, chapter, verse, text "
                    "from " + ((QString) searchTermList.at(1)) +
-                   " where text like (\"%" + searchTermList.at(2) + "%\")"
-                   " order by id asc"))
+                   " where " + column + " like (\"%" + thisWord + "%\")"
+                   " order by id asc";
+    }
+    qDebug() << sqlQuery;
+    if(!query.exec(sqlQuery))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
