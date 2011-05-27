@@ -24,6 +24,7 @@ LocationLineEdit::LocationLineEdit(QStringList *words, QHash<QString, int> *hash
 void LocationLineEdit::focusOutEvent(QFocusEvent *e)
 {
     listView->hide();
+    QLineEdit::focusOutEvent(e);
 }
 void LocationLineEdit::keyPressEvent(QKeyEvent *e)
 {
