@@ -8,26 +8,15 @@
 #include <QtSql>
 #include <QXmlQuery>
 
-QString MainWindow::getHtml(int v)
+QString MainWindow::getHtml()
 {
 
     QSqlQuery query;
 
-    if(v==0)
+    if(!query.exec("select text from net_bible where normalised_chapter=973"))
     {
-        if(!query.exec("select text from net_bible where normalised_chapter=973"))
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-    }
-    else
-    {
-        if(!query.exec("select text from net_bible where normalised_chapter=58 and verse="+QString().setNum(v) ))
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
     }
 
     QString wholeChapter = "<normalisedChapter>";
@@ -38,7 +27,7 @@ QString MainWindow::getHtml(int v)
     }
     wholeChapter = wholeChapter + "</normalisedChapter>";
 
-//    qDebug() << wholeChapter;
+    //    qDebug() << wholeChapter;
 
 
     QXmlQuery xmlQuery(QXmlQuery::XSLT20);
@@ -50,7 +39,7 @@ QString MainWindow::getHtml(int v)
 
     xmlQuery.setFocus(&buffer);
 
-    xmlQuery.setQuery(QUrl("bible.xsl"));
+    xmlQuery.setQuery(QUrl("qrc:/xsl/bible.xsl"));
 
     QString result;
     xmlQuery.evaluateTo(&result);
@@ -81,11 +70,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     //webView->settings()->setAttribute(QWebSettings::JavascriptEnabled,true);
 
     //    QString html = "<html><head></head><body><h1>hello world</h1></body></html>";
-//    for(int i=1; i<= 32; i++ )
-//    {
-//        qDebug() << i;
-//        getHtml(i);
-//    }
+    //    for(int i=1; i<= 32; i++ )
+    //    {
+    //        qDebug() << i;
+    //        getHtml(i);
+    //    }
     QString html = getHtml();
     qDebug() << html;
     webView->setHtml(html, QUrl::fromLocalFile(QDir::currentPath()));
