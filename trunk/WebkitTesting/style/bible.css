@@ -72,8 +72,13 @@
 .verse
 {
 	color: #ff0000;
-	font-size: xx-small;
-	vertical-align: super;
-}
+	vertical-align: baseline;
+	font-size: 0.8em;
+	position: relative;
+	top: -0.4em;
 
+
+	/*font-size: xx-small;
+	vertical-align: super;*/
+}
 

@@ -12,10 +12,12 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    clicklistener.cpp
+    clicklistener.cpp \
+    scrolllistener.cpp
 
 HEADERS  += mainwindow.h \
-    clicklistener.h
+    clicklistener.h \
+    scrolllistener.h
 
 FORMS    +=
 

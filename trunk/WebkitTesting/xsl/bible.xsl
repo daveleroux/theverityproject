@@ -5,15 +5,8 @@
                         indent="yes"
                         omit-xml-declaration="yes"/>
 
-	    <xsl:template match="/">
-		<html>
-		<head>
-			<link href="qrc:/style/bible.css" rel="stylesheet" type="text/css"/>
-		</head>
-		<body>
+	    <xsl:template match="/">				
 			<xsl:apply-templates/>
-		</body>
-		</html>
 	    </xsl:template>
 
 	   <xsl:template match="note">
@@ -120,6 +113,12 @@
 
 	    <xsl:template match="verse">
 		<span class="verse">
+			<xsl:apply-templates/>
+		</span>
+	    </xsl:template>
+
+	    <xsl:template match="normalisedChapter">
+		<span class="normalisedChapter">
 			<xsl:apply-templates/>
 		</span>
 	    </xsl:template>

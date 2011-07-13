@@ -4,16 +4,18 @@
 #include <QFile>
 #include <QTextStream>
 #include "clicklistener.h"
+#include "scrolllistener.h"
 #include <QMessageBox>
 #include <QtSql>
 #include <QXmlQuery>
+#include <QWebElement>
 
-QString MainWindow::getHtml()
+QString MainWindow::getHtml(int normalisedChapter)
 {
 
     QSqlQuery query;
 
-    if(!query.exec("select text from net_bible where normalised_chapter=973"))
+    if(!query.exec("select text from net_bible where normalised_chapter=" + QString().setNum(normalisedChapter)))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
@@ -26,8 +28,6 @@ QString MainWindow::getHtml()
         wholeChapter = wholeChapter + text;
     }
     wholeChapter = wholeChapter + "</normalisedChapter>";
-
-    //    qDebug() << wholeChapter;
 
 
     QXmlQuery xmlQuery(QXmlQuery::XSLT20);
@@ -58,29 +58,58 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
         exit(1);
     }
 
-
-
-
     webView = new QWebView();
     setCentralWidget(webView);
 
-
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
 
-    //webView->settings()->setAttribute(QWebSettings::JavascriptEnabled,true);
+    QString htmlFrame = "<html>"
+                        "<head>"
+                                "<link href=\"qrc:/style/bible.css\" rel=\"stylesheet\" type=\"text/css\"/>"
+                        "</head>"
+                        "<body>"
+                        "</body>"
+                        "</html>";
 
-    //    QString html = "<html><head></head><body><h1>hello world</h1></body></html>";
-    //    for(int i=1; i<= 32; i++ )
-    //    {
-    //        qDebug() << i;
-    //        getHtml(i);
-    //    }
-    QString html = getHtml();
-    qDebug() << html;
-    webView->setHtml(html, QUrl::fromLocalFile(QDir::currentPath()));
 
-    //    webView->load(QUrl("http://qt.nokia.com/"));
-    //         webView->show();
+    webView->setHtml(htmlFrame);
+
+    display(23);
+}
+
+void MainWindow::append(int normalisedChapter, QString html)
+{
+    normalisedChapters.append(normalisedChapter);
+
+    QWebElement doc = webView->page()->mainFrame()->documentElement();
+    QWebElement body = doc.firstChild().nextSibling();
+    body.appendInside(html);
+
+
+}
+
+void MainWindow::append()
+{
+    int last = normalisedChapters.last();
+    append(last+1, getHtml(last+1));
+}
+
+void MainWindow::display(int normalisedChapter)
+{
+    normalisedChapters.clear();
+    append(normalisedChapter, getHtml(normalisedChapter));
+}
+
+void MainWindow::scrolled()
+{
+    int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+    int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+    int max =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
+
+    if(max - (value+height) < height)
+    {
+        append();
+    }
 }
 
 void MainWindow::wordClicked(int id)
@@ -101,4 +130,14 @@ void MainWindow::loadFinished(bool b)
 {
     ClickListener* clickListener = new ClickListener(this);
     webView->page()->mainFrame()->addToJavaScriptWindowObject("clickListener", clickListener);
+
+
+    ScrollListener* scrollListener = new ScrollListener();
+    connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
+
+    webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+
+    webView->page()->mainFrame()->evaluateJavaScript("window.onscroll = function () { "
+        "scrollListener.scrolled(); "
+        "}");
 }
