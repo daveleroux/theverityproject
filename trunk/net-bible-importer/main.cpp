@@ -7,7 +7,6 @@
 #include <QFile>
 #include "chunk.h"
 
-
 Chunk* currentChunk;
 QList<Chunk*> allChunks;
 
@@ -17,6 +16,7 @@ int bookNumber;
 
 
 QMap<QString, QString> map;
+
 
 
 void assert(bool b)
@@ -46,19 +46,45 @@ void assert(QString l, QString r)
     }
 }
 
+QString getDatabaseTagName(QString netTagName)
+{
+    assert(map.keys().contains(netTagName));
+    return map.value(netTagName);
+}
 
-//    QTextStream stream;
-//    QString streamString;
-//    stream.setString(&streamString);
-//    stream << node;
+void printElement(QDomElement element)
+{
+        QTextStream stream;
+        QString streamString;
+        stream.setString(&streamString);
+        stream << element;
 
-//    qDebug() << "could not vet node: " << *stream.string();
-
+        qDebug() << "element:";
+        qDebug() << *stream.string();
+}
 
 void appendCurrentChunk()
 {
     if(currentChunk != 0)
     {
+        QDomElement element = currentChunk->xmlDoc.firstChildElement();
+        QDomElement childElement = element.firstChildElement();
+        while(!childElement.isNull())
+        {
+            QDomElement nextChildElement = childElement.nextSiblingElement();
+
+            QString tagName = childElement.tagName();
+            assert(map.values().contains(tagName));
+            if(tagName != "br")
+            {
+                if(childElement.childNodes().size() == 0)
+                {
+                    element.removeChild(childElement);
+                }
+            }
+
+            childElement = nextChildElement;
+        }
         allChunks.append(currentChunk);
         currentChunk = 0;
 
@@ -71,7 +97,7 @@ void appendCurrentChunk()
 
 void writeOutChunk(QSqlQuery query, Chunk* chunk)
 {
-        query.prepare("insert into net_bible values(:id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
+    query.prepare("insert into net_bible values(:id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
 
     query.bindValue(":id", QVariant(QVariant::Int));
     query.bindValue(":book_number", chunk->bookNumber);
@@ -171,7 +197,7 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
                 assert(oldChildElement.childNodes().size(), 1);
                 assert(oldChildElement.firstChildElement().tagName(), "SUP");
                 assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-                QDomElement newChild = createElement("note");
+                QDomElement newChild = createElement(getDatabaseTagName("note"));
                 newTreeParent.appendChild(newChild);
                 QDomText newChildChild = createTextNode(oldChildElement.attribute("href"));
                 newChild.appendChild(newChildChild);                
@@ -179,32 +205,32 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
             else if(oldChildElement.tagName() == "span")
             {
                 assert(oldChildElement.attribute("class") == "smallcaps");
-                QDomElement newChild = createElement("smallCaps");
+                QDomElement newChild = createElement(getDatabaseTagName("smallcaps"));
                 newTreeParent.appendChild(newChild);
                 buildTitleChunk(newChild, oldChild);
             }
             else if(oldChildElement.tagName() == "b")
             {
-                QDomElement newChild = createElement("b");
+                QDomElement newChild = createElement(getDatabaseTagName("b"));
                 newTreeParent.appendChild(newChild);
                 buildTitleChunk(newChild, oldChild);
             }
             else if(oldChildElement.tagName() == "br")
             {
-                QDomElement newChild = createElement("br");
+                QDomElement newChild = createElement(getDatabaseTagName("br"));
                 newTreeParent.appendChild(newChild);
                 buildTitleChunk(newChild, oldChild);
             }
             else if (oldChildElement.tagName() == "i")
             {
-                QDomElement newChild = createElement("i");
+                QDomElement newChild = createElement(getDatabaseTagName("i"));
                 newTreeParent.appendChild(newChild);
                 buildTitleChunk(newChild, oldChild);
             }
             else if (oldChildElement.tagName() == "font")
             {
                 assert(oldChildElement.attribute("face"), "Galaxie Unicode Hebrew");
-                QDomElement newChild = createElement("hebrew");
+                QDomElement newChild = createElement(getDatabaseTagName("hebrew"));
                 newTreeParent.appendChild(newChild);
                 buildTitleChunk(newChild, oldChild);
             }
@@ -230,11 +256,8 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
 
         if(oldChild.isText())
         {
-            QDomElement newChildElement = createElement(paragraphClass);
-            placeToAdd->appendChild(newChildElement);
-
             QDomText newChildText = createTextNode(oldChild.toText().data());
-            newChildElement.appendChild(newChildText);
+            placeToAdd->appendChild(newChildText);
             assert(oldChild.childNodes().size(), 0);
         }
         else if(oldChild.isElement())
@@ -252,9 +275,9 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     assert(oldChildElement.childNodes().size(), 1);
                     assert(oldChildElement.firstChildElement().tagName(), "SUP");
                     assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-                    QDomElement newChild = createElement("note");
+                    QDomElement newChild = createElement(getDatabaseTagName("note"));
                     placeToAdd->appendChild(newChild);
-                    QDomText newChildChild = createTextNode(oldChildElement.attribute("href"));
+                    QDomText newChildChild = createTextNode(oldChildElement.attribute("href"));                    
                     newChild.appendChild(newChildChild);
                 }
             }
@@ -270,12 +293,14 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
 
 
                     currentChunk = new Chunk(bookNumber, ((QString)verseList.at(0)).toInt(), ((QString)verseList.at(1)).toInt());
-                    placeToAdd = &currentChunk->xmlDoc.firstChild();
+                    QDomElement newChildElement = createElement(getDatabaseTagName(paragraphClass));
+                    currentChunk->xmlDoc.firstChild().appendChild(newChildElement);
+                    placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
                 }
                 else
                 {
                     assert(oldChildElement.attribute("class") == "smallcaps");
-                    QDomElement newChild = createElement("smallCaps");
+                    QDomElement newChild = createElement(getDatabaseTagName("smallcaps"));
                     placeToAdd->appendChild(newChild);
                     QDomNode* temp = placeToAdd;
                     placeToAdd = &newChild;
@@ -285,7 +310,7 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
             }
             else if(oldChildElement.tagName() == "b")
             {
-                QDomElement newChild = createElement("b");
+                QDomElement newChild = createElement(getDatabaseTagName("b"));
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
@@ -294,7 +319,7 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
             }
             else if(oldChildElement.tagName() == "br")
             {
-                QDomElement newChild = createElement("br");
+                QDomElement newChild = createElement(getDatabaseTagName("br"));
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
@@ -303,7 +328,7 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
             }
             else if (oldChildElement.tagName() == "i")
             {
-                QDomElement newChild = createElement("i");
+                QDomElement newChild = createElement(getDatabaseTagName("i"));
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
@@ -369,16 +394,15 @@ void doParagraph(QDomElement paragraphElement)
 
     QString paragraphClass = paragraphElement.attribute("class");
     if( (paragraphClass == "paragraphtitle" && !(specialCase))
-        || paragraphClass == "section"
+                || paragraphClass == "section"
                 || paragraphClass == "psasuper"
                 || paragraphClass == "lamhebrew" ) //e.g. see Ps 119
         {
 
         appendCurrentChunk();
+
         currentChunk = new Chunk(bookNumber);
-
-
-        QDomNode newElement = createElement(map.value(paragraphClass));
+        QDomNode newElement = createElement(getDatabaseTagName(paragraphClass));
         currentChunk->xmlDoc.firstChild().appendChild(newElement);
         buildTitleChunk(newElement, paragraphElement);
 
@@ -396,26 +420,30 @@ void doParagraph(QDomElement paragraphElement)
             currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
         }
 
-        if(currentChunk != 0)
-            placeToAdd = &currentChunk->xmlDoc.firstChild();
+        if(currentChunk != 0 )
+        {
+            QDomElement newElement = createElement(getDatabaseTagName(paragraphClass));
+            currentChunk->xmlDoc.firstChild().appendChild(newElement);
+            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+        }
         else
             placeToAdd = 0;
 
         buildVerseChunk(paragraphClass, paragraphElement);
 
-        currentChunk->xmlDoc.firstChild().appendChild(createElement("br"));
-        currentChunk->xmlDoc.firstChild().appendChild(createElement("br"));
+        currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
+        currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
     }
     else if(paragraphClass == "paragraphtitle") //this is for the special cases
     {
         assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
         currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
 
-        QDomNode newElement = createElement(map.value(paragraphClass));
+        QDomNode newElement = createElement(getDatabaseTagName(paragraphClass));
         currentChunk->xmlDoc.firstChild().appendChild(newElement);
         QDomText text = createTextNode(paragraphElement.firstChild().toText().data());
         newElement.appendChild(text);
-        currentChunk->xmlDoc.firstChild().appendChild(createElement("br"));
+        currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
 
     }
     else if(paragraphClass == "sosspeaker")
@@ -428,7 +456,7 @@ void doParagraph(QDomElement paragraphElement)
             currentChunk = new Chunk(bookNumber);
 
 
-            QDomElement newElement = createElement(map.value(paragraphClass));
+            QDomElement newElement = createElement(getDatabaseTagName(paragraphClass));
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
             buildTitleChunk(newElement, paragraphElement);
 
@@ -441,12 +469,12 @@ void doParagraph(QDomElement paragraphElement)
             assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
             currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
 
-            QDomNode newElement = createElement(map.value(paragraphClass));
+            QDomNode newElement = createElement(getDatabaseTagName(paragraphClass));
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
             buildTitleChunk(newElement, paragraphElement);
 
-            currentChunk->xmlDoc.firstChild().appendChild(createElement("br"));
-            currentChunk->xmlDoc.firstChild().appendChild(createElement("br"));
+            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
+            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
         }
     }
     else if(paragraphClass == "")
@@ -470,8 +498,6 @@ void doParagraph(QDomElement paragraphElement)
 
 void doHtm(QString baseBookName, QString chapterFilename)
 {
-    //    qDebug() << chapterFilename;
-
     QDomDocument doc("mydocument");
     QFile file("netbible/" + chapterFilename);
     if (!file.open(QIODevice::ReadOnly))
@@ -566,13 +592,6 @@ void doHtm(QString baseBookName, QString chapterFilename)
         wholeFile.replace("<i> </i>", " ");
     }
 
-    if(wholeFile.contains("<i> </i>"))
-    {
-        qDebug() << "found <i> </i>";
-        qDebug() << chapterFilename;
-        exit(1);
-    }
-
     if(chapterFilename == "jon2.htm")
     {
         wholeFile.replace("<b>1:17 ",
@@ -617,9 +636,6 @@ void doHtm(QString baseBookName, QString chapterFilename)
         wholeFile.append("</p></body></html>");
     }
 
-    //    wholeFile = wholeFile.simplified();
-
-
     QString errorMsg;
     int errorLine;
     int errorColumn;
@@ -652,11 +668,6 @@ void doHtm(QString baseBookName, QString chapterFilename)
 
     QDomElement paragraphElement = bodyTextElement.firstChildElement();
 
-    //    filenameBasedChapter = chapterFilename;
-    //    filenameBasedChapter.replace(".htm", "");
-    //    filenameBasedChapter.replace(baseBookName, "");
-
-
     do
     {
         assert(paragraphElement.tagName(), "p");
@@ -676,20 +687,30 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-//    qDebug() << QSqlDatabase::drivers();
-
     currentChunk = 0;
 
     map.insert("paragraphtitle", "paragraphTitle");
     map.insert("section", "section");
     map.insert("psasuper", "psalmSuperscription");
     map.insert("lamhebrew", "hebrewParagraph");
-    map.insert("sosspeaker", "sosspeaker");
+    map.insert("sosspeaker", "speakerHeading");
 
+    map.insert("note", "note");
+    map.insert("smallcaps", "smallCaps");
+    map.insert("b", "b");
+    map.insert("i", "i");
+    map.insert("hebrew", "hebrew");
 
+    map.insert("bodytext", "bodyText");
+    map.insert("poetry", "poetry");
+    map.insert("bodyblock", "bodyBlock");
+    map.insert("otpoetry", "poetry");
+    map.insert("BlockQuote", "blockQuote");
+
+    map.insert("br", "br");
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("bibles.sqlite");
+    db.setDatabaseName("verity.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
@@ -709,79 +730,81 @@ int main(int argc, char *argv[])
     }
 
     QStringList fileNames;
-//    fileNames << "gen";
+    //    fileNames << "gen";
 
-        fileNames << "gen"
-                << "exo"
-                << "lev"
-                << "num"
-                << "deu"
-                << "jos"
-                << "jdg"
-                << "rut"
-                << "1sa"
-                << "2sa"
-                << "1ki"
-                << "2ki"
-                << "1ch"
-                << "2ch"
-                << "ezr"
-                << "neh"
-                << "est"
-                << "job"
-                << "psa"
-                << "pro"
-                << "ecc"
-                << "sos"
-                << "isa"
-                << "jer"
-                << "lam"
-                << "eze"
-                << "dan"
-                << "hos"
-                << "joe"
-                << "amo"
-                << "oba"
-                << "jon"
-                << "mic"
-                << "nah"
-                << "hab"
-                << "zep"
-                << "hag"
-                << "zec"
-                << "mal"
-                << "mat"
-                << "mar"
-                << "luk"
-                << "joh"
-                << "act"
-                << "rom"
-                << "1co"
-                << "2co"
-                << "gal"
-                << "eph"
-                << "phi"
-                << "col"
-                << "1th"
-                << "2th"
-                << "1ti"
-                << "2ti"
-                << "tit"
-                << "phm"
-                << "heb"
-                << "jam"
-                << "1pe"
-                << "2pe"
-                << "1jo"
-                << "2jo"
-                << "3jo"
-                << "jud"
-                << "rev";
+    fileNames << "gen"
+            << "exo"
+            << "lev"
+            << "num"
+            << "deu"
+            << "jos"
+            << "jdg"
+            << "rut"
+            << "1sa"
+            << "2sa"
+            << "1ki"
+            << "2ki"
+            << "1ch"
+            << "2ch"
+            << "ezr"
+            << "neh"
+            << "est"
+            << "job"
+            << "psa"
+            << "pro"
+            << "ecc"
+            << "sos"
+            << "isa"
+            << "jer"
+            << "lam"
+            << "eze"
+            << "dan"
+            << "hos"
+            << "joe"
+            << "amo"
+            << "oba"
+            << "jon"
+            << "mic"
+            << "nah"
+            << "hab"
+            << "zep"
+            << "hag"
+            << "zec"
+            << "mal"
+            << "mat"
+            << "mar"
+            << "luk"
+            << "joh"
+            << "act"
+            << "rom"
+            << "1co"
+            << "2co"
+            << "gal"
+            << "eph"
+            << "phi"
+            << "col"
+            << "1th"
+            << "2th"
+            << "1ti"
+            << "2ti"
+            << "tit"
+            << "phm"
+            << "heb"
+            << "jam"
+            << "1pe"
+            << "2pe"
+            << "1jo"
+            << "2jo"
+            << "3jo"
+            << "jud"
+            << "rev";
 
 
 
     for(int i=0; i<fileNames.size(); i++)
     {
+        qDebug() << fileNames.at(i);
+
         bookNumber = i + 1;
         QFile tocFile("netbible/"+fileNames.at(i)+"_toc.htm");
         if(!tocFile.open(QIODevice::ReadOnly))
@@ -810,10 +833,7 @@ int main(int argc, char *argv[])
 
     writeOutAllChunks(db, query);
 
-
-
     query.exec("update net_bible set parallel = id");
-
 
     query.exec("create index idx_net_bible on net_bible (book_number, normalised_chapter, chapter, verse)");
     db.commit();
