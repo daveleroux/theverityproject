@@ -17,6 +17,8 @@ int bookNumber;
 
 QMap<QString, QString> map;
 
+QStringList books;
+
 
 
 void assert(bool b)
@@ -130,7 +132,57 @@ void writeOutAllChunks(QSqlDatabase db, QSqlQuery query)
     }
 }
 
-void setNormalisedChapterField()
+void putInChapter(Chunk* chunk)
+{
+    assert(chunk->xmlDoc.firstChild().firstChild().isElement());
+
+    QList<QString> acceptableStarts;
+    acceptableStarts.append(getDatabaseTagName("bodytext"));
+    acceptableStarts.append(getDatabaseTagName("poetry"));
+    acceptableStarts.append(getDatabaseTagName("bodyblock"));
+    acceptableStarts.append(getDatabaseTagName("otpoetry"));
+    acceptableStarts.append(getDatabaseTagName("BlockQuote"));
+
+    QString tagName = chunk->xmlDoc.firstChild().firstChildElement().tagName();
+    assert(acceptableStarts.contains(tagName));
+
+    QDomElement newChild = chunk->xmlDoc.createElement(getDatabaseTagName("chapter"));
+    newChild.appendChild(chunk->xmlDoc.createTextNode(QString().setNum(chunk->chapter)));
+
+    QDomNode refChild = chunk->xmlDoc.firstChild().firstChildElement().firstChild();
+    chunk->xmlDoc.firstChild().firstChildElement().insertBefore(newChild, refChild);
+}
+
+void putInVerse(Chunk* chunk)
+{
+    if(!chunk->xmlDoc.firstChild().firstChild().isElement())
+    {
+        int x = 0;
+    }
+
+    QList<QString> acceptableStarts;
+    acceptableStarts.append(getDatabaseTagName("bodytext"));
+    acceptableStarts.append(getDatabaseTagName("poetry"));
+    acceptableStarts.append(getDatabaseTagName("bodyblock"));
+    acceptableStarts.append(getDatabaseTagName("otpoetry"));
+    acceptableStarts.append(getDatabaseTagName("BlockQuote"));
+
+    QString tagName = chunk->xmlDoc.firstChild().firstChildElement().tagName();
+
+    if(!acceptableStarts.contains(tagName))
+    {
+        int x = 0;
+    }
+
+    QDomElement newChild = chunk->xmlDoc.createElement(getDatabaseTagName("verse"));
+    newChild.appendChild(chunk->xmlDoc.createTextNode(QString().setNum(chunk->verse)));
+
+    QDomNode refChild = chunk->xmlDoc.firstChild().firstChildElement().firstChild();
+    chunk->xmlDoc.firstChild().firstChildElement().insertBefore(newChild, refChild);
+
+}
+
+void setNormalisedChapterFieldAndPutInChaptersAndVerses()
 {
     int currentNormalisedChapter = 0;
     int currentChapter = 0;
@@ -141,10 +193,15 @@ void setNormalisedChapterField()
         Chunk* chunk = allChunks.at(i);
         if(chunk->chapter > 0)
         {
+            putInVerse(chunk);
+
             if(chunk->bookNumber != currentBook || chunk->chapter != currentChapter)
             {
                 currentBook = chunk->bookNumber;
                 currentChapter = chunk->chapter;
+
+                putInChapter(chunk);
+
                 currentNormalisedChapter++;
             }
             chunk->normalisedChapter = currentNormalisedChapter;
@@ -466,15 +523,15 @@ void doParagraph(QDomElement paragraphElement)
         else //it's in the middle of a verse so must be part of its chunk
         {
 
-            assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
-            currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
+//            assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
+//            currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
 
             QDomNode newElement = createElement(getDatabaseTagName(paragraphClass));
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
             buildTitleChunk(newElement, paragraphElement);
 
             currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
-            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
+//            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
         }
     }
     else if(paragraphClass == "")
@@ -517,6 +574,12 @@ void doHtm(QString baseBookName, QString chapterFilename)
     {
         wholeFile.replace("<b><font face=\"Galaxie Unicode Hebrew\">&#1465;</font>119:113</b>",
                           "<a name=\"Ps 119:113\"></a><span class=\"versenum\">119:113</span>");
+    }
+
+    if(chapterFilename == "sos1.htm")
+    {
+        wholeFile.replace("bring",
+                          " bring");
     }
 
     if(chapterFilename == "1sa20.htm")
@@ -683,11 +746,16 @@ void doHtm(QString baseBookName, QString chapterFilename)
     file.close();
 }
 
+QString getBookName(int bookNumber)
+{
+    return books.at(bookNumber-1);
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
-    currentChunk = 0;
+    currentChunk = 0;    
 
     map.insert("paragraphtitle", "paragraphTitle");
     map.insert("section", "section");
@@ -709,6 +777,10 @@ int main(int argc, char *argv[])
 
     map.insert("br", "br");
 
+    map.insert("chapter", "chapter");
+    map.insert("bookName", "bookName");
+    map.insert("verse", "verse");
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("verity.sqlite");
     if (!db.open())
@@ -728,6 +800,10 @@ int main(int argc, char *argv[])
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
     }
+
+
+    books << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
+    books << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
 
     QStringList fileNames;
     //    fileNames << "gen";
@@ -806,6 +882,15 @@ int main(int argc, char *argv[])
         qDebug() << fileNames.at(i);
 
         bookNumber = i + 1;
+
+        currentChunk = new Chunk(bookNumber);
+        QDomNode newElement = createElement(getDatabaseTagName("bookName"));
+        newElement.appendChild(createTextNode(getBookName(bookNumber)));
+        currentChunk->xmlDoc.firstChild().appendChild(newElement);
+
+        appendCurrentChunk();
+
+
         QFile tocFile("netbible/"+fileNames.at(i)+"_toc.htm");
         if(!tocFile.open(QIODevice::ReadOnly))
             exit(1);
@@ -829,7 +914,7 @@ int main(int argc, char *argv[])
         tocFile.close();        
     }
 
-    setNormalisedChapterField();
+    setNormalisedChapterFieldAndPutInChaptersAndVerses();
 
     writeOutAllChunks(db, query);
 
