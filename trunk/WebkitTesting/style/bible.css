@@ -1,0 +1,79 @@
+.note
+{
+	display: none;	
+}
+
+.smallCaps
+{
+	font-variant: small-caps;
+}
+
+.b
+{
+	font-weight: bold;
+}
+
+.i
+{
+	font-style: italic;
+}
+
+.hebrew
+{
+	font-family: "SBL Hebrew";
+}
+
+.paragraphTitle, .section, .bookName, .speakerHeading
+{
+	display: block;
+	font-weight: bold;
+	padding-bottom: 20px;
+	padding-top: 5px;
+}
+
+.bookName
+{
+	font-size: 1.5em;
+}
+
+.psalmSuperscription
+{
+	display: block;
+	font-style: italic;
+	padding-bottom: 20px;
+	padding-top: 5px;
+}
+
+.blockQuote
+{
+	font-style: italic;
+}
+
+.bodyText, .poetry, .bodyBlock, .blockQuote
+{
+	line-height: 150%;
+}
+
+.poetry
+{
+	padding-left: 10px;
+}
+
+.chapter
+{
+	display: block;
+	font-weight: bold;
+	float: left; /* not gonna work for hebrew */
+	padding-right: 5px;
+/*	padding-bottom: 5px;*/
+	font-size: 1.5em;
+}
+
+.verse
+{
+	color: #ff0000;
+	font-size: xx-small;
+	vertical-align: super;
+}
+
+
