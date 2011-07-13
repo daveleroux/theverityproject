@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>style/bible.css</file>
+        <file>xsl/bible.xsl</file>
     </qresource>
 </RCC>

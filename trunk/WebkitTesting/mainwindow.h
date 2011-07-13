@@ -13,7 +13,7 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     void wordClicked(int id);
     ~MainWindow();
-    QString getHtml(int v=0);
+    QString getHtml();
 public slots:
     void loadFinished(bool b);
 };
