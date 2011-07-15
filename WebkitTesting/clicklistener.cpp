@@ -1,17 +1,11 @@
 #include "clicklistener.h"
 #include <QDebug>
 
-ClickListener::ClickListener(MainWindow* mainWindow)
+ClickListener::ClickListener()
 {
-    this->mainWindow = mainWindow;
 }
 
-QString ClickListener::wordClicked(int id)
+void ClickListener::wordClicked(int id)
 {
-    qDebug() << "got a word clicked";
-    QString arb = QString().setNum(id);
-//    arb = "word clicked" + id;
-//    qDebug() << "word clicked" << id;
-//    mainWindow->wordClicked(id);
-    return arb;
+    qDebug() << "dom modified " << id;
 }
