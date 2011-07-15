@@ -7,11 +7,10 @@
 class ClickListener : public QObject
 {
     Q_OBJECT
-public:
-    MainWindow* mainWindow;
-    ClickListener(MainWindow* mainWindow);
+public:    
+    ClickListener();
 public slots:
-    QString wordClicked(int id);
+    void wordClicked(int id);
 };
 
 #endif // CLICKLISTENER_H
