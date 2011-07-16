@@ -5,6 +5,14 @@
 #include <QList>
 #include <QDataStream>
 #include <QByteArray>
+#include <QDomDocument>
+#include "book.h"
+#include "chapter.h"
+#include "verse.h"
+#include "word.h"
+
+QList<Book*> books;
+Word* lastWordAdded;
 
 struct MorphAttribute
 {
@@ -80,9 +88,9 @@ bool containsMoodAttributeInRange(QBitArray bitArray, int startIndex, int endInd
 
 QBitArray convertMorphToBitArray(QString morphString)
 {
-//    QString origMorphString = morphString;
+    //    QString origMorphString = morphString;
 
-//    qDebug() << morphString;
+    //    qDebug() << morphString;
 
     if(morphString.startsWith("N-PRI") ||
        morphString.startsWith("A-NUI") ||
@@ -92,10 +100,10 @@ QBitArray convertMorphToBitArray(QString morphString)
         morphString = morphString.replace(morphString.indexOf("-"),1,"");
     }
 
-//    qDebug() << morphString;
+    //    qDebug() << morphString;
 
-//    if(origMorphString == "N-PRI")
-//        exit(0);
+    //    if(origMorphString == "N-PRI")
+    //        exit(0);
 
     QStringList chunks = morphString.split("-");
 
@@ -147,24 +155,24 @@ QBitArray convertMorphToBitArray(QString morphString)
 
         if (containsMoodAttributeInRange(result, 0, 3))
         {
-           result = addAttribute(personAttributes, result, chunks.at(2).at(0));
-           result = addAttribute(numberAttributes, result, chunks.at(2).at(1));
+            result = addAttribute(personAttributes, result, chunks.at(2).at(0));
+            result = addAttribute(numberAttributes, result, chunks.at(2).at(1));
 
-           if(chunks.size() == 4)
-           {
+            if(chunks.size() == 4)
+            {
                 result = addAttribute(verbExtraAttributes, result, chunks.at(3));
-           }
+            }
         }
         else if (containsMoodAttributeInRange(result, 5, 6))
         {
-           result = addAttribute(caseAttributes, result, chunks.at(2).at(0));
-           result = addAttribute(numberAttributes, result, chunks.at(2).at(1));
-           result = addAttribute(genderAttributes, result, chunks.at(2).at(2));
+            result = addAttribute(caseAttributes, result, chunks.at(2).at(0));
+            result = addAttribute(numberAttributes, result, chunks.at(2).at(1));
+            result = addAttribute(genderAttributes, result, chunks.at(2).at(2));
 
-           if(chunks.size() == 4)
-           {
-               result = addAttribute(verbExtraAttributes, result, chunks.at(3));
-           }
+            if(chunks.size() == 4)
+            {
+                result = addAttribute(verbExtraAttributes, result, chunks.at(3));
+            }
         }
     }
     else if (containsPosAttributeInRange(result,4,13))
@@ -301,80 +309,294 @@ void initialiseAttributes()
 
 }
 
+//void readInSbl()
+//{
+//    QDomDocument doc("mydocument");
+//    QFile file("sblgnt.xml");
+//    if (!file.open(QIODevice::ReadOnly))
+//        exit(1);
+
+//    QByteArray byteArray = file.readAll();
+
+//    QString wholeFile = QString::fromUtf8(byteArray.data());
+
+
+//    QString errorMsg;
+//    int errorLine;
+//    int errorColumn;
+//    if(!doc.setContent(wholeFile, &errorMsg , &errorLine, &errorColumn))
+//    {
+//        file.close();
+//        qDebug() << "xml not well formed";
+//        qDebug() << errorMsg;
+//        qDebug() << errorLine;
+//        qDebug() << errorColumn;
+//        exit(1);
+//    }
+
+//    QDomNodeList list = doc.elementsByTagName("title");
+//    for(int i=0; i<list.size(); i++)
+//    {
+//        QDomNode node = list.at(i);
+//        qDebug() << node.firstChild().toText().data();
+//    }
+//}
+
+void assert(bool b)
+{
+    if(!b)
+    {
+        qDebug() << "assert failed";
+        exit(1);
+    }
+}
+
+void writeOutChunk(QSqlQuery query, int bookNumber, int normalisedChapter,int chapter, int verse, QString text)
+{
+    query.prepare("insert into bibles values(:id, :bibletext_id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
+
+    query.bindValue(":id", QVariant(QVariant::Int));
+    query.bindValue(":bibletext_id", 2);
+    query.bindValue(":book_number", bookNumber);
+    query.bindValue(":normalised_chapter", normalisedChapter);
+    query.bindValue(":chapter", chapter);
+    query.bindValue(":verse", verse);
+    query.bindValue(":text", text);
+    query.bindValue(":parallel",  QVariant(QVariant::Int));
+
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+
+}
+
+
+void writeOut(QSqlDatabase db, QSqlQuery query)
+{
+    int normalisedChapter = 1;
+
+    for(int i=0; i<books.size(); i++)
+    {
+        Book* book = books.at(i);
+
+        QDomDocument chunk;
+        chunk.appendChild(chunk.createElement("chunk"));
+        chunk.firstChild().appendChild(chunk.createElement("bookName"));
+        chunk.firstChild().firstChild().appendChild(chunk.createTextNode(book->name));
+        qDebug() << book->name;
+
+        writeOutChunk(query, i+40, normalisedChapter, 0, 0,  chunk.toString(-1));
+
+
+        for(int j=0; j<book->chapters.keys().size(); j++)
+        {
+            int chapterInt = book->chapters.keys().at(j);
+            Chapter* chapter = book->chapters.value(chapterInt);
+
+            for(int k=0; k<chapter->verses.keys().size(); k++)
+            {
+                int verseInt = chapter->verses.keys().at(k);
+                QList<Verse*>* verses = chapter->verses.value(verseInt);
+
+                QDomDocument chunk;
+                chunk.appendChild(chunk.createElement("chunk"));
+
+                for(int l=0; l<verses->size(); l++)
+                {
+                    QString name = "preferredVerse";
+                    if(l>0)
+                        name = "alternateVerse";
+
+                    QDomNode place = chunk.createElement(name);
+                    chunk.firstChild().appendChild(place);
+
+                    place = place.appendChild(chunk.createElement("bodyText"));
+                    if(verseInt == 1 && l == 0)
+                    {
+                        QDomNode chapterPlace = place.appendChild(chunk.createElement("chapter"));
+                        chapterPlace.appendChild(chunk.createTextNode(QString().setNum(chapterInt)));
+                    }
+
+                    QDomNode versePlace = place.appendChild(chunk.createElement("verse"));
+                    versePlace.appendChild(chunk.createTextNode(QString().setNum(verseInt)));
+
+                    Verse* verse = verses->at(l);
+                    for(int m=0; m<verse->words.size(); m++)
+                    {
+                        Word* word = verse->words.at(m);
+
+                        QDomNode wordPlace = place.appendChild(chunk.createElement("word"));
+                        wordPlace.appendChild(chunk.createTextNode(word->text));
+
+                        place.appendChild(chunk.createTextNode(" "));
+
+                        if(word->isEndofParagraph)
+                        {
+                            chunk.firstChild().appendChild(chunk.createElement("br"));
+                            chunk.firstChild().appendChild(chunk.createElement("br"));
+                        }
+                    }
+
+                    if(k==chapter->verses.keys().size()-1 && l==verses->size()-1)
+                    {
+                        chunk.firstChild().appendChild(chunk.createElement("br"));
+                         chunk.firstChild().appendChild(chunk.createElement("br"));
+                    }
+
+                }
+
+                writeOutChunk(query, i+40, normalisedChapter, chapterInt, verseInt, chunk.toString(-1));
+
+            }
+
+
+            normalisedChapter++;
+        }
+
+        db.commit();
+        db.transaction();
+    }
+}
+
+
+void addToBook(Book* book, int chapterInt, int verseInt, int numberInVerse, QString text, QBitArray normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma)
+{
+    assert(chapterInt > 0 && verseInt > 0 && numberInVerse > 0 && strongsNumber > 0);
+    Chapter* chapter = book->chapters.value(chapterInt);
+    if(chapter == 0)
+    {
+        chapter = new Chapter();
+        book->chapters.insert(chapterInt, chapter);
+    }
+
+    Verse* verse;
+    if(numberInVerse == 1)
+    {
+        verse = new Verse();
+        if(chapter->verses.keys().contains(verseInt))
+        {
+            chapter->verses.value(verseInt)->append(verse);
+        }
+        else
+        {
+            QList<Verse*>* verseAndAlts = new QList<Verse*>;
+            verseAndAlts->append(verse);
+            chapter->verses.insert(verseInt, verseAndAlts);
+        }
+    }
+    else
+    {
+        verse = chapter->verses.value(verseInt)->last();
+    }
+
+    lastWordAdded = new Word(text, normalisedMorphTag, strongsNumber, strongsLemma, fribergLemma);
+    verse->words.append(lastWordAdded);
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
     initialiseAttributes();
 
-     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-     db.setDatabaseName("bibles.sqlite");
-     if (!db.open())
-     {
-         qDebug() << "couldn't open db" << endl;
-         return 1;
-     }
+    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+    db.setDatabaseName("verity.sqlite");
+    if (!db.open())
+    {
+        qDebug() << "couldn't open db" << endl;
+        exit(1);
+    }
 
-     QSqlQuery query;
-     query.exec("drop table tisch");
-     if(!query.exec("create table tisch (id integer primary key autoincrement, "
-                "book_number int, book varchar(20), normalised_chapter integer, chapter integer, "
-                "verse integer, number_in_verse integer, paragraph bool, text varchar(50), "
-                "morphological_tag varchar(20), normalised_morph_tag blob, strongs_number integer, strongs_lemma varchar(50), friberg_lemma varchar(50))"))
-     {
-         qDebug() << "failed: " << query.lastError() << endl;
-         exit(1);
-     }
+    db.transaction();
+
+    QSqlQuery query;
+    if(!query.exec("delete from bibles where bibletext_id=2"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
 
 
+    query.exec("drop table type_t_parsing");
+
+    if(!query.exec("create table type_t_parsing ( "
+                   "bibletext_id int, word_id int, "
+                   "normalised_morph_tag blob, strongs_number integer, strongs_lemma varchar(50), friberg_lemma varchar(50), "
+                   "primary key (bibletext_id, word_id))"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
 
 
-     QStringList bookNames;
-     bookNames << "MT"
-              << "MR"
-              << "LU"
-              << "JOH"
-              << "AC"
-              << "RO"
-              << "1CO"
-              << "2CO"
-              << "GA"
-              << "EPH"
-              << "PHP"
-              << "COL"
-              << "1TH"
-              << "2TH"
-              << "1TI"
-              << "2TI"
-              << "TIT"
-              << "PHM"
-              << "HEB"
-              << "JAS"
-              << "1PE"
-              << "2PE"
-              << "1JO"
-              << "2JO"
-              << "3JO"
-              << "JUDE"
-              << "RE";
+    QStringList bookNames;
+    bookNames << "MT"
+            << "MR"
+            << "LU"
+            << "JOH"
+            << "AC"
+            << "RO"
+            << "1CO"
+            << "2CO"
+            << "GA"
+            << "EPH"
+            << "PHP"
+            << "COL"
+            << "1TH"
+            << "2TH"
+            << "1TI"
+            << "2TI"
+            << "TIT"
+            << "PHM"
+            << "HEB"
+            << "JAS"
+            << "1PE"
+            << "2PE"
+            << "1JO"
+            << "2JO"
+            << "3JO"
+            << "JUDE"
+            << "RE";
 
-//     bookNames.clear();
-//     bookNames << "MT";
-
+    QStringList greekBookNames;
+    greekBookNames
+            << QString::fromUtf8("ΚΑΤΑ ΜΑΘΘΑΙΟΝ"                             )
+                                << QString::fromUtf8("ΚΑΤΑ ΜΑΡΚΟΝ"           )
+                                << QString::fromUtf8("ΚΑΤΑ ΛΟΥΚΑΝ"           )
+                                << QString::fromUtf8("ΚΑΤΑ ΙΩΑΝΝΗΝ"          )
+                                << QString::fromUtf8("ΠΡΑΞΕΙΣ ΑΠΟΣΤΟΛΩΝ"     )
+                                << QString::fromUtf8("ΠΡΟΣ ΡΩΜΑΙΟΥΣ"         )
+                                << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Α"     )
+                                << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Β"     )
+                                << QString::fromUtf8("ΠΡΟΣ ΓΑΛΑΤΑΣ"          )
+                                << QString::fromUtf8("ΠΡΟΣ ΕΦΕΣΙΟΥΣ"         )
+                                << QString::fromUtf8("ΠΡΟΣ ΦΙΛΙΠΠΗΣΙΟΥΣ"     )
+                                << QString::fromUtf8("ΠΡΟΣ ΚΟΛΟΣΣΑΕΙΣ"       )
+                                << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Α"  )
+                                << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Β"  )
+                                << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Α"       )
+                                << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Β"       )
+                                << QString::fromUtf8("ΠΡΟΣ ΤΙΤΟΝ"            )
+                                << QString::fromUtf8("ΠΡΟΣ ΦΙΛΗΜΟΝΑ"         )
+                                << QString::fromUtf8("ΠΡΟΣ ΕΒΡΑΙΟΥΣ"         )
+                                << QString::fromUtf8("ΙΑΚΩΒΟΥ"               )
+                                << QString::fromUtf8("ΠΕΤΡΟΥ Α"              )
+                                << QString::fromUtf8("ΠΕΤΡΟΥ Β"              )
+                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Α"             )
+                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Β"             )
+                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Γ"             )
+                                << QString::fromUtf8("ΙΟΥΔΑ"                 )
+                                << QString::fromUtf8("ΑΠΟΚΑΛΥΨΙΣ ΙΩΑΝΝΟΥ"    );
 
     QString folder = "Tischendorf-2.5/Unicode/";
 
-//    int paragraphNumber = 0;
-
-    int normalisedChapter = 0;
-
-    QHash<QString, QString> duplicateCheckerHash;
-
     for(int i=0; i<bookNames.size(); i++)
     {
-
-        int currentChapter = 1;
-        normalisedChapter = normalisedChapter + 1;
+        Book* book = new Book(greekBookNames.at(i));
+        books.append(book);
 
         QFile bookFile(folder+bookNames.at(i)+".txt");
         if(bookFile.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -390,7 +612,6 @@ int main(int argc, char *argv[])
                 line.replace(line.indexOf("!"),1,"|");
                 QStringList fragments = line.split("|");
 
-                QString book = fragments.at(0);
 
                 QStringList chapterAndVerse = fragments.at(1).split(":");
 
@@ -398,73 +619,58 @@ int main(int argc, char *argv[])
                 QString verse = chapterAndVerse.at(1).split(".").at(0);
                 QString numberInVerse = chapterAndVerse.at(1).split(".").at(1);
 
-                QString key = book+"."+chapter+"."+verse+"."+numberInVerse;
-                if(!duplicateCheckerHash.contains(key))
+
+                QString text = fragments.at(4); //editor chosen
+
+                if(fragments.at(2) == "P")
                 {
-                        duplicateCheckerHash.insert(key, key);
-
-//                        if(fragments.at(2) == "P" || fragments.at(2) == "C")
-//                        {
-//                            paragraphNumber++;
-//                        }
-
-                        QString text = fragments.at(4); //editor chosen
-
-                        bool paragraph = false;
-
-                        if(fragments.at(2) == "P")
-                            paragraph = true;
-
-                        QString morphologicalTag = fragments.at(5);
-                        QBitArray normalisedMorphTag = convertMorphToBitArray(morphologicalTag);
-
-                        QByteArray* byteArray = new QByteArray();
-                        QDataStream out(byteArray, QIODevice::ReadWrite);   // write the data
-                         out << normalisedMorphTag;
-
-
-                        QString strongsNumber = fragments.at(6);
-
-                        QString strongsLemma = fragments.at(7).trimmed();
-
-                        QString fribergLemma = fragments.at(8).trimmed();
-
-                        if(chapter.toInt() != currentChapter)
-                        {
-                            normalisedChapter = normalisedChapter + 1;
-                            currentChapter = currentChapter + 1;
-                        }
-
-
-                        query.prepare("insert into tisch values(:id,:book_number,:book,:normalised_chapter,"
-                                      ":chapter, :verse, :number_in_verse , :paragraph, :text, :morphological_tag, "
-                                      ":normalised_morph_tag, :strongs_number, :strongs_lemma, :friberg_lemma)");
-
-                        query.bindValue(":id", QVariant(QVariant::Int));
-                                   query.bindValue(":book_number", i+40);
-                                   query.bindValue(":book", book     );
-                                   query.bindValue(":normalised_chapter", normalisedChapter);
-                                   query.bindValue(":chapter", chapter);
-                                   query.bindValue(":verse", verse);
-                                   query.bindValue(":number_in_verse", numberInVerse);
-//                                   query.bindValue(":paragraph_number", paragraphNumber);
-                                   query.bindValue(":paragraph",paragraph);
-                                   query.bindValue(":text", text);
-                                   query.bindValue(":morphological_tag", morphologicalTag);
-                                   query.bindValue(":normalised_morph_tag", byteArray->toBase64(), QSql::Binary | QSql::In);
-                                   query.bindValue(":strongs_number", strongsNumber);
-                                   query.bindValue(":strongs_lemma", strongsLemma);
-                                   query.bindValue(":friberg_lemma", fribergLemma);
-
-                        if(!query.exec())
-                        {
-                            qDebug() << "failed: "<< query.lastError()  << endl;
-                            exit(1);
-
-                        }
-
-                        delete byteArray;
+                    lastWordAdded->isEndofParagraph = true;
                 }
+
+                QBitArray normalisedMorphTag = convertMorphToBitArray(fragments.at(5));
+
+                QByteArray* byteArray = new QByteArray();
+                QDataStream out(byteArray, QIODevice::ReadWrite);   // write the data
+                out << normalisedMorphTag;
+
+
+                QString strongsNumber = fragments.at(6);
+
+                QString strongsLemma = fragments.at(7).trimmed();
+
+                QString fribergLemma = fragments.at(8).trimmed();
+
+                addToBook(book, chapter.toInt(), verse.toInt(), numberInVerse.toInt(), text, normalisedMorphTag, strongsNumber.toInt(), strongsLemma, fribergLemma);
+
+
+                //                query.prepare("insert into tisch_bible values(:id,:book_number,:book,:normalised_chapter,"
+                //                              ":chapter, :verse, :number_in_verse , :paragraph, :text, :morphological_tag, "
+                //                              ":normalised_morph_tag, :strongs_number, :strongs_lemma, :friberg_lemma)");
+
+                //                query.bindValue(":id", QVariant(QVariant::Int));
+                //                query.bindValue(":book_number", i+40);
+                //                query.bindValue(":book", book     );
+                //                query.bindValue(":normalised_chapter", normalisedChapter);
+                //                query.bindValue(":chapter", chapter);
+                //                query.bindValue(":verse", verse);
+                //                query.bindValue(":number_in_verse", numberInVerse);
+                //                //                                   query.bindValue(":paragraph_number", paragraphNumber);
+                //                query.bindValue(":paragraph",paragraph);
+                //                query.bindValue(":text", text);
+                //                query.bindValue(":morphological_tag", morphologicalTag);
+                //                query.bindValue(":normalised_morph_tag", byteArray->toBase64(), QSql::Binary | QSql::In);
+                //                query.bindValue(":strongs_number", strongsNumber);
+                //                query.bindValue(":strongs_lemma", strongsLemma);
+                //                query.bindValue(":friberg_lemma", fribergLemma);
+
+                //                if(!query.exec())
+                //                {
+                //                    qDebug() << "failed: "<< query.lastError()  << endl;
+                //                    exit(1);
+
+                //                }
+
+
             }
         }
         else
@@ -474,8 +680,12 @@ int main(int argc, char *argv[])
         }
     }
 
-    query.exec("create index idx_tisch on tisch (book, book_number, normalised_chapter, chapter, verse, number_in_verse)");
+    writeOut(db, query);
 
+    query.exec("create index idx_type_t_parsing on type_t_parsing (bibletext_id, word_id, strongs_number, strongs_lemma, friberg_lemma)");
+    query.exec("create index idx_bibles on bibles (id, bibletext_id, book_number, normalised_chapter, chapter, verse, parallel)");
+
+    db.commit();
     db.close();
     return 0;
 }

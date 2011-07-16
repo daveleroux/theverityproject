@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql
+QT       += sql xml
 
 QT       -= gui
 
@@ -15,4 +15,14 @@ CONFIG   -= app_bundle
 TEMPLATE = app
 
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    book.cpp \
+    chapter.cpp \
+    verse.cpp \
+    word.cpp
+
+HEADERS += \
+    book.h \
+    chapter.h \
+    verse.h \
+    word.h
