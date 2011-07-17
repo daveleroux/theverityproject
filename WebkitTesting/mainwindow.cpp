@@ -10,12 +10,69 @@
 #include <QXmlQuery>
 #include <QWebElement>
 
+QString MainWindow::getParallelHtml(int normalisedChapter)
+{
+
+    QSqlQuery query;
+
+    if(!query.exec("select b1.text, b2.text from bibles as b1, bibles as b2 where b1.normalised_chapter=" + QString().setNum(normalisedChapter) +
+        " and b1.bibletext_id=1 and b1.parallel=b2.parallel and b2.bibletext_id=2"))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    QString wholeChapter = "<normalisedChapter>";
+    wholeChapter += "<table>";
+    QString colour = "1";
+    while(query.next())
+    {
+        wholeChapter += "<tr" + colour + ">";
+
+        wholeChapter += "<td>";
+        wholeChapter += query.value(0).toString();
+        wholeChapter += "</td>";
+
+        wholeChapter += "<td>";
+        wholeChapter += query.value(1).toString();
+        wholeChapter += "</td>";
+
+        wholeChapter += "</tr" + colour + ">";
+
+        if(colour == "1")
+            colour = "2";
+        else
+            colour = "1";
+    }
+    wholeChapter += "</table>";
+    wholeChapter += "</normalisedChapter>";
+
+
+    QXmlQuery xmlQuery(QXmlQuery::XSLT20);
+
+    QByteArray byteArray(wholeChapter.toUtf8());
+
+    QBuffer buffer(&byteArray);
+    buffer.open(QBuffer::ReadWrite);
+
+    xmlQuery.setFocus(&buffer);
+
+    xmlQuery.setQuery(QUrl("qrc:/xsl/bible.xsl"));
+
+    QString result;
+    xmlQuery.evaluateTo(&result);
+
+    return result.simplified();
+
+}
 
 QString MainWindow::getHtml(int normalisedChapter)
 {
+    return getParallelHtml(normalisedChapter);
+
     QSqlQuery query;
 
-    if(!query.exec("select text from net_bible where normalised_chapter=" + QString().setNum(normalisedChapter)))
+    if(!query.exec("select text from bibles where bibletext_id=2 and normalised_chapter=" + QString().setNum(normalisedChapter)))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
@@ -318,14 +375,13 @@ void MainWindow::display(int normalisedChapter)
 
     currentScrollMax = 0;
     currentHeight = 0;
-    append(normalisedChapter, getHtml(normalisedChapter));
+    append(normalisedChapter, getParallelHtml(normalisedChapter));
     waitingUntilScrollbarMaxChanged = true;
     basicTimer.start(10, this);
 }
 
 void MainWindow::scrolled()
 {
-//    qDebug() << webView->page()->mainFrame()->scrollPosition();
     checkCanScroll();
 }
 
@@ -354,7 +410,6 @@ public:
 
 void MainWindow::loadFinished(bool b)
 {
-    qDebug() << "load finished";
     ClickListener* clickListener = new ClickListener();
     webView->page()->mainFrame()->addToJavaScriptWindowObject("clickListener", clickListener);
 
@@ -372,5 +427,5 @@ void MainWindow::loadFinished(bool b)
     webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
     webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
 
-    display(10);
+    display(1005);
 }
