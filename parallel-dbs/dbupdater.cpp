@@ -429,6 +429,8 @@ void DbUpdater::update()
         exit(1);
     }
 
+    query.exec("drop index idx_bibles");
+
     db.transaction();
 
 
@@ -464,6 +466,8 @@ void DbUpdater::update()
     updateTisch();
 
     qDebug() << "finished: " << QDateTime::currentDateTime().time().toString();
+
+    query.exec("create index idx_bibles on bibles (id, bibletext_id, book_number, normalised_chapter, chapter, verse, parallel)");
 
     db.commit();
     db.close();
