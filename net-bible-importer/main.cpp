@@ -99,9 +99,10 @@ void appendCurrentChunk()
 
 void writeOutChunk(QSqlQuery query, Chunk* chunk)
 {
-    query.prepare("insert into net_bible values(:id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
+    query.prepare("insert into bibles values(:id, :bibletext_id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
 
     query.bindValue(":id", QVariant(QVariant::Int));
+    query.bindValue(":bibletext_id", 1);
     query.bindValue(":book_number", chunk->bookNumber);
     query.bindValue(":normalised_chapter", chunk->normalisedChapter);
     query.bindValue(":chapter", chunk->chapter);
@@ -792,8 +793,9 @@ int main(int argc, char *argv[])
 
     QSqlQuery query(db);
 
-    query.exec("drop table net_bible");
-    if(!query.exec("create table net_bible (id integer primary key autoincrement, "
+    query.exec("drop table bibles");
+    if(!query.exec("create table bibles (id integer primary key autoincrement, "
+                   "bibletext_id int, "
                    "book_number int, normalised_chapter integer, chapter integer, "
                    "verse integer, text varchar(5000), parallel int)"))
     {
@@ -918,9 +920,9 @@ int main(int argc, char *argv[])
 
     writeOutAllChunks(db, query);
 
-    query.exec("update net_bible set parallel = id");
+    query.exec("update bibles set parallel = id");
 
-    query.exec("create index idx_net_bible on net_bible (book_number, normalised_chapter, chapter, verse)");
+    query.exec("create index idx_bibles on bibles (id, bibletext_id, book_number, normalised_chapter, chapter, verse, parallel)");
     db.commit();
     db.close();
 
