@@ -13,7 +13,7 @@ bool StandardRule::applies(VerseReference verseReference)
 
 int StandardRule::getSyncNumber(VerseReference verseReference)
 {
-    QMap<VerseReference, int>* map = dbUpdater->syncNumberMaps.value(ESV);
+    QMap<VerseReference, int>* map = dbUpdater->syncNumberMaps.value(NET);
     if(map->contains(verseReference))
     {
         return map->value(verseReference);

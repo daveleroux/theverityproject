@@ -1,6 +1,7 @@
 #include "mt12tischrule.h"
 #include "globalvariables.h"
 
+//THIS IS NOW UNUSED BECAUSE THE NET HAS A MT 12:47
 
 Mt12TischRule::Mt12TischRule(DbUpdater* dbUpdater) : Rule(dbUpdater)
 {

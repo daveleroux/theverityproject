@@ -3,7 +3,7 @@
 #include <QString>
 #include <QStringList>
 
-extern QString ESV;
+extern QString NET;
 extern QString KJV;
 extern QString WLC;
 extern QString TISCH;
