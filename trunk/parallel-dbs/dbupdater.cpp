@@ -429,10 +429,11 @@ void DbUpdater::update()
         exit(1);
     }
 
-    query.exec("drop index idx_bibles");
 
     db.transaction();
 
+
+    queryAndCheck("drop index idx_bibles");
 
     QSqlQuery query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=1");
 
