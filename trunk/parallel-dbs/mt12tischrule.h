@@ -3,6 +3,8 @@
 
 #include "rule.h"
 
+//THIS IS NOW UNUSED BECAUSE THE NET HAS A MT 12:47
+
 class Mt12TischRule : public Rule
 {
 public:

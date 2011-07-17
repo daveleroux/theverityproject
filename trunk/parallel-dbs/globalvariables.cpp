@@ -1,6 +1,6 @@
 #include "globalvariables.h"
 
-QString ESV = "esv";
+QString NET = "net";
 QString KJV = "kjv";
 QString WLC = "wlc";
 QString TISCH = "tisch";

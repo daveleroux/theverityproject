@@ -17,8 +17,8 @@ int Jn1TischRule::getSyncNumber(VerseReference tischVerseReference)
 {
     //maybe should rather use logic like: tischVerseReference--
 
-    VerseReference esvVerseReferenceToUse;
-    QMap<VerseReference, int>* esvMap = dbUpdater->syncNumberMaps.value(ESV);
+    VerseReference netVerseReferenceToUse;
+    QMap<VerseReference, int>* netMap = dbUpdater->syncNumberMaps.value(NET);
 
     if(tischVerseReference == *startReference)
     {
@@ -26,16 +26,16 @@ int Jn1TischRule::getSyncNumber(VerseReference tischVerseReference)
     }
     else if (tischVerseReference == *endReference)
     {
-        esvVerseReferenceToUse = VerseReference(JOHN, 1, 51);
+        netVerseReferenceToUse = VerseReference(JOHN, 1, 51);
     }
     else
     {
-        QList<VerseReference> esvKeys = esvMap->keys();
-        int index = esvKeys.indexOf(tischVerseReference);
-        esvVerseReferenceToUse = esvKeys.at(index - 1);
+        QList<VerseReference> netKeys = netMap->keys();
+        int index = netKeys.indexOf(tischVerseReference);
+        netVerseReferenceToUse = netKeys.at(index - 1);
     }
 
-    return esvMap->value(esvVerseReferenceToUse);
+    return netMap->value(netVerseReferenceToUse);
 }
 
 Jn1TischRule::~Jn1TischRule()
