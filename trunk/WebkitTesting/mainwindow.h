@@ -16,6 +16,9 @@ public:
     void wordClicked(int id);
     ~MainWindow();
     QString getHtml(int normalisedChapter);
+
+    QString getParallelHtml(int normalisedChapter);
+
     void display(int normalisedChapter);
 
     void append(int normalisedChapter, QString html);

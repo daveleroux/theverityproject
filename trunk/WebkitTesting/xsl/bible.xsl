@@ -9,6 +9,19 @@
 			<xsl:apply-templates/>
 	    </xsl:template>
 
+	   <xsl:template match="preferredVerse">
+		<span class="preferredVerse">
+			<xsl:apply-templates/>
+		</span>
+	    </xsl:template>
+
+	   <xsl:template match="alternateVerse">
+		<span class="alternateVerse">
+			<xsl:apply-templates/>
+		</span>
+	    </xsl:template>
+
+		
 	   <xsl:template match="note">
 		<span class="note">
 			<xsl:apply-templates/>
@@ -121,6 +134,30 @@
 		<span class="normalisedChapter">
 			<xsl:apply-templates/>
 		</span>
+	    </xsl:template>
+
+	    <xsl:template match="table">
+		<table>
+			<xsl:apply-templates/>
+		</table>
+	    </xsl:template>
+
+	    <xsl:template match="tr1">
+		<tr class="colourOne">
+			<xsl:apply-templates/>
+		</tr>
+	    </xsl:template>
+
+	    <xsl:template match="tr2">
+		<tr class="colourTwo">
+			<xsl:apply-templates/>
+		</tr>
+	    </xsl:template>
+
+	    <xsl:template match="td">
+		<td>
+			<xsl:apply-templates/>
+		</td>
 	    </xsl:template>
 
 
