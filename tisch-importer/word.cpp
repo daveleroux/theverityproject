@@ -1,6 +1,6 @@
 #include "word.h"
 
-Word::Word(QString text, QBitArray normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma)
+Word::Word(QString text, QByteArray* normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma)
 {
     isEndofParagraph = false;
 
