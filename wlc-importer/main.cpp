@@ -7,30 +7,78 @@
 #include <QFile>
 #include <QList>
 
+int wordIdCount;
+
+void writeOutChunk(QSqlQuery query, int bookNumber, int normalisedChapter,int chapter, int verse, QString text)
+{
+    query.prepare("insert into bibles values(:id, :bibletext_id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
+
+    query.bindValue(":id", QVariant(QVariant::Int));
+    query.bindValue(":bibletext_id", 3);
+    query.bindValue(":book_number", bookNumber);
+    query.bindValue(":normalised_chapter", normalisedChapter);
+    query.bindValue(":chapter", chapter);
+    query.bindValue(":verse", verse);
+    query.bindValue(":text", text);
+    query.bindValue(":parallel",  QVariant(QVariant::Int));
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+}
+
+void writeOutStrongsWord(QSqlQuery query, int wordId, int strongsNumber, QString strongsLemma, QString fribergLemma)
+{
+    query.prepare("insert into strongs_word values(:bibletext_id, :word_id, :strongsNumber, :strongsLemma, :fribergLemma)");
+
+    query.bindValue(":bibletext_id", 3);
+    query.bindValue(":word_id", wordId);
+    query.bindValue(":strongsNumber", strongsNumber);
+    query.bindValue(":strongsLemma", strongsLemma);
+    query.bindValue(":fribergLemma", fribergLemma);
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+}
 
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    wordIdCount = 1;
+
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("bibles.sqlite");
+    db.setDatabaseName("verity.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
         return 1;
     }
 
+    db.transaction();
+
     QSqlQuery query;
-    query.exec("drop table wlc");
-    if(!query.exec("create table wlc (id integer primary key autoincrement, "
-                   "book_number int, book varchar(20), normalised_chapter integer, chapter integer, "
-                   "verse integer, number_in_verse integer, paragraph bool, text varchar(50), "
-                   "morphological_tag varchar(20), normalised_morph_tag blob, strongs_number integer)"))
+    if(!query.exec("delete from bibles where bibletext_id=3"))
     {
-        qDebug() << "failed: " << query.lastError() << endl;
+        qDebug() << "failed: " << query.lastError();
         exit(1);
     }
+
+    if(!query.exec("delete from strongs_word where bibletext_id=3"))
+    {
+        qDebug() << "failed: " << query.lastError();
+        exit(1);
+    }
+
+    QStringList standardBookNames;
+    standardBookNames << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
+    //standardBookNames << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
 
     QStringList bookNames;
     bookNames << "Gen"
@@ -73,18 +121,16 @@ int main(int argc, char *argv[])
             << "Zech"
             << "Mal";
 
-//    bookNames.clear();
-//    bookNames << "Gen";
+    //    bookNames.clear();
+    //    bookNames << "Gen";
 
 
     QString folder = "wlc/";
 
-    int normalisedChapter = 0;
+    int normalisedChapter = 1;
 
     for(int i=0; i<bookNames.size(); i++)
     {
-
-
         QDomDocument doc("mydocument");
         QFile file(folder+bookNames.at(i)+".xml");
         if (!file.open(QIODevice::ReadOnly))
@@ -96,7 +142,6 @@ int main(int argc, char *argv[])
 
         wholeFile = wholeFile.simplified();
 
-
         if(!doc.setContent(wholeFile))
         {
             file.close();
@@ -105,14 +150,17 @@ int main(int argc, char *argv[])
         }
         file.close();
 
+        QDomDocument chunk;
+        chunk.appendChild(chunk.createElement("chunk"));
+        chunk.firstChild().appendChild(chunk.createElement("bookName"));
+        chunk.firstChild().firstChild().appendChild(chunk.createTextNode(standardBookNames.at(i)));
+        qDebug() << standardBookNames.at(i);
+        writeOutChunk(query, i+1, normalisedChapter, 0, 0,  chunk.toString(-1));
 
         QDomNodeList chapterNodeList = doc.elementsByTagName("chapter");
 
-
         for(int j=0; j<chapterNodeList.size(); j++)
         {
-            normalisedChapter = normalisedChapter + 1;
-
             QDomNode chapterNode = chapterNodeList.at(j);
             QString chapterDescription = ((QDomElement&)chapterNode).attribute("osisID");
             int chapterFromDescription = chapterDescription.mid(chapterDescription.indexOf(".")+1).toInt();
@@ -124,30 +172,77 @@ int main(int argc, char *argv[])
                 QString verseDescription = ((QDomElement&)verseNode).attribute("osisID");
                 int verseFromDescription = verseDescription.mid(verseDescription.lastIndexOf(".")+1).toInt();
 
-                QStringList wordsInVerse;
-                QList<int> strongsNumbers;
+                QDomDocument chunk;
+                QDomNode place;
+                place = chunk.appendChild(chunk.createElement("chunk"));
+                place = place.appendChild(chunk.createElement("preferredVerse"));
+                place = place.appendChild(chunk.createElement("bodyText"));
+
+
+                if(k==0)
+                {
+                    QDomNode chapterPlace = place.appendChild(chunk.createElement("chapter"));
+                    chapterPlace.appendChild(chunk.createTextNode(QString().setNum(chapterFromDescription)));
+                }
+
+                QDomNode versePlace = place.appendChild(chunk.createElement("verse"));
+                versePlace.appendChild(chunk.createTextNode(QString().setNum(verseFromDescription)));
 
                 for(int l=0; l<verseNode.childNodes().size(); l++)
                 {
-
                     QDomNode wordNode = verseNode.childNodes().at(l);
                     if(wordNode.isElement())
                     {
                         if(wordNode.nodeName() == "w")
                         {
-                            QString word = wordNode.toElement().firstChild().toText().data();
+                            QString text = wordNode.toElement().firstChild().toText().data();
 
-                            word.replace("/","");
-                            wordsInVerse.append(word);
+                            text.replace("/","");
 
-                            strongsNumbers.append(((QDomElement&)wordNode).attribute("lemma").toInt());
 
+                            int strongsNumber = ((QDomElement&)wordNode).attribute("lemma").toInt();
+
+                            QDomElement wordElement = chunk.createElement("word");
+                            wordElement.setAttribute("bibleTextId", "3");
+                            wordElement.setAttribute("wordId", wordIdCount);
+
+                            writeOutStrongsWord(query, wordIdCount, strongsNumber, 0, 0);
+
+                            wordIdCount++;
+
+                            QDomNode wordPlace = place.appendChild(wordElement);
+                            wordPlace.appendChild(chunk.createTextNode(text));
+
+                            place.appendChild(chunk.createTextNode(" "));
 
                         }
                         else if(wordNode.nodeName() == "seg")
                         {
                             QString punc = wordNode.toElement().firstChild().toText().data();
-                            (QString)(wordsInVerse[wordsInVerse.size()-1]).append(punc);
+
+                            if(wordNode.toElement().attribute("type") == "x-pe")
+                            {
+                                place.appendChild(chunk.createTextNode(punc));
+                                place.appendChild(chunk.createTextNode(" "));
+                            }
+                            else
+                            {
+                                if(place.lastChild().toText().data() == " ")
+                                    place.removeChild(place.lastChild());
+
+                                if(wordNode.toElement().attribute("type") == "x-maqqef")
+                                {
+                                    place.appendChild(chunk.createTextNode(punc));
+                                }
+                                else
+                                {
+                                    QDomElement puncElement = chunk.createElement("punc");
+                                    puncElement.appendChild(chunk.createTextNode(punc));
+                                    place.appendChild(puncElement);
+
+                                    place.appendChild(chunk.createTextNode(" "));
+                                }
+                            }
 
                         }
                         else if(wordNode.nodeName() == "note")
@@ -166,42 +261,21 @@ int main(int argc, char *argv[])
                         exit(1);
                     }
                 }
-                for(int m=0; m<wordsInVerse.size(); m++)
+
+                if(k==verseNodeList.size()-1)
                 {
-                    query.prepare("insert into wlc values(:id,:book_number,:book,:normalised_chapter,"
-                                  ":chapter, :verse, :number_in_verse , :paragraph, :text, :morphological_tag, "
-                                  ":normalised_morph_tag, :strongs_number)");
-
-                    query.bindValue(":id", QVariant(QVariant::Int));
-                    query.bindValue(":book_number", i+1);
-                    query.bindValue(":book", bookNames.at(i));
-                    query.bindValue(":normalised_chapter", normalisedChapter);
-                    query.bindValue(":chapter", chapterFromDescription);
-                    query.bindValue(":verse", verseFromDescription);
-                    query.bindValue(":number_in_verse", m+1);
-                    query.bindValue(":paragraph",false);
-                    query.bindValue(":text", wordsInVerse.at(m));
-                    query.bindValue(":morphological_tag", 0);
-                    query.bindValue(":normalised_morph_tag", 0);
-                    query.bindValue(":strongs_number", strongsNumbers.at(m));
-
-                    if(!query.exec())
-                    {
-                        qDebug() << "failed: "<< query.lastError()  << endl;
-                        exit(1);
-
-                    }
+                    place.appendChild(chunk.createElement("br"));
+                    place.appendChild(chunk.createElement("br"));
                 }
 
+                writeOutChunk(query, i+1, normalisedChapter, chapterFromDescription, verseFromDescription, chunk.toString(-1));
+
             }
-
+            normalisedChapter = normalisedChapter + 1;
         }
-
-        qDebug() << "done: " << bookNames.at(i) << endl;
     }
 
-    query.exec("create index idx_wlc on wlc (book_number, normalised_chapter, chapter, verse, number_in_verse)");
-
+    db.commit();
     db.close();
 
     return 0;
