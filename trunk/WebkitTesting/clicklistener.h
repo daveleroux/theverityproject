@@ -2,7 +2,6 @@
 #define CLICKLISTENER_H
 
 #include <QObject>
-#include "mainwindow.h"
 
 class ClickListener : public QObject
 {
