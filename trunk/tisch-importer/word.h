@@ -10,12 +10,12 @@ public:
     bool isEndofParagraph;
 
     QString text;
-    QBitArray normalisedMorphTag;
+    QByteArray* normalisedMorphTag;
     int strongsNumber;
     QString strongsLemma;
     QString fribergLemma;
 
-    Word(QString text, QBitArray normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma);
+    Word(QString text, QByteArray* normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma);
 };
 
 #endif // WORD_H

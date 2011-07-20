@@ -14,6 +14,8 @@
 QList<Book*> books;
 Word* lastWordAdded;
 
+int wordIdCount;
+
 struct MorphAttribute
 {
     QBitArray bitArray;
@@ -351,6 +353,38 @@ void assert(bool b)
     }
 }
 
+void writeOutStrongsWord(QSqlQuery query, int wordId, int strongsNumber, QString strongsLemma, QString fribergLemma)
+{
+    query.prepare("insert into strongs_word values(:bibletext_id, :word_id, :strongsNumber, :strongsLemma, :fribergLemma)");
+
+    query.bindValue(":bibletext_id", 2);
+    query.bindValue(":word_id", wordId);
+    query.bindValue(":strongsNumber", strongsNumber);
+    query.bindValue(":strongsLemma", strongsLemma);
+    query.bindValue(":fribergLemma", fribergLemma);
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+}
+
+void writeOutParsing(QSqlQuery query, int wordId, QByteArray* morph)
+{
+    query.prepare("insert into type_t_parsing values(:bibletext_id, :word_id, :morph)");
+
+    query.bindValue(":bibletext_id", 2);
+    query.bindValue(":word_id", wordId);
+    query.bindValue(":morph", morph->toBase64(), QSql::Binary | QSql::In);
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+}
+
 void writeOutChunk(QSqlQuery query, int bookNumber, int normalisedChapter,int chapter, int verse, QString text)
 {
     query.prepare("insert into bibles values(:id, :bibletext_id, :book_number, :normalised_chapter, :chapter, :verse, :text, :parallel)");
@@ -428,7 +462,16 @@ void writeOut(QSqlDatabase db, QSqlQuery query)
                     {
                         Word* word = verse->words.at(m);
 
-                        QDomNode wordPlace = place.appendChild(chunk.createElement("word"));
+                        QDomElement wordElement = chunk.createElement("word");
+                        wordElement.setAttribute("bibleTextId", "2");
+                        wordElement.setAttribute("wordId", wordIdCount);
+
+                        writeOutParsing(query, wordIdCount, word->normalisedMorphTag);
+                        writeOutStrongsWord(query, wordIdCount, word->strongsNumber, word->strongsLemma, word->fribergLemma);
+
+                        wordIdCount++;
+
+                        QDomNode wordPlace = place.appendChild(wordElement);
                         wordPlace.appendChild(chunk.createTextNode(word->text));
 
                         place.appendChild(chunk.createTextNode(" "));
@@ -443,7 +486,7 @@ void writeOut(QSqlDatabase db, QSqlQuery query)
                     if(k==chapter->verses.keys().size()-1 && l==verses->size()-1)
                     {
                         chunk.firstChild().appendChild(chunk.createElement("br"));
-                         chunk.firstChild().appendChild(chunk.createElement("br"));
+                        chunk.firstChild().appendChild(chunk.createElement("br"));
                     }
 
                 }
@@ -462,7 +505,7 @@ void writeOut(QSqlDatabase db, QSqlQuery query)
 }
 
 
-void addToBook(Book* book, int chapterInt, int verseInt, int numberInVerse, QString text, QBitArray normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma)
+void addToBook(Book* book, int chapterInt, int verseInt, int numberInVerse, QString text, QByteArray* normalisedMorphTag, int strongsNumber, QString strongsLemma, QString fribergLemma)
 {
     assert(chapterInt > 0 && verseInt > 0 && numberInVerse > 0 && strongsNumber > 0);
     Chapter* chapter = book->chapters.value(chapterInt);
@@ -500,6 +543,8 @@ int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
+    wordIdCount = 1;
+
     initialiseAttributes();
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
@@ -515,7 +560,7 @@ int main(int argc, char *argv[])
     QSqlQuery query;
     if(!query.exec("delete from bibles where bibletext_id=2"))
     {
-        qDebug() << "failed: " << query.lastError() << endl;
+        qDebug() << "failed: " << query.lastError();
         exit(1);
     }
 
@@ -524,13 +569,23 @@ int main(int argc, char *argv[])
 
     if(!query.exec("create table type_t_parsing ( "
                    "bibletext_id int, word_id int, "
-                   "normalised_morph_tag blob, strongs_number integer, strongs_lemma varchar(50), friberg_lemma varchar(50), "
+                   "normalised_morph_tag blob, "
                    "primary key (bibletext_id, word_id))"))
     {
-        qDebug() << "failed: " << query.lastError() << endl;
+        qDebug() << "failed: " << query.lastError();
         exit(1);
     }
 
+    query.exec("drop table strongs_word");
+
+    if(!query.exec("create table strongs_word ( "
+                   "bibletext_id int, word_id int, "
+                   "strongs_number integer, strongs_lemma varchar(50), friberg_lemma varchar(50), "
+                   "primary key (bibletext_id, word_id))"))
+    {
+        qDebug() << "failed: " << query.lastError();
+        exit(1);
+    }
 
     QStringList bookNames;
     bookNames << "MT"
@@ -563,33 +618,33 @@ int main(int argc, char *argv[])
 
     QStringList greekBookNames;
     greekBookNames
-            << QString::fromUtf8("ΚΑΤΑ ΜΑΘΘΑΙΟΝ"                             )
-                                << QString::fromUtf8("ΚΑΤΑ ΜΑΡΚΟΝ"           )
-                                << QString::fromUtf8("ΚΑΤΑ ΛΟΥΚΑΝ"           )
-                                << QString::fromUtf8("ΚΑΤΑ ΙΩΑΝΝΗΝ"          )
-                                << QString::fromUtf8("ΠΡΑΞΕΙΣ ΑΠΟΣΤΟΛΩΝ"     )
-                                << QString::fromUtf8("ΠΡΟΣ ΡΩΜΑΙΟΥΣ"         )
-                                << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Α"     )
-                                << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Β"     )
-                                << QString::fromUtf8("ΠΡΟΣ ΓΑΛΑΤΑΣ"          )
-                                << QString::fromUtf8("ΠΡΟΣ ΕΦΕΣΙΟΥΣ"         )
-                                << QString::fromUtf8("ΠΡΟΣ ΦΙΛΙΠΠΗΣΙΟΥΣ"     )
-                                << QString::fromUtf8("ΠΡΟΣ ΚΟΛΟΣΣΑΕΙΣ"       )
-                                << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Α"  )
-                                << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Β"  )
-                                << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Α"       )
-                                << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Β"       )
-                                << QString::fromUtf8("ΠΡΟΣ ΤΙΤΟΝ"            )
-                                << QString::fromUtf8("ΠΡΟΣ ΦΙΛΗΜΟΝΑ"         )
-                                << QString::fromUtf8("ΠΡΟΣ ΕΒΡΑΙΟΥΣ"         )
-                                << QString::fromUtf8("ΙΑΚΩΒΟΥ"               )
-                                << QString::fromUtf8("ΠΕΤΡΟΥ Α"              )
-                                << QString::fromUtf8("ΠΕΤΡΟΥ Β"              )
-                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Α"             )
-                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Β"             )
-                                << QString::fromUtf8("ΙΩΑΝΝΟΥ Γ"             )
-                                << QString::fromUtf8("ΙΟΥΔΑ"                 )
-                                << QString::fromUtf8("ΑΠΟΚΑΛΥΨΙΣ ΙΩΑΝΝΟΥ"    );
+            << QString::fromUtf8("ΚΑΤΑ ΜΑΘΘΑΙΟΝ"         )
+            << QString::fromUtf8("ΚΑΤΑ ΜΑΡΚΟΝ"           )
+            << QString::fromUtf8("ΚΑΤΑ ΛΟΥΚΑΝ"           )
+            << QString::fromUtf8("ΚΑΤΑ ΙΩΑΝΝΗΝ"          )
+            << QString::fromUtf8("ΠΡΑΞΕΙΣ ΑΠΟΣΤΟΛΩΝ"     )
+            << QString::fromUtf8("ΠΡΟΣ ΡΩΜΑΙΟΥΣ"         )
+            << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Α"     )
+            << QString::fromUtf8("ΠΡΟΣ ΚΟΡΙΝΘΙΟΥΣ Β"     )
+            << QString::fromUtf8("ΠΡΟΣ ΓΑΛΑΤΑΣ"          )
+            << QString::fromUtf8("ΠΡΟΣ ΕΦΕΣΙΟΥΣ"         )
+            << QString::fromUtf8("ΠΡΟΣ ΦΙΛΙΠΠΗΣΙΟΥΣ"     )
+            << QString::fromUtf8("ΠΡΟΣ ΚΟΛΟΣΣΑΕΙΣ"       )
+            << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Α"  )
+            << QString::fromUtf8("ΠΡΟΣ ΘΕΣΣΑΛΟΝΙΚΕΙΣ Β"  )
+            << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Α"       )
+            << QString::fromUtf8("ΠΡΟΣ ΤΙΜΟΘΕΟΝ Β"       )
+            << QString::fromUtf8("ΠΡΟΣ ΤΙΤΟΝ"            )
+            << QString::fromUtf8("ΠΡΟΣ ΦΙΛΗΜΟΝΑ"         )
+            << QString::fromUtf8("ΠΡΟΣ ΕΒΡΑΙΟΥΣ"         )
+            << QString::fromUtf8("ΙΑΚΩΒΟΥ"               )
+            << QString::fromUtf8("ΠΕΤΡΟΥ Α"              )
+            << QString::fromUtf8("ΠΕΤΡΟΥ Β"              )
+            << QString::fromUtf8("ΙΩΑΝΝΟΥ Α"             )
+            << QString::fromUtf8("ΙΩΑΝΝΟΥ Β"             )
+            << QString::fromUtf8("ΙΩΑΝΝΟΥ Γ"             )
+            << QString::fromUtf8("ΙΟΥΔΑ"                 )
+            << QString::fromUtf8("ΑΠΟΚΑΛΥΨΙΣ ΙΩΑΝΝΟΥ"    );
 
     QString folder = "Tischendorf-2.5/Unicode/";
 
@@ -640,7 +695,7 @@ int main(int argc, char *argv[])
 
                 QString fribergLemma = fragments.at(8).trimmed();
 
-                addToBook(book, chapter.toInt(), verse.toInt(), numberInVerse.toInt(), text, normalisedMorphTag, strongsNumber.toInt(), strongsLemma, fribergLemma);
+                addToBook(book, chapter.toInt(), verse.toInt(), numberInVerse.toInt(), text, byteArray, strongsNumber.toInt(), strongsLemma, fribergLemma);
 
 
                 //                query.prepare("insert into tisch_bible values(:id,:book_number,:book,:normalised_chapter,"
@@ -682,7 +737,8 @@ int main(int argc, char *argv[])
 
     writeOut(db, query);
 
-    query.exec("create index idx_type_t_parsing on type_t_parsing (bibletext_id, word_id, strongs_number, strongs_lemma, friberg_lemma)");
+    query.exec("create index idx_type_t_parsing on type_t_parsing (bibletext_id, word_id)");
+    query.exec("create index idx_strongs_word on strongs_word (bibletext_id, word_id, strongs_number, strongs_lemma, friberg_lemma)");
     query.exec("create index idx_bibles on bibles (id, bibletext_id, book_number, normalised_chapter, chapter, verse, parallel)");
 
     db.commit();
