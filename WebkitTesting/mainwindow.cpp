@@ -3,31 +3,49 @@
 #include <QtWebKit/QWebFrame>
 #include <QFile>
 #include <QTextStream>
-#include "clicklistener.h"
-#include "scrolllistener.h"
 #include <QMessageBox>
 #include <QtSql>
 #include <QXmlQuery>
 #include <QWebElement>
+#include "timer.h"
+#include <iostream>
+using namespace std;
+
+QString MainWindow::replaceAll(QString wholeChapter, QMap<QString, QString> replaceMap)
+{
+    for(int i=0; i<replaceMap.keys().size(); i++)
+    {
+        QString key = replaceMap.keys().at(i);
+        QString value = replaceMap.value(key);
+
+        wholeChapter.replace("<"+key+">", "<span class=\""+value+"\">");
+        wholeChapter.replace("</"+key+">", "</span>");
+    }
+    return wholeChapter;
+}
 
 QString MainWindow::getParallelHtml(int normalisedChapter)
 {
 
+    timer t;
+    t.start();
+
     QSqlQuery query;
 
     if(!query.exec("select b1.text, b2.text from bibles as b1, bibles as b2 where b1.normalised_chapter=" + QString().setNum(normalisedChapter) +
-        " and b1.bibletext_id=1 and b1.parallel=b2.parallel and b2.bibletext_id=2"))
+                   " and b1.bibletext_id=1 and b1.parallel=b2.parallel and b2.bibletext_id=2"))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
     }
+
 
     QString wholeChapter = "<normalisedChapter>";
     wholeChapter += "<table>";
     QString colour = "1";
     while(query.next())
     {
-        wholeChapter += "<tr" + colour + ">";
+        wholeChapter += "<tr>";
 
         wholeChapter += "<td>";
         wholeChapter += query.value(0).toString();
@@ -37,7 +55,7 @@ QString MainWindow::getParallelHtml(int normalisedChapter)
         wholeChapter += query.value(1).toString();
         wholeChapter += "</td>";
 
-        wholeChapter += "</tr" + colour + ">";
+        wholeChapter += "</tr>";
 
         if(colour == "1")
             colour = "2";
@@ -47,22 +65,69 @@ QString MainWindow::getParallelHtml(int normalisedChapter)
     wholeChapter += "</table>";
     wholeChapter += "</normalisedChapter>";
 
+    cout << "query " << t << endl;
+    t.restart();
 
-    QXmlQuery xmlQuery(QXmlQuery::XSLT20);
+    QMap<QString, QString> replaceMap;
 
-    QByteArray byteArray(wholeChapter.toUtf8());
+    replaceMap.insert("preferredVerse", "preferredVerse");
+    replaceMap.insert("alternateVerse", "alternateVerse");
+    replaceMap.insert("note", "note");
+    replaceMap.insert("smallCaps", "smallCaps");
+    replaceMap.insert("b", "b");
+    replaceMap.insert("i", "i");
+    replaceMap.insert("hebrew", "hebrew");
+    replaceMap.insert("paragraphTitle", "paragraphTitle");
+    replaceMap.insert("hebrewParagraph", "paragraphTitle");
+    replaceMap.insert("section", "section");
+    replaceMap.insert("psalmSuperscription", "psalmSuperscription");
+    replaceMap.insert("speakerHeading", "speakerHeading");
+    replaceMap.insert("bodyText", "bodyText");
+    replaceMap.insert("poetry", "poetry");
+    replaceMap.insert("bodyBlock", "bodyBlock");
+    replaceMap.insert("blockQuote", "blockQuote");
+    replaceMap.insert("chapter", "chapter");
+    replaceMap.insert("bookName", "bookName");
+    replaceMap.insert("verse", "verse");
+    replaceMap.insert("normalisedChapter", "normalisedChapter");
+    replaceMap.insert("normalisedChapter", "normalisedChapter");
 
-    QBuffer buffer(&byteArray);
-    buffer.open(QBuffer::ReadWrite);
+    wholeChapter = replaceAll(wholeChapter, replaceMap );
 
-    xmlQuery.setFocus(&buffer);
 
-    xmlQuery.setQuery(QUrl("qrc:/xsl/bible.xsl"));
+    //    QXmlQuery xmlQuery(QXmlQuery::XSLT20);
 
-    QString result;
-    xmlQuery.evaluateTo(&result);
+    //    QByteArray byteArray(wholeChapter.toUtf8());
 
-    return result.simplified();
+    //    QBuffer buffer(&byteArray);
+    //    buffer.open(QBuffer::ReadWrite);
+
+    //    xmlQuery.setFocus(&buffer);
+
+    //    xmlQuery.setQuery(QUrl("qrc:/xsl/bible.xsl"));
+
+    //    QString result;
+    //    xmlQuery.evaluateTo(&result);
+
+    cout << "xsl " << t << endl;
+    //    result = result.simplified();
+
+
+    return wholeChapter;
+
+    //    static QString fake = 0;
+    //    if(fake == 0)
+    //    {
+    //        QFile tmp("example.html");
+    //        if(!tmp.open(QIODevice::ReadOnly))
+    //            exit(1);
+
+    //        QByteArray byteArray = tmp.readAll();
+    //        fake = QString::fromUtf8(byteArray.data());
+
+    //    }
+    //    cout << "get parallel html " << t << endl;
+    //    return fake;
 
 }
 
@@ -119,35 +184,33 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     setCentralWidget(webView);
     webView->page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 
-    waitingUntilScrollbarMaxChanged = false;
-    mustScrollDown = false;
-    mustScrollToPoint = false;
-
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
+    connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(javaScriptWindowObjectCleared()));
 
-    QString htmlFrame = "<html>"
-                        "<head>"
-                        "<link href=\"qrc:/style/bible.css\" rel=\"stylesheet\" type=\"text/css\"/>"
-                        "<script type=\"text/javascript\">"
-                        //                        "function create(htmlStr) "
-                        //                        "{"
-                        //                        "   var frag = document.createDocumentFragment(),"
-                        //                        "       temp = document.createElement('div');"
-                        //                        "   temp.innerHTML = htmlStr;"
-                        //                        "   while (temp.firstChild) {"
-                        //                        "       frag.appendChild(temp.firstChild);"
-                        //                        "   }"
-                        //                        "   return frag;"
-                        //                        "}"
-                        "</script>"
-                        "</head>"
-                        "<body>"
-                        "</body>"
-                        "</html>";
+    frameTop = "<html>"
+               "<head>"
+               "<style type=\"text/css\"/>\n";
 
+    QFile tmp(":/style/bible.css");
+    if(!tmp.open(QIODevice::ReadOnly))
+        exit(1);
 
-    webView->setHtml(htmlFrame);
+    QByteArray byteArray = tmp.readAll();
+    frameTop += QString::fromUtf8(byteArray.data());
 
+    frameTop += "</style>"
+                "</head>"
+                "<body>";
+
+    frameBottom = "</body>"
+                  "</html>";
+
+    clickListener = new ClickListener();
+    scrollListener = new ScrollListener();
+
+    int firstChapterToView = 1005;
+    append(firstChapterToView, getParallelHtml(firstChapterToView));
+    checkCanScroll();
 }
 
 bool MainWindow::mustAppend()
@@ -172,38 +235,6 @@ bool MainWindow::validChapter(int proposedChapter)
     return proposedChapter <= 1189 && proposedChapter >= 1;
 }
 
-void MainWindow::timerEvent (QTimerEvent * event)
-{
-    if(waitingUntilScrollbarMaxChanged)
-    {
-        int maxNow = webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
-        if(maxNow != currentScrollMax)
-        {
-            basicTimer.stop();
-            if(mustScrollDown)
-            {
-                webView->page()->mainFrame()->scroll(0, maxNow-currentScrollMax);
-                mustScrollDown = false;
-            }
-
-            if(mustScrollToPoint)
-            {
-//                webView->page()->mainFrame()->scroll(0, maxNow-currentScrollMax);
-                webView->page()->mainFrame()->setScrollPosition(QPoint(0,pointToScrollTo+40));
-                mustScrollToPoint = false;
-            }
-
-            int heightNow = webView->page()->mainFrame()->contentsSize().height();
-            if(heightNow > currentHeight)
-            {
-                lastAddedChapterInfo->height = heightNow - currentHeight;
-            }
-
-            waitingUntilScrollbarMaxChanged = false;
-            checkCanScroll();
-        }
-    }
-}
 
 bool MainWindow::canUnloadFirstChapter()
 {
@@ -211,7 +242,7 @@ bool MainWindow::canUnloadFirstChapter()
     {
         //fake remove it and see if 'mustPrepend', if so then don't remove it
 
-        int totalDocumentHeight = webView->page()->mainFrame()->contentsSize().height();
+        int totalDocumentHeight = getDocumentHeight();
         int firstChapterHeight = normalisedChapters.first()->height;
 
 
@@ -220,8 +251,6 @@ bool MainWindow::canUnloadFirstChapter()
         int scrollbarMaxNow =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 
         float ratio = totalDocumentHeight/((float)(scrollbarMaxNow + scrollbarHeightNow));
-
-        pointToScrollTo = scrollbarValueNow - firstChapterHeight/ratio;
 
         return !(ratio*scrollbarValueNow - firstChapterHeight < ratio*scrollbarHeightNow);
     }
@@ -234,8 +263,9 @@ bool MainWindow::canUnloadLastChapter()
     {
         //fake remove it and see if 'mustAppend', if so then don't remove it
 
-        int totalDocumentHeight = webView->page()->mainFrame()->contentsSize().height();
+        int totalDocumentHeight = getDocumentHeight();
         int lastChapterHeight = normalisedChapters.last()->height;
+
         int proposedDocumentHeight = totalDocumentHeight-lastChapterHeight;
 
         int scrollbarValueNow =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
@@ -251,134 +281,134 @@ bool MainWindow::canUnloadLastChapter()
 
 void MainWindow::unloadFirstChapter()
 {
-    qDebug() << "first chapter unloaded";
-    delete normalisedChapters.first();
-    normalisedChapters.removeFirst();
+        qDebug() << "unloading first";
+        int unloadingHeight = normalisedChapters.first()->height;
+        delete normalisedChapters.first();
+        normalisedChapters.removeFirst();
 
-    QWebElement doc = webView->page()->mainFrame()->documentElement();
-    QWebElement body = doc.firstChild().nextSibling();
-    body.firstChild().removeFromDocument();
+        int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+
+        QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
+        //    qDebug() << html2;
+        webView->setHtml(html2);
+        webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, orig-unloadingHeight);
 }
 
 void MainWindow::unloadLastChapter()
 {
-    qDebug() << "last chapter unloaded";
+    qDebug() << "unloading last";
     delete normalisedChapters.last();
     normalisedChapters.removeLast();
 
-    QWebElement doc = webView->page()->mainFrame()->documentElement();
-    QWebElement body = doc.firstChild().nextSibling();
-    body.lastChild().removeFromDocument();
+    int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+    QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
+    //    qDebug() << html2;
+    webView->setHtml(html2);
+    webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, orig);
+
+}
+
+int MainWindow::getDocumentHeight()
+{
+   return webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() +
+           webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 }
 
 void MainWindow::checkCanScroll()
 {
-    if(!waitingUntilScrollbarMaxChanged)
+    //    qDebug() << "check can scroll";
+    while(mustPrepend())
     {
-        if(mustPrepend())
+        if(validChapter(normalisedChapters.first()->normalisedChapter-1))
         {
-            if(validChapter(normalisedChapters.first()->normalisedChapter-1))
-            {
-                currentScrollMax = webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
-                currentHeight = webView->page()->mainFrame()->contentsSize().height();
-                prependChapter();
-                waitingUntilScrollbarMaxChanged = true;
-                mustScrollDown = true;
-                basicTimer.start(10, this);
-                return;
-            }
+            int originalHeight = getDocumentHeight();
+            int originalScrollValue = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+            prependChapter();
+            int newHeight = getDocumentHeight();
+            webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, originalScrollValue + newHeight - originalHeight);
         }
-
-        if(mustAppend())
+        else
         {
-            if(validChapter(normalisedChapters.last()->normalisedChapter+1))
-            {
-                currentScrollMax = webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
-                currentHeight = webView->page()->mainFrame()->contentsSize().height();
-                appendChapter();
-                waitingUntilScrollbarMaxChanged = true;
-                basicTimer.start(10, this);
-                return;
-            }
+            break;
         }
-
-        if(canUnloadFirstChapter())
-        {
-            currentScrollMax = webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
-            currentHeight = webView->page()->mainFrame()->contentsSize().height();
-            unloadFirstChapter();
-            waitingUntilScrollbarMaxChanged = true;
-            mustScrollToPoint = true;
-            basicTimer.start(10, this);
-            return;
-        }
-
-        if(canUnloadLastChapter())
-        {
-            currentScrollMax = webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
-            currentHeight = webView->page()->mainFrame()->contentsSize().height();
-            unloadLastChapter();
-            waitingUntilScrollbarMaxChanged = true;
-            basicTimer.start(10, this);
-            return;
-        }
-
     }
+
+    while(mustAppend())
+    {
+        if(validChapter(normalisedChapters.last()->normalisedChapter+1))
+        {
+            int originalScrollValue = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+            appendChapter();
+            webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, originalScrollValue);
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    while(canUnloadFirstChapter())
+        unloadFirstChapter();
+
+    while(canUnloadLastChapter())
+        unloadLastChapter();
+
 }
+
+
 
 void MainWindow::append(int normalisedChapter, QString html)
 {
-    lastAddedChapterInfo = new ChapterInfo(normalisedChapter, 0);
-    normalisedChapters.append(lastAddedChapterInfo);
-
-    //    webView->page()->mainFrame()->evaluateJavaScript("var fragment = create('"+ html + "');"
-    //                                                 "document.body.appendChild(fragment);");
+    ChapterInfo* chapterInfo = new ChapterInfo(normalisedChapter, 0, html);
+    normalisedChapters.append(chapterInfo);
 
 
-    QWebElement doc = webView->page()->mainFrame()->documentElement();
-    QWebElement body = doc.firstChild().nextSibling();
-    body.appendInside(html);
+    int originalHeight = getDocumentHeight();
+
+    QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
+    //    qDebug() << html2;
+    webView->setHtml(html2);
+
+    int newHeight = getDocumentHeight();
+
+    chapterInfo->height = newHeight - originalHeight;
 }
 
 void MainWindow::appendChapter()
 {
-    qDebug() << "chapter appended";
+    qDebug() << "appending";
     int chapter = normalisedChapters.last()->normalisedChapter + 1;
     append(chapter, getHtml(chapter));
 }
 
+QString MainWindow::getHtmlFromChapterInfos()
+{
+    QString result;
+    for(int i=0; i< normalisedChapters.size(); i++)
+        result += normalisedChapters.at(i)->html;
+
+    return result;
+}
+
 void MainWindow::prepend(int normalisedChapter, QString html)
 {
-    lastAddedChapterInfo = new ChapterInfo(normalisedChapter, 0);
-    normalisedChapters.prepend(lastAddedChapterInfo);
+    ChapterInfo* chapterInfo = new ChapterInfo(normalisedChapter, 0, html);
+    normalisedChapters.prepend(chapterInfo);
 
-    //    webView->page()->mainFrame()->evaluateJavaScript("var fragment = create('"+ html + "');"
-    //                                                 "document.body.insertBefore(fragment,document.body.childNodes[0]);");
+    int originalHeight = getDocumentHeight();
+    webView->setHtml(frameTop + getHtmlFromChapterInfos() + frameBottom);
+    int newHeight = getDocumentHeight();
 
-    QWebElement doc = webView->page()->mainFrame()->documentElement();
-    QWebElement body = doc.firstChild().nextSibling();
-    body.prependInside(html);
+    chapterInfo->height = newHeight - originalHeight;
 }
 
 void MainWindow::prependChapter()
 {
-    qDebug() << "chapter prepended";
+    qDebug() << "prepending";
     int chapter = normalisedChapters.first()->normalisedChapter - 1;
     prepend(chapter, getHtml(chapter));
 }
 
-void MainWindow::display(int normalisedChapter)
-{
-    for(int i=0; i<normalisedChapters.size(); i++)
-        delete normalisedChapters.at(i);
-    normalisedChapters.clear();
-
-    currentScrollMax = 0;
-    currentHeight = 0;
-    append(normalisedChapter, getParallelHtml(normalisedChapter));
-    waitingUntilScrollbarMaxChanged = true;
-    basicTimer.start(10, this);
-}
 
 void MainWindow::scrolled()
 {
@@ -390,35 +420,22 @@ void MainWindow::wordClicked(int id)
     QMessageBox msgBox;
     msgBox.setSizeGripEnabled(true);
 
-    msgBox.setText(QString().setNum(id) );
+    msgBox.setText(QString().setNum(id));
     msgBox.exec();
 }
 
-MainWindow::~MainWindow()
+void MainWindow::javaScriptWindowObjectCleared()
 {
-
 }
-
-class SleeperThread : public QThread
-{
-public:
-    static void msleep(unsigned long msecs)
-    {
-        QThread::msleep(msecs);
-    }
-};
 
 void MainWindow::loadFinished(bool b)
 {
-    ClickListener* clickListener = new ClickListener();
+
     webView->page()->mainFrame()->addToJavaScriptWindowObject("clickListener", clickListener);
 
-
-    ScrollListener* scrollListener = new ScrollListener();
     connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
 
     webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
-
 
 
     //        webView->page()->mainFrame()->evaluateJavaScript("window.onscroll = function () { "
@@ -427,5 +444,4 @@ void MainWindow::loadFinished(bool b)
     webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
     webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
 
-    display(1005);
 }

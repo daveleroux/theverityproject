@@ -5,6 +5,8 @@
 #include <QtWebKit/QWebView>
 #include <QBasicTimer>
 #include "chapterinfo.h"
+#include "clicklistener.h"
+#include "scrolllistener.h"
 
 class MainWindow : public QMainWindow
 {
@@ -14,12 +16,10 @@ public:
     QWebView* webView;
     explicit MainWindow(QWidget *parent = 0);
     void wordClicked(int id);
-    ~MainWindow();
     QString getHtml(int normalisedChapter);
 
     QString getParallelHtml(int normalisedChapter);
 
-    void display(int normalisedChapter);
 
     void append(int normalisedChapter, QString html);
     void appendChapter();
@@ -30,7 +30,7 @@ public:
     QList<ChapterInfo*> normalisedChapters;
     ChapterInfo* lastAddedChapterInfo;
 
-    QBasicTimer basicTimer;
+
     int currentScrollMax;
     int currentHeight;
 
@@ -40,21 +40,29 @@ public:
 
     bool validChapter(int proposedChapter);
 
-    bool waitingUntilScrollbarMaxChanged;
-    bool mustScrollDown;
-    bool mustScrollToPoint;
-    int pointToScrollTo;
-
-    void timerEvent ( QTimerEvent * event );
 
     bool canUnloadFirstChapter();
     void unloadFirstChapter();
 
     bool canUnloadLastChapter();
     void unloadLastChapter();
+
+    QString replaceAll(QString wholeChapter, QMap<QString, QString> replaceMap);
+
+    QString frameTop;
+    QString frameBottom;
+
+    QString getHtmlFromChapterInfos();
+
+    ClickListener* clickListener;
+    ScrollListener* scrollListener;
+
+    int getDocumentHeight();
+
 public slots:
     void loadFinished(bool b);
     void scrolled();
+    void javaScriptWindowObjectCleared();
 };
 
 #endif // MAINWINDOW_H

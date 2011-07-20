@@ -19,7 +19,8 @@ SOURCES += main.cpp\
 HEADERS  += mainwindow.h \
     clicklistener.h \
     scrolllistener.h \
-    chapterinfo.h
+    chapterinfo.h \
+    timer.h
 
 FORMS    +=
 
