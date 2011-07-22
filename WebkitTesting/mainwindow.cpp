@@ -26,6 +26,19 @@ QString MainWindow::replaceAll(QString wholeChapter, QMap<QString, QString> repl
 
 QString MainWindow::getParallelHtml(int normalisedChapter)
 {
+//    static QString fake = 0;
+//    if(fake == 0)
+//    {
+//        QFile tmp("example2.html");
+//        if(!tmp.open(QIODevice::ReadOnly))
+//            exit(1);
+
+//        QByteArray byteArray = tmp.readAll();
+//        fake = QString::fromUtf8(byteArray.data());
+
+//    }
+//    return fake;
+
 
     timer t;
     t.start();
@@ -115,19 +128,6 @@ QString MainWindow::getParallelHtml(int normalisedChapter)
 
     return wholeChapter;
 
-    //    static QString fake = 0;
-    //    if(fake == 0)
-    //    {
-    //        QFile tmp("example.html");
-    //        if(!tmp.open(QIODevice::ReadOnly))
-    //            exit(1);
-
-    //        QByteArray byteArray = tmp.readAll();
-    //        fake = QString::fromUtf8(byteArray.data());
-
-    //    }
-    //    cout << "get parallel html " << t << endl;
-    //    return fake;
 
 }
 
@@ -189,21 +189,24 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     frameTop = "<html>"
                "<head>"
-               "<style type=\"text/css\"/>\n";
+               "<style type=\"text/css\">\n";
 
     QFile tmp(":/style/bible.css");
     if(!tmp.open(QIODevice::ReadOnly))
         exit(1);
 
     QByteArray byteArray = tmp.readAll();
+
     frameTop += QString::fromUtf8(byteArray.data());
 
     frameTop += "</style>"
                 "</head>"
-                "<body>";
+                "<body>"
+                "<div>";
 
-    frameBottom = "</body>"
-                  "</html>";
+    frameBottom =  "</div>"
+                   "</body>"
+                   "</html>";
 
     clickListener = new ClickListener();
     scrollListener = new ScrollListener();
@@ -215,19 +218,29 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 bool MainWindow::mustAppend()
 {
-    int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
-    int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
-    int max =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    {
+        int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+        int max =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 
-    return max - value < height;
+        return max - value < height;
+    }
+    else
+        return true;
 }
 
 bool MainWindow::mustPrepend()
 {
-    int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
-    int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    {
+        int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
 
-    return value < height;
+        return value < height;
+    }
+    else
+        return true;
 }
 
 bool MainWindow::validChapter(int proposedChapter)
@@ -281,17 +294,17 @@ bool MainWindow::canUnloadLastChapter()
 
 void MainWindow::unloadFirstChapter()
 {
-        qDebug() << "unloading first";
-        int unloadingHeight = normalisedChapters.first()->height;
-        delete normalisedChapters.first();
-        normalisedChapters.removeFirst();
+    qDebug() << "unloading first";
+    int unloadingHeight = normalisedChapters.first()->height;
+    delete normalisedChapters.first();
+    normalisedChapters.removeFirst();
 
-        int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+    int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
 
-        QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
-        //    qDebug() << html2;
-        webView->setHtml(html2);
-        webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, orig-unloadingHeight);
+    QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
+    //    qDebug() << html2;
+    webView->setHtml(html2);
+    webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, orig-unloadingHeight);
 }
 
 void MainWindow::unloadLastChapter()
@@ -310,8 +323,20 @@ void MainWindow::unloadLastChapter()
 
 int MainWindow::getDocumentHeight()
 {
-   return webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() +
-           webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
+    //    QVariant result =  webView->page()->mainFrame()->evaluateJavaScript("document.getElementById(983).scrollHeight");
+    //    return result.toInt();
+
+//        QVariant result =  webView->page()->mainFrame()->evaluateJavaScript("document.body.firstChild.scrollHeight");
+//        return result.toInt();
+
+    QWebElement documentElement = webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild();
+    //    QString widthProperty = documentElement.styleProperty("scrollHeight",QWebElement::ComputedStyle); //forces stuff to finish see https://bugreports.qt.nokia.com//browse/QTBUG-18034
+    //    qDebug() << "width property" << widthProperty;
+    //    QString heightProperty = documentElement.styleProperty("scrollHeight",QWebElement::ComputedStyle);
+    //    qDebug() << heightProperty;
+    return documentElement.geometry().height();
+    //   return webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() +
+    //           webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 }
 
 void MainWindow::checkCanScroll()
@@ -370,6 +395,7 @@ void MainWindow::append(int normalisedChapter, QString html)
     webView->setHtml(html2);
 
     int newHeight = getDocumentHeight();
+    qDebug() << "height " << newHeight - originalHeight;
 
     chapterInfo->height = newHeight - originalHeight;
 }
@@ -400,6 +426,8 @@ void MainWindow::prepend(int normalisedChapter, QString html)
     int newHeight = getDocumentHeight();
 
     chapterInfo->height = newHeight - originalHeight;
+
+    qDebug() << "height " << newHeight - originalHeight;
 }
 
 void MainWindow::prependChapter()
