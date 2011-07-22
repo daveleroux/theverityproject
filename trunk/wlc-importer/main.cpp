@@ -77,7 +77,47 @@ int main(int argc, char *argv[])
     }
 
     QStringList standardBookNames;
-    standardBookNames << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
+    standardBookNames
+            << QString::fromUtf8("בראשית")         //Genesis
+            << QString::fromUtf8("שמות")           //Exodus
+            << QString::fromUtf8("ויקרא" )         //Lev
+            << QString::fromUtf8("במדבר" )         //Num
+            << QString::fromUtf8("דברים" )         //Deut
+            << QString::fromUtf8("יהושע" )         //Josh
+            << QString::fromUtf8("שופטים")         //Judges
+            << QString::fromUtf8("רות"   )         //Ruth
+            << QString::fromUtf8("שמואל" )         //Samuel
+            << QString::fromUtf8("שמואל" )         //Samuel
+            << QString::fromUtf8("מלכים" )       //kings
+            << QString::fromUtf8("מלכים" )       //kings
+            << QString::fromUtf8("דברי הימים")     //chronicles
+            << QString::fromUtf8("דברי הימים")     //chronicles
+            << QString::fromUtf8("עזרא ונחמיה")    //ezra nehemiah
+            << QString::fromUtf8("עזרא ונחמיה")    //ezra nehemiah
+            << QString::fromUtf8("אסתר"       )    //esther
+            << QString::fromUtf8("איוב"       )    //job
+            << QString::fromUtf8("תהלים"      )    //psalms
+            << QString::fromUtf8("משלי"       )    //proverbs
+            << QString::fromUtf8("קהלת"       )    //Ecclesiastes
+            << QString::fromUtf8("שיר השירים" )    //song of songs
+            << QString::fromUtf8("ישעיה"      )    //isaiah
+            << QString::fromUtf8("ירמיה"      )    //jeremiah
+            << QString::fromUtf8("איכה"       )    //lamentations
+            << QString::fromUtf8("יחזקאל"     )    //ezekiel
+            << QString::fromUtf8("דניאל"      )    //daniel
+            << QString::fromUtf8("הושע"       )    //hosea
+            << QString::fromUtf8("יואל"       )    //joel
+            << QString::fromUtf8("עמוס"       )    //amos
+            << QString::fromUtf8("עובדיה"     )    //obadiah
+            << QString::fromUtf8("יונה"       )    //jonah
+            << QString::fromUtf8("מיכה"       )    //micah
+            << QString::fromUtf8("נחום"       )    //nahum
+            << QString::fromUtf8("חבקוק"      )    //habbakuk
+            << QString::fromUtf8("צפניה"      )    //zephaniah
+            << QString::fromUtf8("חגי"        )    //haggai
+            << QString::fromUtf8("זכריה"      )    //zechariah
+            << QString::fromUtf8("מלאכי"     );    //malachi
+
     //standardBookNames << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
 
     QStringList bookNames;
