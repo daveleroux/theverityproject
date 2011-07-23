@@ -7,12 +7,19 @@
 
 struct VerseReference
 {
+
     int book;
     int chapter;
     int verse;
 
+    QString textIfLucky;
+
     VerseReference();
+
     VerseReference(int book, int chapter, int verse);
+
+    VerseReference(int book, int chapter, int verse, QString textIfLucky);
+
     bool operator<(const VerseReference& rhs) const;    
     bool operator<=(const VerseReference& rhs) const;
     bool operator>(const VerseReference& rhs) const;

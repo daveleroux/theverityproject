@@ -28,7 +28,7 @@ private:
     QSqlQuery query(QString queryString, bool mustCheck=false);
     QSqlQuery queryAndCheck(QString queryString);
 
-    void updateText(QList<Rule*> rules);
+    void updateText(QString text, int bibletextId, QList<Rule*> rules);
 
 
     void updateEsv();

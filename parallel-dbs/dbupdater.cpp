@@ -8,6 +8,9 @@
 #include "offsetrule.h"
 #include "jn1tischrule.h"
 #include "mt12tischrule.h"
+#include "tischheadingsrule.h"
+#include "mt5v4tischrule.h"
+#include "secondco13v13tischrule.h"
 
 DbUpdater::DbUpdater()
 {
@@ -35,29 +38,34 @@ QSqlQuery DbUpdater::query(QString queryString, bool mustCheck)
 
 QSqlQuery DbUpdater::queryAndCheck(QString queryString)
 {
-//    qDebug() << queryString;
+    //    qDebug() << queryString;
     return query(queryString, true);
 }
 
-void DbUpdater::updateText(QList<Rule*> rules) //I'm cheating now I know it's tisch
+void DbUpdater::updateText(QString text, int bibletextId, QList<Rule*> rules)
 {
-    QSqlQuery query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=2 and chapter>0");
+    QSqlQuery query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=" + QString().setNum(bibletextId));
 
-    qDebug() << "got refs from tisch" << " " << QDateTime::currentDateTime().time().toString();
+    qDebug() << "got refs from "<< QString().setNum(bibletextId) << " " << QDateTime::currentDateTime().time().toString();
 
     QMap<VerseReference, int>* syncNumberMap = new QMap<VerseReference, int>();
     QHash<VerseReference, int>* originalSyncMap = new QHash<VerseReference, int>();
 
-    syncNumberMaps.insert(TISCH, syncNumberMap);
-    originalSyncMaps.insert(TISCH, originalSyncMap);
+    syncNumberMaps.insert(text, syncNumberMap);
+    originalSyncMaps.insert(text, originalSyncMap);
 
     while(query.next())
     {
+
         int book = query.value(2).toInt();
         int chapter = query.value(3).toInt();
         int verse = query.value(4).toInt();
 
-        VerseReference verseReference(book, chapter, verse);
+        QString text = query.value(5).toString();
+        if(!text.contains("<bookName>"))
+            text = "";
+
+        VerseReference verseReference(book, chapter, verse, text);
 
         syncNumberMap->insert(verseReference, 0);
 
@@ -65,7 +73,7 @@ void DbUpdater::updateText(QList<Rule*> rules) //I'm cheating now I know it's ti
         originalSyncMap->insert(verseReference, originalSync);
     }
 
-    qDebug() << "updating tisch" << QDateTime::currentDateTime().time().toString();
+    qDebug() << "updating "<< QString().setNum(bibletextId) << QDateTime::currentDateTime().time().toString();
 
     QMapIterator<VerseReference, int> it(*syncNumberMap);
     while (it.hasNext())
@@ -89,10 +97,10 @@ void DbUpdater::updateText(QList<Rule*> rules) //I'm cheating now I know it's ti
 
         if(MUST_PERSIST)
         {
-            if(mustUpdate(TISCH, verseReference, syncNumber))
+            if(mustUpdate(text, verseReference, syncNumber))
             {
                 queryAndCheck("update bibles set parallel=" + QString::number(syncNumber) +
-                              " where bibletext_id=2 and"
+                              " where bibletext_id=" + QString().setNum(bibletextId) + " and"
                               " book_number=" + QString::number(verseReference.book) +
                               " and chapter="+ QString::number(verseReference.chapter) +
                               " and verse=" + QString::number(verseReference.verse));
@@ -100,13 +108,7 @@ void DbUpdater::updateText(QList<Rule*> rules) //I'm cheating now I know it's ti
         }
     }
 
-    qDebug() << "updated " << TISCH << " " << QDateTime::currentDateTime().time().toString();
-
-
-//    query("drop index idx_" + text + "_parallel");
-//    queryAndCheck("create index idx_" + text +"_parallel on " + text + " (parallel)");
-
-
+    qDebug() << "updated " << QString().setNum(bibletextId) << " " << QDateTime::currentDateTime().time().toString();
 }
 
 void DbUpdater::updateWlc()
@@ -376,10 +378,13 @@ void DbUpdater::updateWlc()
 
     rules.append(&OffsetRule(this, WLC, VerseReference(MAL, 3, 19), VerseReference(MAL, 3, 24 ), NET, VerseReference(MAL, 4, 1)));
 
+    TischHeadingsRule tischHeadingsRule(this);
+    rules.append(&tischHeadingsRule);
+
     StandardRule standardRule(this);
     rules.append(&standardRule);
 
-//    updateText(WLC, rules);
+    updateText(WLC, 3, rules);
 }
 
 //void DbUpdater::updateKjv()
@@ -399,13 +404,22 @@ void DbUpdater::updateTisch()
     Jn1TischRule jn1TischRule(this);
     rules.append(&jn1TischRule);
 
-//    Mt12TischRule mt12TischRule(this);
-//    rules.append(&mt12TischRule);
+    //    Mt12TischRule mt12TischRule(this);
+    //    rules.append(&mt12TischRule);
+
+    TischHeadingsRule tischHeadingsRule(this);
+    rules.append(&tischHeadingsRule);
+
+    Mt5v4TischRule mt5v4TischRule(this);
+    rules.append(&mt5v4TischRule);
+
+    SecondCo13v13TischRule secondCo13v13TischRule(this);
+    rules.append(&secondCo13v13TischRule);
 
     StandardRule standardRule(this);
-    rules.append(&standardRule);
+    rules.append(&standardRule);      
 
-    updateText(rules);
+    updateText(TISCH, 2, rules);
 }
 
 bool DbUpdater::mustUpdate(QString text, VerseReference verseReference, int newSync)
@@ -433,7 +447,7 @@ void DbUpdater::update()
     db.transaction();
 
 
-    queryAndCheck("drop index idx_bibles");
+//    query("drop index idx_bibles");
 
     QSqlQuery query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=1");
 
@@ -442,29 +456,48 @@ void DbUpdater::update()
     QMap<VerseReference, int>* netSyncNumberMap = new QMap<VerseReference, int>();
     QHash<VerseReference, int>* originalNetSyncMap = new QHash<VerseReference, int>();
 
-//    highestUnusedSyncNumber = 1;
+    //    highestUnusedSyncNumber = 1;
+
 
     while(query.next())
     {
+
         int book = query.value(2).toInt();
         int chapter = query.value(3).toInt();
         int verse = query.value(4).toInt();
 
+        QString text = query.value(5).toString();
+
         int parallel = query.value(6).toInt();
 
-        VerseReference verseReference(book, chapter, verse);
+        if(chapter==0 && verse==0)
+        {
+            QString standardName = GlobalsHelper::standardNameForBookNumber(book);
+            if(text.contains("<bookName>" + standardName + "</bookName>"))
+            {
+                GlobalsHelper::insertNetBookNumberAndParallel(book, parallel);
+            }
+        }
+
+
+        VerseReference verseReference(book, chapter, verse, text);
 
         netSyncNumberMap->insert(verseReference, parallel);
 
         originalNetSyncMap->insert(verseReference, parallel);
+
+        highestUnusedSyncNumber = parallel;
     }
+
+    highestUnusedSyncNumber++;
 
     syncNumberMaps.insert(NET, netSyncNumberMap);
     originalSyncMaps.insert(NET, originalNetSyncMap);
 
 
-//    updateWlc();
     updateTisch();
+    updateWlc();
+
 
     qDebug() << "finished: " << QDateTime::currentDateTime().time().toString();
 
