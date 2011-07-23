@@ -656,6 +656,11 @@ void doHtm(QString baseBookName, QString chapterFilename)
         wholeFile.replace("<i> </i>", " ");
     }
 
+    if(chapterFilename == "jer32.htm")
+    {
+        wholeFile.replace("<b>32:2 </b>",
+                          "<a name=\"Je 32:2\"></a><span class=\"versenum\">32:2</span> ");
+    }
     if(chapterFilename == "jon2.htm")
     {
         wholeFile.replace("<b>1:17 ",
