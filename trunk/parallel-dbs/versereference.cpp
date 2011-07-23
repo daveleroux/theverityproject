@@ -7,7 +7,15 @@ VerseReference::VerseReference()
 {
     book = 0;
     chapter = 0;
-    verse = 0;
+    verse = 0;   
+}
+
+VerseReference::VerseReference(int book, int chapter, int verse, QString textIfLucky)
+{
+    this->book = book;
+    this->chapter = chapter;
+    this->verse = verse;
+    this->textIfLucky = textIfLucky;
 }
 
 VerseReference::VerseReference(int book, int chapter, int verse)
@@ -25,8 +33,9 @@ QString VerseReference::toString()
     return result;
 }
 
-bool VerseReference::operator<(const VerseReference& rhs) const
+bool VerseReference::operator<(const VerseReference& rhs) const  //will lose paragraph headings and book names, although will be fine if just have book names
 {
+
     QList<int> lhsList;
     lhsList.append(book);
     lhsList.append(chapter);
@@ -50,6 +59,7 @@ bool VerseReference::operator<(const VerseReference& rhs) const
 
     return false;
 }
+
 
 bool VerseReference::operator<=(const VerseReference& rhs) const
 {
