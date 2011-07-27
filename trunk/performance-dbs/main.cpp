@@ -8,38 +8,32 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("bibles.sqlite");
+    db.setDatabaseName("verity.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
         return 1;
     }
 
-    QStringList texts;
-    texts << "esv" << "kjv" << "tisch" << "wlc";
 
     QSqlQuery query;
     query.exec("drop table performance");
 
-    if(!query.exec("create table performance (text varchar(50), normalised_chapter int, min_id int, max_id int)"))
+    if(!query.exec("create table performance (bibletext_id int, normalised_chapter int, min_id int, max_id int)"))
     {
         qDebug() << "failed: " << query.lastError() << endl;
         exit(1);
     }
 
-    for(int i=0; i<texts.size(); i++)
+
+    if(!query.exec("insert into performance select bibletext_id, normalised_chapter, min(id), max(id) from bibles group by normalised_chapter, bibletext_id"))
     {
-        QString text = texts.at(i);
-
-        if(!query.exec("insert into performance select \""+ text +"\", normalised_chapter, min(id), max(id) from "+text+" group by normalised_chapter"))
-        {
-            qDebug() << "failed: " << query.lastError() << endl;
-            exit(1);
-        }
-
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
     }
 
 
+    //query.exec("create index idx_performance on performance (bibletext_id)");
 
     db.commit();
 
