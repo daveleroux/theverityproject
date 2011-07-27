@@ -7,14 +7,11 @@ class SingleTextChapterDisplayer : public ChapterDisplayer
 {
     Q_OBJECT
 
-private:
-    QString getText();
-
 protected:
     ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
 
 public:
-    SingleTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies);
+    SingleTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds);
 };
 
 #endif // SINGLETEXTCHAPTERDISPLAYER_H

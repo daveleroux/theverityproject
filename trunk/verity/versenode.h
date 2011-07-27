@@ -11,7 +11,7 @@ private:
 
 public:
     int parallelId;
-    QList<TextInfo> textInfos;
+    QString xml;
 
     VerseNode* right;
     VerseNode* left;
@@ -19,10 +19,9 @@ public:
     VerseNode* up;
 
     VerseNode();
-    VerseNode(int parallelId);
+    VerseNode(int parallelId, QString xml = "");
     ~VerseNode();
 
-    void addTextInfo(TextInfo textInfo);
     void insertBelowMe(VerseNode* verseNode);
     void setRightOfMe(VerseNode* verseNode);
 };

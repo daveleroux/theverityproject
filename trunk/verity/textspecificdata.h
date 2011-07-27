@@ -8,11 +8,11 @@
 class TextSpecificData
 {
 public:
-    QString text;
+    int bibletextId;
     int minChapter;
     int maxChapter;
     QHash<int, MinAndMaxIds> hash;
-    TextSpecificData(QString text, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash);
+    TextSpecificData(int bibletextId, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash);
 };
 
 #endif // TEXTSPECIFICDATA_H

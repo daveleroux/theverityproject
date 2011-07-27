@@ -38,8 +38,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     if(settings.value(WINDOW_STATE_SETTING, true).toBool())
         setWindowState(Qt::WindowMaximized);
 
-        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
-//    DATA_PATH = ".";
+//        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
+    DATA_PATH = ".";
     qDebug() << "data path:" << DATA_PATH;
 
 
@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     searchBrowser = new SearchBrowser();
     searchResultsDock->setWidget(searchBrowser);
     addDockWidget(Qt::LeftDockWidgetArea, searchResultsDock);
-    connect(searchBrowser, SIGNAL(goToResult(QList<QString>, VerseReference)), browser, SLOT(display(QList<QString>, VerseReference)));
+    connect(searchBrowser, SIGNAL(goToResult(QList<int>, VerseReference)), browser, SLOT(display(QList<int>, VerseReference)));
 //    searchResultsDock->setFloating(true);
 
     QWidget* layoutWidget = new QWidget(dictionaryDock);
@@ -102,17 +102,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     QString activeTexts = settings.value(ACTIVE_TEXTS).toString();
     if (activeTexts.isNull())
     {
-        activeTexts = "esv#tisch";
+        activeTexts = "net#tisch";
     }
     QStringList activeTextList = activeTexts.split("#");
 
     QList<QString> textsAvailable;
-    textsAvailable.append("esv");
-    textsAvailable.append("kjv");
+    textsAvailable.append("net");
     textsAvailable.append("tisch");
     textsAvailable.append("wlc");
-
-
 
 
     QVector<int> *bookChapterRange = new QVector<int>;
@@ -527,13 +524,19 @@ void MainWindow::textToggled(bool checked)
 
     //when you clean your filthy code that uses the caption on the button you can clean this up too.
     QString text = sender->text().mid(1);
+
+    QMap<QString, int> textToBibletextIdMap;
+    textToBibletextIdMap.insert("net", 1);
+    textToBibletextIdMap.insert("tisch", 2);
+    textToBibletextIdMap.insert("wlc", 3);
+
     if(checked)
     {
-        texts.append(text);
+        texts.append(textToBibletextIdMap.value(text));
     }
     else
     {
-        texts.removeAt(texts.indexOf(text));
+        texts.removeOne(textToBibletextIdMap.value(text));
     }
     searchBrowser->setTextsAvaiable(texts);
 
@@ -548,8 +551,6 @@ void MainWindow::afterShown()
 void MainWindow::writeOutSettings()
 {
     browser->writeOutSettings();
-
-    qDebug() << this->browser->chapterDisplayer->getCurrentChapter();
 
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
 
@@ -585,6 +586,19 @@ void MainWindow::performVerseLineEdit()
     else if(term.length() > 0)
     {
         VerseReference verseReference = VerseReferenceParser::parse(term);
+
+//        QMap<QString, int> textToBibletextIdMap;
+//        textToBibletextIdMap.insert("net", 1);
+//        textToBibletextIdMap.insert("tisch", 2);
+//        textToBibletextIdMap.insert("wlc", 3);
+
+//        QList<int> bibletextIds;
+//        QString text;
+//        foreach(text, texts)
+//        {
+//            bibletextIds.append(textToBibletextIdMap.value(text));
+//        }
+
         browser->display(texts, verseReference);
     }
 }

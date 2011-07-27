@@ -2,7 +2,8 @@
 # Project created by QtCreator 2010-03-03T18:41:14
 # -------------------------------------------------
 QT += sql \
-    xmlpatterns
+    xmlpatterns \
+    webkit
 TARGET = verity
 TEMPLATE = app
 SOURCES += main.cpp \
@@ -34,7 +35,9 @@ SOURCES += main.cpp \
     referencefilterproxymodel.cpp \
     minandmaxidsforchapter.cpp \
     searchbrowser.cpp \
-    locationlineedit.cpp
+    locationlineedit.cpp \
+    scrolllistener.cpp \
+    paralleldto.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -64,7 +67,9 @@ HEADERS += mainwindow.h \
     referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
     searchbrowser.h \
-    locationlineedit.h
+    locationlineedit.h \
+    scrolllistener.h \
+    paralleldto.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

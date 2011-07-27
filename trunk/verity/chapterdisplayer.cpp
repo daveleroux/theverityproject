@@ -6,22 +6,85 @@
 #include <QDebug>
 #include <QBrush>
 #include <QThread>
+#include "scrolllistener.h"
+#include "globalvariables.h"
+#include <QFile>
 
-ChapterDisplayer::ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies)
+ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
 {
-    this->textBrowser = textBrowser;
-    this->texts = texts;
-    this->fontFamilies = fontFamilies;
+    this->webView = webView;
+    this->bibletextIds = bibletextIds;
+
+    ignoreScrollEvents = false;
+
+    frameTop = "<html>"
+               "<head>"
+               "<style type=\"text/css\">\n";
+
+    QFile tmp(DATA_PATH + "/bible.css");
+    if(!tmp.open(QIODevice::ReadOnly))
+        exit(1);
+
+    QByteArray byteArray = tmp.readAll();
+
+    frameTop += QString::fromUtf8(byteArray.data());
+
+    tmp.close();
+
+    frameTop += "</style>"
+                "</head>"
+                "<body>"
+                "<div>";
+
+    frameBottom =  "</div>"
+                   "</body>"
+                   "</html>";
+
+    scrollListener = new ScrollListener();
+    connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
+
+        webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+
+
+    connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
+    connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this , SLOT(javaScriptWindowObjectClearedSlot()));
 }
 
-QString ChapterDisplayer::getPrimaryText()
+QString ChapterDisplayer::transformToHtml(QString xml)
 {
-    return texts.at(0);
-}
+    QMap<QString, QString> replaceMap;
 
-QString ChapterDisplayer::getFontFamily(QString text)
-{
-    return fontFamilies.value(text);
+    replaceMap.insert("preferredVerse", "preferredVerse");
+    replaceMap.insert("alternateVerse", "alternateVerse");
+    replaceMap.insert("note", "note");
+    replaceMap.insert("smallCaps", "smallCaps");
+    replaceMap.insert("b", "b");
+    replaceMap.insert("i", "i");
+    replaceMap.insert("hebrew", "hebrew");
+    replaceMap.insert("paragraphTitle", "paragraphTitle");
+    replaceMap.insert("hebrewParagraph", "paragraphTitle");
+    replaceMap.insert("section", "section");
+    replaceMap.insert("psalmSuperscription", "psalmSuperscription");
+    replaceMap.insert("speakerHeading", "speakerHeading");
+    replaceMap.insert("bodyText", "bodyText");
+    replaceMap.insert("poetry", "poetry");
+    replaceMap.insert("bodyBlock", "bodyBlock");
+    replaceMap.insert("blockQuote", "blockQuote");
+    replaceMap.insert("chapter", "chapter");
+    replaceMap.insert("bookName", "bookName");
+    replaceMap.insert("verse", "verse");
+    replaceMap.insert("normalisedChapter", "normalisedChapter");
+    replaceMap.insert("normalisedChapter", "normalisedChapter");
+
+    for(int i=0; i<replaceMap.keys().size(); i++)
+    {
+        QString key = replaceMap.keys().at(i);
+        QString value = replaceMap.value(key);
+
+        xml.replace("<"+key+">", "<span class=\""+value+"\">");
+        xml.replace("</"+key+">", "</span>");
+    }
+    return xml;
 }
 
 void ChapterDisplayer::display(int id, int normalisedChapter)
@@ -32,84 +95,72 @@ void ChapterDisplayer::display(int id, int normalisedChapter)
     }
     chapters.clear();
 
-    int fromPosLocal;
-    int toPosLocal;
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
 
-    ChapterRepresentation* chapterRepresentation = insertFirstChapter(normalisedChapter, id);
+    insertFirstChapter(normalisedChapter, id);
 
-    fromPosLocal = chapterRepresentation->getSelectionStart();
-    toPosLocal = chapterRepresentation->getSelectionEnd();
+    checkCanScroll();
 
-    scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
+    //    scrollToCentre();
 
-    while(mustPrepend())
-    {
-        if(validChapter(getFirstNormChapter()-1))
-        {
-            prependChapter();
-            scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
-        }
-        else
-        {
-            break;
-        }
-    }
+    //    while(mustPrepend())
+    //    {
+    //        if(validChapter(getFirstNormChapter()-1))
+    //        {
+    //            prependChapter();
+    //            scrollToCentre();
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
 
-    while(mustAppend())
-    {
-        if(validChapter(getLastNormChapter()+1))
-        {
-            appendChapter();
-            scrollToCentre(normalisedChapter, fromPosLocal, toPosLocal);
-        }
-        else
-        {
-            break;
-        }
-    }
+    //    while(mustAppend())
+    //    {
+    //        if(validChapter(getLastNormChapter()+1))
+    //        {
+    //            appendChapter();
+    //            scrollToCentre();
+    //        }
+    //        else
+    //        {
+    //            break;
+    //        }
+    //    }
 }
 
-bool ChapterDisplayer::mustAppend(int min, int max, int value, int pageStep)
-{
-    return value >= (max - pageStep);
-}
+//bool ChapterDisplayer::mustAppend(int min, int max, int value, int pageStep)
+//{
+//    return value >= (max - pageStep);
+//}
 
-bool ChapterDisplayer::mustAppend()
-{
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    return mustAppend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-}
+//bool ChapterDisplayer::mustAppend()
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+//    return mustAppend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
+//}
 
 
-bool ChapterDisplayer::mustPrepend(int min, int max, int value, int pageStep)
-{
-    return value <= (min + pageStep);
-}
+//bool ChapterDisplayer::mustPrepend(int min, int max, int value, int pageStep)
+//{
+//    return value <= (min + pageStep);
+//}
 
-bool ChapterDisplayer::mustPrepend()
-{
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    return mustPrepend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-}
+//bool ChapterDisplayer::mustPrepend()
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+//    return mustPrepend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
+//}
 
-void ChapterDisplayer::addChapter(ChapterRepresentation* chapterRepresentation, bool append)
-{
-    chapters.insert(chapterRepresentation->getNormalisedChapter(), chapterRepresentation);
-    QTextCursor textCursor(textBrowser->document());
-
-    if(append)
-        textCursor.movePosition(QTextCursor::End);
-    else
-        textCursor.movePosition(QTextCursor::Start);
-
-    textCursor.insertFragment(chapterRepresentation->getTextDocumentFragment());
-
-    calculateAndSendChapterStarts();
-}
+//void ChapterDisplayer::addChapter(ChapterRepresentation* chapterRepresentation)
+//{
+//    chapters.insert(chapterRepresentation->getNormalisedChapter(), chapterRepresentation);
+//}
 
 bool ChapterDisplayer::validChapter(int proposedChapter)
 {
-    TextSpecificData* textSpecificData = BibleQuerier::getTextSpecificData(getPrimaryText());
+    TextSpecificData* textSpecificData = BibleQuerier::getTextSpecificData(bibletextIds.at(0));
     return proposedChapter <= textSpecificData->maxChapter && proposedChapter >= textSpecificData->minChapter;
 }
 
@@ -127,373 +178,395 @@ int ChapterDisplayer::getLastNormChapter()
 }
 
 
-void ChapterDisplayer::scrollToCentre(int normCh, int fromPosLocal, int toPosLocal)
+void ChapterDisplayer::scrollToCentre()
 {
-    //makes a few assumptions about the scrollbar, doesn't do things proportionately
-
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    if(scrollBar->isVisible())
-    {
-        int fromPos = convertPosToGlobal(normCh, fromPosLocal);
-        QTextCursor fromCursor(textBrowser->document());
-        fromCursor.setPosition(fromPos);
-
-        int toPos = convertPosToGlobal(normCh, toPosLocal);
-        QTextCursor toCursor(textBrowser->document());
-        toCursor.setPosition(toPos);
-
-        QRect fromRect = textBrowser->cursorRect(fromCursor); //viewport co-ords
-        QRect toRect = textBrowser->cursorRect(toCursor); //viewport co-ords
-
-        int y = (fromRect.top() + toRect.bottom())/2;
-
-        scrollBar->setValue(scrollBar->value() + y - textBrowser->viewport()->height()/2);
-    }
 }
 
-int ChapterDisplayer::convertPosToGlobal(int normCh, int localPos)
+QString ChapterDisplayer::getHtmlFromChapterRepresentations()
 {
-    int total = 0;
-    for(int i=0; i<chapters.keys().size(); i++)
+    QString result;
+
+    QMap<int, ChapterRepresentation*>::Iterator it;
+    for(it = chapters.begin(); it != chapters.end(); it++)
     {
-        int key = chapters.keys().at(i);
-        if(key == normCh)
-            return total + localPos;
-
-        ChapterRepresentation* chRep = chapters.value(key);
-
-        total += chRep->lastPosInFragment() + 2;
+        result += it.value()->getHtml();
     }
-    return 0; //throw exception?
+
+    return result;
+}
+
+void ChapterDisplayer::add(ChapterRepresentation* chapterRepresentation)
+{
+    chapters.insert(chapterRepresentation->getNormalisedChapter(), chapterRepresentation);
+
+    int originalHeight = getDocumentHeight();
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
+    int newHeight = getDocumentHeight();
+
+    chapterRepresentation->setHeight(newHeight - originalHeight);
 }
 
 
-void ChapterDisplayer::checkCanScroll()
-{    
-    while(mustPrepend())
-    {
-        if(validChapter(getFirstNormChapter()-1))
-        {
-            int originalHeight = textBrowser->document()->size().height();
-            prependChapter();
-            int newHeight = textBrowser->document()->size().height();
-            scrollDown(newHeight-originalHeight);
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    while(mustAppend())
-    {
-        if(validChapter(getLastNormChapter()+1))
-        {
-            appendChapter();
-
-        }
-        else
-        {
-            break;
-        }
-    }
-
-    while(canUnloadFirstChapter())
-        unloadFirstChapter();
-
-    while(canUnloadLastChapter())
-        unloadLastChapter();
-
-    calculateAndSendChapterStarts();
+void ChapterDisplayer::prependChapter()
+{
+//    qDebug() << "prepending";
+    add(constructChapterRepresentation(getFirstNormChapter()-1));
 }
 
-void ChapterDisplayer::scrollDown(int pixels)
+void ChapterDisplayer::appendChapter()
 {
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    if(scrollBar->isVisible())
-    {
-        scrollBar->setValue(scrollBar->value() + pixels);
-    }
+//    qDebug() << "appending";
+    add(constructChapterRepresentation(getLastNormChapter()+1));
 }
 
-void ChapterDisplayer::scrollUp(int pixels)
+
+bool ChapterDisplayer::mustPrepend()
 {
-    scrollDown(-pixels);
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    {
+        int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+
+        return value < height;
+    }
+    else
+        return true;
 }
 
-int ChapterDisplayer::getCurrentChapter()
+bool ChapterDisplayer::mustAppend()
 {
-    QPoint centre(textBrowser->viewport()->width()/2, textBrowser->viewport()->height()/2);
-    QTextCursor centreCursor = textBrowser->cursorForPosition(centre);
-    int centralPos = centreCursor.position();
-
-    int chContainingCentralPos = 0;
-
-    for(int i=0; i<chapters.values().size(); i++)
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
     {
-        ChapterRepresentation* chRep = chapters.values().at(i);
+        int value =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int height =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+        int max =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 
-        int globalPos = convertPosToGlobal(chRep->getNormalisedChapter(), 0);
-        if(centralPos < globalPos)
-            break;
-
-        chContainingCentralPos = chRep->getNormalisedChapter();
+        return max - value < height;
     }
+    else
+        return true;
+}
 
-    return chContainingCentralPos;
+int ChapterDisplayer::getDocumentHeight()
+{
+    QWebElement documentElement = webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild();
+    return documentElement.geometry().height();
+}
+
+void ChapterDisplayer::scrollTo(int value)
+{
+    webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical, value);
+}
+
+void ChapterDisplayer::unloadFirstChapter()
+{
+//    qDebug() << "unloading first";
+    ChapterRepresentation* chRep = chapters.values().at(0);
+    int unloadingHeight = chRep->getHeight();
+
+    chapters.remove(chRep->getNormalisedChapter());
+    delete chRep;
+
+    int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
+
+    scrollTo(orig-unloadingHeight);
+}
+
+void ChapterDisplayer::unloadLastChapter()
+{
+//    qDebug() << "unloading last";
+
+    ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
+    chapters.remove(chRep->getNormalisedChapter());
+    delete chRep;
+
+    int orig = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
+    scrollTo(orig);
+}
+
+bool ChapterDisplayer::canUnloadFirstChapter()
+{
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    {
+        //fake remove it and see if 'mustPrepend', if so then don't remove it
+
+        int totalDocumentHeight = getDocumentHeight();
+        int firstChapterHeight = chapters.values().at(0)->getHeight();
+
+
+        int scrollbarValueNow =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int scrollbarHeightNow =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+        int scrollbarMaxNow =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
+
+        float ratio = totalDocumentHeight/((float)(scrollbarMaxNow + scrollbarHeightNow));
+
+        return !(ratio*scrollbarValueNow - firstChapterHeight < ratio*scrollbarHeightNow);
+    }
+    return false;
 }
 
 bool ChapterDisplayer::canUnloadLastChapter()
 {
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    if(scrollBar->isVisible())
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
     {
-        int chContainingCentralPos = getCurrentChapter();
+        //fake remove it and see if 'mustAppend', if so then don't remove it
 
-        ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
+        int totalDocumentHeight = getDocumentHeight();
+        int lastChapterHeight = chapters.values().at(chapters.values().size()-1)->getHeight();
 
+        int proposedDocumentHeight = totalDocumentHeight-lastChapterHeight;
 
-        if( chRep->getNormalisedChapter() > chContainingCentralPos + 1 )
-        {
-            //fake remove it and see if 'mustAppend', if so then don't remove it
+        int scrollbarValueNow =  webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+        int scrollbarHeightNow =  webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height();
+        int scrollbarMaxNow =  webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 
-            int firstGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->firstPosInFragment());
+        int proposedMax = ((scrollbarMaxNow+scrollbarHeightNow)*proposedDocumentHeight)/((float)totalDocumentHeight) - scrollbarHeightNow;
 
-            QTextCursor textCursor(textBrowser->document());
-            textCursor.setPosition(firstGlobalPos);
-
-
-            QRect rect = textBrowser->cursorRect(textCursor);//viewport co-ords
-
-            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-            return !mustAppend(scrollBar->minimum(), scrollBar->value()+ rect.top()-scrollBar->pageStep(), scrollBar->value(), scrollBar->pageStep());
-        }
+        return !(proposedMax - scrollbarValueNow < scrollbarHeightNow);
     }
     return false;
 }
 
-
-bool ChapterDisplayer::canUnloadFirstChapter()
+void ChapterDisplayer::printOutHeights(QString toPrint)
 {
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-    if(scrollBar->isVisible())
-    {
-        int chContainingCentralPos = getCurrentChapter();
-
-        ChapterRepresentation* chRep = chapters.values().at(0);
-
-        if(chRep->getNormalisedChapter() < chContainingCentralPos-1)
-        {
-            //fake remove it and see if 'mustPrepend', if so then don't remove it
-
-            int endGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->lastPosInFragment()+2);
-
-            QTextCursor textCursor(textBrowser->document());
-            textCursor.setPosition(endGlobalPos);
-
-            QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
-
-            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-            return !mustPrepend(scrollBar->value() + rect.bottom(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-        }
-    }
-    return false;
-}
-
-void ChapterDisplayer::unloadLastChapter()
-{    
-
-    ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
-
-    QTextCursor textCursor(textBrowser->document());
-
-    textCursor.beginEditBlock();
-
-    //    textCursor.setPosition(textBrowser->document()->lastBlock());
-
-    textCursor.movePosition(QTextCursor::End);
-
-    //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
-    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 3);
-
-    while(textCursor.position() >  startPos)
-    {
-        textCursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
-    }
-
-
-    textCursor.deletePreviousChar();
-
-    textCursor.endEditBlock();
-
-    chapters.remove(chRep->getNormalisedChapter());
-    delete chRep;
-
-    calculateAndSendChapterStarts();
-}
-
-void ChapterDisplayer::unloadFirstChapter()
-{    
-    //qDebug() << textBrowser->document()->findBlock(2).text();
-//    textBrowser->document()->findBlock(2).blockFormat().setForeground(QBrush);
-
-    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-    int originalHeight = textBrowser->document()->size().height();
-    int originalValue = scrollBar->value();
-
-    ChapterRepresentation* chRep = chapters.values().at(0);
-
-    int endPos = chRep->lastPosInFragment()+2;
-
-    QTextCursor textCursor(textBrowser->document());
-
-    textCursor.beginEditBlock();
-
-    textCursor.setPosition(0);
-
-    while(textCursor.position() < endPos )
-    {
-        textCursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
-    }
-    textCursor.deletePreviousChar();
-
-    textCursor.endEditBlock();
-
-    int newHeight = textBrowser->document()->size().height();
-
-    textBrowser->verticalScrollBar()->setValue(originalValue - (originalHeight-newHeight));
-
-    chapters.remove(chRep->getNormalisedChapter());
-    delete chRep;
-
-    calculateAndSendChapterStarts();
-}
-
-QList<int> ChapterDisplayer::chapterStartPositions()
-{
-    QList<int> result;
     for(int i=0; i<chapters.keys().size(); i++)
     {
-        int key = chapters.keys().at(i);
-        result.append(convertPosToGlobal(key, 0));
+        int chapter = chapters.keys().at(i);
+        ChapterRepresentation* c = chapters.value(chapter);
+        toPrint += QString().setNum(chapter) + ": " + QString().setNum(c->getHeight()) + ", ";
     }
-    return result;
+    qDebug() << toPrint;
 }
 
-void ChapterDisplayer::mousePressed(QPoint point)
+void ChapterDisplayer::checkCanScroll()
 {
-    if(chapters.size() > 0)
+    if(!ignoreScrollEvents)
     {
-        QTextCursor textCursor = textBrowser->cursorForPosition(point);
+        ignoreScrollEvents = true;
 
-        int globalPos = textCursor.position();
-        QList<int> startPositions = chapterStartPositions();
-        int index = 0;
-        for(int i=1; i<startPositions.size(); i++)
+//        printOutHeights("start: ");
+
+        while(mustPrepend())
         {
-            if(globalPos < startPositions.at(i))
+            if(validChapter(getFirstNormChapter()-1))
+            {
+                int originalHeight = getDocumentHeight();
+                int originalScrollValue = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+                prependChapter();
+                int newHeight = getDocumentHeight();
+                scrollTo(originalScrollValue + newHeight - originalHeight);
+            }
+            else
+            {
                 break;
-            index = i;
+            }
         }
 
-        int localPos = globalPos - startPositions.at(index);
-
-        ChapterRepresentation* chRep = chapters.values().at(index);
-
-        TextInfo* textInfo = chRep->getTextInfo(localPos);
-        if(textInfo != 0)
+        while(mustAppend())
         {
-            emit wordClicked(textInfo);
-            delete textInfo;
+            if(validChapter(getLastNormChapter()+1))
+            {
+                int originalScrollValue = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+                appendChapter();
+                scrollTo(originalScrollValue);
+            }
+            else
+            {
+                break;
+            }
         }
+
+        while(canUnloadFirstChapter())
+            unloadFirstChapter();
+
+        while(canUnloadLastChapter())
+            unloadLastChapter();
+
+//        printOutHeights("end: ");
+        ignoreScrollEvents = false;
     }
 }
 
-QTextCharFormat ChapterDisplayer::getBoldFormat()
+//void ChapterDisplayer::scrollDown(int pixels)
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+//    if(scrollBar->isVisible())
+//    {
+//        scrollBar->setValue(scrollBar->value() + pixels);
+//    }
+//}
+
+//void ChapterDisplayer::scrollUp(int pixels)
+//{
+//    scrollDown(-pixels);
+//}
+
+
+//bool ChapterDisplayer::canUnloadLastChapter()
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+//    if(scrollBar->isVisible())
+//    {
+//        int chContainingCentralPos = getCurrentChapter();
+
+//        ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
+
+
+//        if( chRep->getNormalisedChapter() > chContainingCentralPos + 1 )
+//        {
+//            //fake remove it and see if 'mustAppend', if so then don't remove it
+
+//            int firstGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->firstPosInFragment());
+
+//            QTextCursor textCursor(textBrowser->document());
+//            textCursor.setPosition(firstGlobalPos);
+
+
+//            QRect rect = textBrowser->cursorRect(textCursor);//viewport co-ords
+
+//            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+
+//            return !mustAppend(scrollBar->minimum(), scrollBar->value()+ rect.top()-scrollBar->pageStep(), scrollBar->value(), scrollBar->pageStep());
+//        }
+//    }
+//    return false;
+//}
+
+
+//bool ChapterDisplayer::canUnloadFirstChapter()
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+//    if(scrollBar->isVisible())
+//    {
+//        int chContainingCentralPos = getCurrentChapter();
+
+//        ChapterRepresentation* chRep = chapters.values().at(0);
+
+//        if(chRep->getNormalisedChapter() < chContainingCentralPos-1)
+//        {
+//            //fake remove it and see if 'mustPrepend', if so then don't remove it
+
+//            int endGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->lastPosInFragment()+2);
+
+//            QTextCursor textCursor(textBrowser->document());
+//            textCursor.setPosition(endGlobalPos);
+
+//            QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
+
+//            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+
+//            return !mustPrepend(scrollBar->value() + rect.bottom(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
+//        }
+//    }
+//    return false;
+//}
+
+//void ChapterDisplayer::unloadLastChapter()
+//{
+
+//    ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
+
+//    QTextCursor textCursor(textBrowser->document());
+
+//    textCursor.beginEditBlock();
+
+//    textCursor.movePosition(QTextCursor::End);
+
+//    //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
+//    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 3);
+
+//    while(textCursor.position() >  startPos)
+//    {
+//        textCursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
+//    }
+
+//    textCursor.deletePreviousChar();
+
+//    textCursor.endEditBlock();
+
+//    chapters.remove(chRep->getNormalisedChapter());
+//    delete chRep;
+
+//    calculateAndSendChapterStarts();
+//}
+
+//void ChapterDisplayer::unloadFirstChapter()
+//{
+//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
+
+//    int originalHeight = textBrowser->document()->size().height();
+//    int originalValue = scrollBar->value();
+
+//    ChapterRepresentation* chRep = chapters.values().at(0);
+
+//    int endPos = chRep->lastPosInFragment()+2;
+
+//    QTextCursor textCursor(textBrowser->document());
+
+//    textCursor.beginEditBlock();
+
+//    textCursor.setPosition(0);
+
+//    while(textCursor.position() < endPos )
+//    {
+//        textCursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
+//    }
+//    textCursor.deletePreviousChar();
+
+//    textCursor.endEditBlock();
+
+//    int newHeight = textBrowser->document()->size().height();
+
+//    textBrowser->verticalScrollBar()->setValue(originalValue - (originalHeight-newHeight));
+
+//    chapters.remove(chRep->getNormalisedChapter());
+//    delete chRep;
+
+//    calculateAndSendChapterStarts();
+//}
+
+
+void ChapterDisplayer::highlight()
 {
-    QTextCharFormat result;
-    result.setFontWeight(QFont::Bold);
-    return result;
 }
 
-QTextCharFormat ChapterDisplayer::getSuperscriptFormat()
+void ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
 {
-    QTextCharFormat result;
-    result.setForeground(QBrush(Qt::red));
-    result.setVerticalAlignment(QTextCharFormat::AlignSuperScript);
-    return result;
+    add(constructChapterRepresentation(normalisedChapter, idLocation));
 }
 
-QTextCharFormat ChapterDisplayer::getDefaultFormat(QString text)
+//ChapterRepresentation* ChapterDisplayer::appendChapter()
+//{
+//    ChapterRepresentation* chapter =  constructChapterRepresentation(getLastNormChapter()+1);
+//    addChapter(chapter, true);
+//    return chapter;
+//}
+
+//ChapterRepresentation* ChapterDisplayer::prependChapter()
+//{
+//    ChapterRepresentation* chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
+//    addChapter(chapter, false);
+//    return chapter;
+//}
+
+void ChapterDisplayer::scrolled()
 {
-    QTextCharFormat result;
-    result.setFontFamily(getFontFamily(text));
-    return result;
+    checkCanScroll();
 }
 
-void ChapterDisplayer::highlight(int startPos, int endPos)
+void ChapterDisplayer::javaScriptWindowObjectClearedSlot()
 {
-//    QTextCursor cursor(textBrowser->document());
-//     cursor.setPosition(startPos);
-//     QTextCharFormat format = cursor.charFormat();  //getDefaultFormat(getPrimaryText());
-//
-//     bool haveSetFormat = false;
-//     while(cursor.position() <  endPos)
-//     {
-//         cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
-//         if(!haveSetFormat)
-//         {
-//             haveSetFormat = true;
-//             format = cursor.charFormat();
-//         }
-//     }
-//
-//
-//     format.setBackground(QBrush(Qt::lightGray));
-//
-//     cursor.setCharFormat(format);
+    webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+    webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
+    webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
+
 }
 
-ChapterRepresentation* ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
+void ChapterDisplayer::loadFinished(bool b)
 {
-    ChapterRepresentation* chapter =  constructChapterRepresentation(normalisedChapter, idLocation);
-    addChapter(chapter, true);
-
-    highlight(chapter->getSelectionStart(), chapter->getSelectionEnd());
-
-    return chapter;
 }
 
-ChapterRepresentation* ChapterDisplayer::appendChapter()
-{
-    ChapterRepresentation* chapter =  constructChapterRepresentation(getLastNormChapter()+1);
-    addChapter(chapter, true);
-    return chapter;
-}
-
-ChapterRepresentation* ChapterDisplayer::prependChapter()
-{
-    ChapterRepresentation* chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
-    addChapter(chapter, false);
-    return chapter;
-}
-
-void ChapterDisplayer::calculateAndSendChapterStarts()
-{
-    QList<int> chStartPositions = chapterStartPositions();
-    QList<int> chStartPixels;
-    for(int i=0; i<chStartPositions.size(); i++)
-    {
-        QTextCursor textCursor(textBrowser->document());
-        textCursor.setPosition(chStartPositions.at(i));
-        QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
-
-        chStartPixels.append(textBrowser->verticalScrollBar()->value()+rect.top());
-    }
-
-    emit chapterStarts(chStartPixels);
-}
 

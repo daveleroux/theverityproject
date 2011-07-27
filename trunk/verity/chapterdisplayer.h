@@ -4,75 +4,68 @@
 #include <QTextBrowser>
 #include "chapterrepresentation.h"
 #include "textinfo.h"
+#include <QtWebKit/QWebView>
+#include <QtWebKit/QWebFrame>
+#include <QWebElement>
+#include "scrolllistener.h"
 
 class ChapterDisplayer : public QObject
 {
     Q_OBJECT
 
 protected:
-    QTextBrowser* textBrowser;
-    QList<QString> texts;
+    QWebView* webView;
+    QList<int> bibletextIds;
+
+    QString frameTop;
+    QString frameBottom;
 
     QMap<int, ChapterRepresentation*> chapters;
-    QMap<QString, QString> fontFamilies;
 
-    void scrollToCentre(int normCh, int fromPosLocal, int toPosLocal);
-    int convertPosToGlobal(int normCh, int localPos);
-
-    ChapterRepresentation* insertFirstChapter(int normalisedChapter, int idLocation);
-    ChapterRepresentation* appendChapter();
-    ChapterRepresentation* prependChapter();
+    ScrollListener* scrollListener;
 
     virtual ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
 
-    void addChapter(ChapterRepresentation* chapterRepresentation, bool append);
-
-    bool mustAppend(int min, int max, int value, int pageStep);
-    bool mustAppend();
-    bool mustPrepend(int min, int max, int value, int pageStep);
-    bool mustPrepend();
-
-    int getFirstNormChapter();
-    int getLastNormChapter();
-
-    QString getPrimaryText();
-
-
-    void scrollDown(int pixels);
-    void scrollUp(int pixels);
-
-    bool canUnloadLastChapter();
-    bool canUnloadFirstChapter();
-
-    int getCurrentChapter();
-
-    void unloadLastChapter();
-    void unloadFirstChapter();
-
-    void calculateAndSendChapterStarts();
-
-
-    QList<int> chapterStartPositions();
 
     bool validChapter(int proposedChapter);
+    int getFirstNormChapter();
+    int getLastNormChapter();
+    void scrollToCentre();
+    QString getHtmlFromChapterRepresentations();
+    void add(ChapterRepresentation* chapterRepresentation);
+    void prependChapter();
+    void appendChapter();
+    bool mustPrepend();
+    bool mustAppend();
+    int getDocumentHeight();
+    void unloadFirstChapter();
+    void unloadLastChapter();
+    bool canUnloadFirstChapter();
+    bool canUnloadLastChapter();
+    void highlight();
+    void insertFirstChapter(int normalisedChapter, int idLocation);
+    void scrollTo(int value);
 
-    QTextCharFormat getSuperscriptFormat();
-    QTextCharFormat getDefaultFormat(QString text);
-    QTextCharFormat getBoldFormat();
+    void printOutHeights(QString toPrint);
 
-    void highlight(int startPos, int endPos);
 
-    QString getFontFamily(QString text);
+    QString transformToHtml(QString xml);
+
+    bool ignoreScrollEvents;
+
 
 public:
-    ChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies);
+    ChapterDisplayer(QWebView* webView, QList<int> bibleTextIds);
     void display(int id, int normalisedChapter);
-    void mousePressed(QPoint point);
     void checkCanScroll();
 
+public slots:
+    void scrolled();
+    void loadFinished(bool b);
+    void javaScriptWindowObjectClearedSlot();
+
 signals:
-    void wordClicked(TextInfo*);
-    void chapterStarts(QList<int>);
-};
+            //    void wordClicked(TextInfo*);
+        };
 
 #endif // CHAPTERDISPLAYER_H

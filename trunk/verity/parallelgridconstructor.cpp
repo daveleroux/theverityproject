@@ -3,34 +3,34 @@
 #include <QList>
 #include <QDebug>
 
-VerseNode* ParallelGridConstructor::constructChain(QList<TextInfo> textInfos)
-{
-    if(textInfos.size() > 0)
-    {
-        VerseNode* result = new VerseNode();
-        VerseNode* current = new VerseNode(textInfos.at(0).parallel);;
-        result->insertBelowMe(current);
+//VerseNode* ParallelGridConstructor::constructChain(QList<TextInfo> textInfos)
+//{
+//    if(textInfos.size() > 0)
+//    {
+//        VerseNode* result = new VerseNode();
+//        VerseNode* current = new VerseNode(textInfos.at(0).parallel);;
+//        result->insertBelowMe(current);
 
-        TextInfo value;
-        foreach (value, textInfos)
-        {
-            if(value.parallel == current->parallelId)
-            {
-                current->addTextInfo(value);
-            }
-            else
-            {
-                VerseNode* nextVerseNode = new VerseNode(value.parallel);
-                nextVerseNode->addTextInfo(value);
-                current->insertBelowMe(nextVerseNode);
-                current = nextVerseNode;
-            }
-        }
-        return result;
-    }
+//        TextInfo value;
+//        foreach (value, textInfos)
+//        {
+//            if(value.parallel == current->parallelId)
+//            {
+//                current->addTextInfo(value);
+//            }
+//            else
+//            {
+//                VerseNode* nextVerseNode = new VerseNode(value.parallel);
+//                nextVerseNode->addTextInfo(value);
+//                current->insertBelowMe(nextVerseNode);
+//                current = nextVerseNode;
+//            }
+//        }
+//        return result;
+//    }
 
-    return new VerseNode();
-}
+//    return new VerseNode();
+//}
 
 VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
 {

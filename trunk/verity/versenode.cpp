@@ -14,16 +14,14 @@ VerseNode::VerseNode()
     init();
 }
 
-VerseNode::VerseNode(int parallelId)
+
+VerseNode::VerseNode(int parallelId, QString xml)
 {
     init();
     this->parallelId = parallelId;
+    this->xml = xml;
 }
 
-void VerseNode::addTextInfo(TextInfo textInfo)
-{
-    textInfos.append(textInfo);
-}
 
 void VerseNode::insertBelowMe(VerseNode* toInsertNode)
 {

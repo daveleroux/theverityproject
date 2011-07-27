@@ -5,62 +5,31 @@ ChapterRepresentation::ChapterRepresentation()
 {
 }
 
-ChapterRepresentation::ChapterRepresentation(QString text,
-                                             int normalisedChapter,
-                                             QTextDocumentFragment textDocumentFragment,
-                                             QMap<BaseTextUnit, TextInfo> textUnits,
-                                             int selectionStart,
-                                             int selectionEnd)
+ChapterRepresentation::ChapterRepresentation(int normalisedChapter,
+                                             QString html)
 {
-    this->text = text;
     this->normalisedChapter = normalisedChapter;
-    this->textDocumentFragment = textDocumentFragment;
-    this->textUnits = textUnits;
-    this->selectionStart = selectionStart;
-    this->selectionEnd = selectionEnd;
+    this->html = html;
+    this->height = 0;
 }
 
-int ChapterRepresentation::lastPosInFragment()
-{
-    QMap<BaseTextUnit, TextInfo>::iterator it = textUnits.end();
-    it--;
-    BaseTextUnit finalTextUnit = it.key();
-    return finalTextUnit.end;
-}
-
-int ChapterRepresentation::firstPosInFragment() //is this always 0?
-{
-    QMap<BaseTextUnit, TextInfo>::iterator it = textUnits.begin();
-    BaseTextUnit firstTextUnit = it.key();
-    return firstTextUnit.start;
-}
 
 int ChapterRepresentation::getNormalisedChapter()
 {
     return normalisedChapter;
 }
 
-int ChapterRepresentation::getSelectionStart()
+void ChapterRepresentation::setHeight(int height)
 {
-    return selectionStart;
+    this->height = height;
 }
 
-int ChapterRepresentation::getSelectionEnd()
+int ChapterRepresentation::getHeight()
 {
-    return selectionEnd;
+    return height;
 }
 
-QTextDocumentFragment ChapterRepresentation::getTextDocumentFragment()
+QString ChapterRepresentation::getHtml()
 {
-    return textDocumentFragment;
-}
-
-TextInfo* ChapterRepresentation::getTextInfo(int localPos)
-{
-    BaseTextUnit key(localPos, localPos);
-    if(textUnits.contains(key))
-    {
-        return new TextInfo(textUnits.value(key));
-    }
-    return 0;
+    return html;
 }
