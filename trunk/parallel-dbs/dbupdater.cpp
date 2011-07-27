@@ -9,6 +9,7 @@
 #include "jn1tischrule.h"
 #include "mt12tischrule.h"
 #include "tischheadingsrule.h"
+#include "wlcheadingsrule.h"
 #include "mt5v4tischrule.h"
 #include "secondco13v13tischrule.h"
 
@@ -114,6 +115,9 @@ void DbUpdater::updateText(QString text, int bibletextId, QList<Rule*> rules)
 void DbUpdater::updateWlc()
 {
     QList<Rule*> rules;
+
+    WlcHeadingsRule wlcHeadingsRule(this);
+    rules.append(&wlcHeadingsRule);
 
     Gen32WlcRule gen32WlcRule(this);
     rules.append(&gen32WlcRule);
@@ -378,8 +382,6 @@ void DbUpdater::updateWlc()
 
     rules.append(&OffsetRule(this, WLC, VerseReference(MAL, 3, 19), VerseReference(MAL, 3, 24 ), NET, VerseReference(MAL, 4, 1)));
 
-    TischHeadingsRule tischHeadingsRule(this);
-    rules.append(&tischHeadingsRule);
 
     StandardRule standardRule(this);
     rules.append(&standardRule);
@@ -401,14 +403,14 @@ void DbUpdater::updateTisch()
 {
     QList<Rule*> rules;
 
+    TischHeadingsRule tischHeadingsRule(this);
+    rules.append(&tischHeadingsRule);
+
     Jn1TischRule jn1TischRule(this);
     rules.append(&jn1TischRule);
 
     //    Mt12TischRule mt12TischRule(this);
     //    rules.append(&mt12TischRule);
-
-    TischHeadingsRule tischHeadingsRule(this);
-    rules.append(&tischHeadingsRule);
 
     Mt5v4TischRule mt5v4TischRule(this);
     rules.append(&mt5v4TischRule);
@@ -432,6 +434,8 @@ bool DbUpdater::mustUpdate(QString text, VerseReference verseReference, int newS
 
 void DbUpdater::update()
 {
+
+
     MUST_PERSIST = true;
 
     queryCount = 0;
@@ -446,10 +450,41 @@ void DbUpdater::update()
 
     db.transaction();
 
+    QSqlQuery query;
 
-//    query("drop index idx_bibles");
+//CHEAT
 
-    QSqlQuery query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=1");
+//    query = queryAndCheck("select id, parallel from parallel_backup");
+
+//    int count = 0;
+
+//    while(query.next())
+//    {
+//      int id = query.value(0).toInt();
+//      int parallel = query.value(1).toInt();
+
+//      queryAndCheck("update bibles set parallel=" + QString::number(parallel) +
+//                    " where id=" + QString().setNum(id));
+
+//      count++;
+//      if(count%5000 == 0)
+//      {
+//          db.commit();
+//          db.transaction();
+//      }
+//    }
+
+//    db.commit();
+//    db.close();
+
+//    return;
+
+//END CHEAT
+
+
+    queryAndCheck("drop index idx_bibles");
+
+    query = queryAndCheck("select id, bibletext_id, book_number, chapter, verse, text, parallel from bibles where bibletext_id=1");
 
     qDebug() << "got refs from net" << QDateTime::currentDateTime().time().toString();
 
