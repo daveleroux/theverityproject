@@ -1,40 +1,24 @@
 #ifndef CHAPTERREPRESENTATION_H
 #define CHAPTERREPRESENTATION_H
 
-#include <QTextDocumentFragment>
-#include <QMap>
-#include "basetextunit.h"
-#include "textinfo.h"
+#include <QString>
 
 class ChapterRepresentation
 {
 protected:
     int normalisedChapter;
-    QTextDocumentFragment textDocumentFragment;
-    QMap<BaseTextUnit, TextInfo> textUnits;
-
-    int selectionStart;
-    int selectionEnd;
-
-    QString text;
+    QString html;
+    int height;
 
 public:
     ChapterRepresentation();
-    ChapterRepresentation(QString text,
-                          int normalisedChapter,
-                          QTextDocumentFragment textDocumentFragment,
-                          QMap<BaseTextUnit, TextInfo> textUnits,
-                          int selectionStart,
-                          int selectionEnd);
-    int lastPosInFragment();
-    int firstPosInFragment();
+    ChapterRepresentation(int normalisedChapter,
+                          QString html);
 
     int getNormalisedChapter();
-    int getSelectionStart();
-    int getSelectionEnd();
-    QTextDocumentFragment getTextDocumentFragment();
-
-    TextInfo* getTextInfo(int localPos);
+    void setHeight(int height);
+    QString getHtml();
+    int getHeight();
 };
 
 #endif // CHAPTERREPRESENTATION_H

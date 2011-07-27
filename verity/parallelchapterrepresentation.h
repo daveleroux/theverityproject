@@ -2,25 +2,22 @@
 #define PARALLELCHAPTERREPRESENTATION_H
 
 #include "chapterrepresentation.h"
+#include <QMap>
 
 class ParallelChapterRepresentation : public ChapterRepresentation
 {
 protected:
-    QMap<QString, int> firstIdsMap;
-    QMap<QString, int> lastIdsMap;
+    QMap<int, int> firstIdsMap;
+    QMap<int, int> lastIdsMap;
 
 public:
-    ParallelChapterRepresentation(QString text,
-                                  int normalisedChapter,
-                                  QTextDocumentFragment textDocumentFragment,
-                                  QMap<BaseTextUnit, TextInfo> textUnits,
-                                  int selectionStart,
-                                  int selectionEnd,
-                                  QMap<QString, int> firstIdsMap,
-                                  QMap<QString, int> lastIdsMap);
+    ParallelChapterRepresentation(int normalisedChapter,
+                                  QString html,
+                                  QMap<int, int> firstIdsMap,
+                                  QMap<int, int> lastIdsMap);
 
-    int getFirstIdForText(QString text);
-    int getLastIdForText(QString text);
+    QMap<int, int> getIdsToIncludeIfPrepending();
+    QMap<int, int> getIdsToIncludeIfAppending();
 };
 
 #endif // PARALLELCHAPTERREPRESENTATION_H

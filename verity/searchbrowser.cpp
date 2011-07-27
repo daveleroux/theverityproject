@@ -43,7 +43,7 @@ void SearchBrowser::anchorClickedSlot(QUrl url)
 //    return this->toHtml();
 }
 
-void SearchBrowser::setTextsAvaiable(QList<QString> txts)
+void SearchBrowser::setTextsAvaiable(QList<int> txts)
 {
     this->textsAvailable = txts;
 }

@@ -32,7 +32,7 @@ protected:
     LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
-    QList<QString> texts;
+    QList<int> texts;
 
     void closeEvent(QCloseEvent *event);
     void writeOutSettings();

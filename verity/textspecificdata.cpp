@@ -2,9 +2,9 @@
 
 #include <QString>
 
-TextSpecificData::TextSpecificData(QString text, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash)
+TextSpecificData::TextSpecificData(int bibletextId, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash)
 {
-    this->text = text;
+    this->bibletextId = bibletextId;
     this->minChapter = minChapter;
     this->maxChapter = maxChapter;
     this->hash = hash;

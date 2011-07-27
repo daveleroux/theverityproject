@@ -1,30 +1,32 @@
 #include "parallelchapterrepresentation.h"
 
-ParallelChapterRepresentation::ParallelChapterRepresentation(QString text,
-                                                             int normalisedChapter,
-                                                             QTextDocumentFragment textDocumentFragment,
-                                                             QMap<BaseTextUnit, TextInfo> textUnits,
-                                                             int selectionStart,
-                                                             int selectionEnd,
-                                                             QMap<QString, int> firstIdsMap,
-                                                             QMap<QString, int> lastIdsMap) : ChapterRepresentation(text,
-                                                                                                       normalisedChapter,
-                                                                                                       textDocumentFragment,
-                                                                                                       textUnits,
-                                                                                                       selectionStart,
-                                                                                                       selectionEnd)
+ParallelChapterRepresentation::ParallelChapterRepresentation(int normalisedChapter,
+                                                             QString html,
+                                                             QMap<int, int> firstIdsMap,
+                                                             QMap<int, int> lastIdsMap) : ChapterRepresentation(normalisedChapter,
+                                                                                                                html)
 {
     this->firstIdsMap = firstIdsMap;
     this->lastIdsMap = lastIdsMap;
 }
 
-int ParallelChapterRepresentation::getFirstIdForText(QString text)
+QMap<int, int> ParallelChapterRepresentation::getIdsToIncludeIfPrepending()
 {
-    return firstIdsMap.value(text);
+    QMap<int, int> result = firstIdsMap;
+    foreach (int bibletextId, result.keys())
+    {
+        result.insert(bibletextId, result.value(bibletextId)-1);
+    }
+    return result;
 }
 
-int ParallelChapterRepresentation::getLastIdForText(QString text)
+QMap<int, int> ParallelChapterRepresentation::getIdsToIncludeIfAppending()
 {
-    return lastIdsMap.value(text);
+    QMap<int, int> result = lastIdsMap;
+    foreach (int bibletextId, result.keys())
+    {
+        result.insert(bibletextId, result.value(bibletextId)+1);
+    }
+    return result;
 }
 

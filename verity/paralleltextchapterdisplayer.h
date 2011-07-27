@@ -13,7 +13,7 @@ protected:
     QSet<int> extractParallelIds(QList<TextInfo> textInfos);
 
 public:
-    ParallelTextChapterDisplayer(QTextBrowser* textBrowser, QList<QString> texts, QMap<QString, QString> fontFamilies);
+    ParallelTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds);
 };
 
 #endif // PARALLELTEXTCHAPTERDISPLAYER_H

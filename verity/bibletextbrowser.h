@@ -7,52 +7,33 @@
 #include "basetextunit.h"
 #include "textinfo.h"
 #include "versereference.h"
-#include "documentrepresentation.h"
-#include "qsnapscrollbar.h"
 #include "chapterdisplayer.h"
+#include <QtWebKit/QWebView>
+#include <QtWebKit/QWebFrame>
+#include <QWebElement>
 
-class BibleTextBrowser : public QTextBrowser
+class BibleTextBrowser : public QWebView
 {
     Q_OBJECT
 
 private:
-    QMap<QString, QString> fontFamilies;
     ChapterDisplayer* chapterDisplayer;
-    bool sliderBeingPressed;
-    bool ignoreSliderValueChanges;
-    bool resizing;
 
 public:
     BibleTextBrowser();
-
-
     void writeOutSettings();
 
 protected:
 
-    void display(QList<QString> texts, int idLocation, int normalisedChapterLocaction);
-
-    QSnapScrollBar* markedScrollBar;
-
-    void mouseMoveEvent (QMouseEvent* e);
-    void mousePressEvent (QMouseEvent* e);
-    void resizeEvent (QResizeEvent* event);
-
-
-//    void wheelEvent ( QWheelEvent * e );
-    QMimeData* createMimeDataFromSelection() const;
+    void display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocaction);
+//    QMimeData* createMimeDataFromSelection() const;
 
 public slots:
-    void tmp(QList<int>);
-    void scrollbarValueChanged(int);
-    void scrollbarSliderPressed();
-    void scrollbarSliderReleased();
-    void display(QList<QString> texts, VerseReference verseReference);
+    void display(QList<int> bibletextIds, VerseReference verseReference);
 
 signals:
     void wordClicked(TextInfo*);
-    void chapterStarts(QList<int>);
-    void checkCanScrollSignal(int v);
+//    void checkCanScrollSignal(int v);
 };
 
 #endif // BIBLETEXTBROWSER_H

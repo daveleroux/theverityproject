@@ -11,16 +11,16 @@ class SearchBrowser : public QTextBrowser
 public:
     SearchBrowser(QWidget* parent=0);
     void performSearch(QString);
-    void setTextsAvaiable(QList<QString>);
+    void setTextsAvaiable(QList<int>);
 
 private:
-    QList<QString> textsAvailable;
+    QList<int> textsAvailable;
 
 //protected:
 //    QVariant loadResource(int type, const QUrl& name);
 
 signals:
-    void goToResult(QList<QString>, VerseReference);
+    void goToResult(QList<int>, VerseReference);
 
 public slots:
     void anchorClickedSlot(QUrl url);

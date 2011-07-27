@@ -7,7 +7,7 @@
 class ParallelGridConstructor
 {
 public:
-    static VerseNode* constructChain(QList<TextInfo> textInfos);
+//    static VerseNode* constructChain(QList<TextInfo> textInfos);
     static VerseNode* constructGrid(QList<VerseNode*> chainHeads);
 };
 
