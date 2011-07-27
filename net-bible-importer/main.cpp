@@ -565,6 +565,8 @@ void doHtm(QString baseBookName, QString chapterFilename)
 
     QString wholeFile = QString::fromUtf8(byteArray.data());
 
+    wholeFile.replace("<b><i> </i></b>", " ");
+
     if(chapterFilename == "gen50.htm")
     {
         wholeFile.replace("<i> </i>", " ");
@@ -799,12 +801,13 @@ int main(int argc, char *argv[])
     QSqlQuery query(db);
 
     query.exec("drop table bibles");
+
     if(!query.exec("create table bibles (id integer primary key autoincrement, "
                    "bibletext_id int, "
                    "book_number int, normalised_chapter integer, chapter integer, "
                    "verse integer, text varchar(5000), parallel int)"))
     {
-        qDebug() << "failed: " << query.lastError() << endl;
+        qDebug() << "failed: "<< query.lastError()  << endl;
         exit(1);
     }
 
