@@ -340,8 +340,7 @@ int MainWindow::getDocumentHeight()
 }
 
 void MainWindow::checkCanScroll()
-{
-    //    qDebug() << "check can scroll";
+{        
     while(mustPrepend())
     {
         if(validChapter(normalisedChapters.first()->normalisedChapter-1))
@@ -387,15 +386,11 @@ void MainWindow::append(int normalisedChapter, QString html)
     ChapterInfo* chapterInfo = new ChapterInfo(normalisedChapter, 0, html);
     normalisedChapters.append(chapterInfo);
 
-
     int originalHeight = getDocumentHeight();
 
-    QString html2 = frameTop + getHtmlFromChapterInfos() + frameBottom;
-    //    qDebug() << html2;
-    webView->setHtml(html2);
+    webView->setHtml(frameTop + getHtmlFromChapterInfos() + frameBottom);
 
     int newHeight = getDocumentHeight();
-    qDebug() << "height " << newHeight - originalHeight;
 
     chapterInfo->height = newHeight - originalHeight;
 }
