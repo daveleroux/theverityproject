@@ -217,6 +217,7 @@ int main(int argc, char *argv[])
                 place = chunk.appendChild(chunk.createElement("chunk"));
                 place = place.appendChild(chunk.createElement("preferredVerse"));
                 place = place.appendChild(chunk.createElement("bodyText"));
+                place = place.appendChild(chunk.createElement("hebrew"));
 
 
                 if(k==0)
