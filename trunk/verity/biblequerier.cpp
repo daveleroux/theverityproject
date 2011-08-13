@@ -94,7 +94,25 @@ TextSpecificData* BibleQuerier::__getTextSpecificData(int bibletextId)
     //        exit(1);
     //    }
 
-    return new TextSpecificData(bibletextId, minChapter, maxChapter, minAndMaxChapterHash);
+    if(!query.exec("select rtl from bible_metadata where bibletext_id=" + QString().setNum(bibletextId)))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    bool rtl = false;
+
+    if(query.next())
+    {
+        rtl = query.value(0).toBool();
+    }
+    else
+    {
+        qDebug() << "could not find rtl" << endl;
+        exit(1);
+    }
+
+    return new TextSpecificData(bibletextId, minChapter, maxChapter, minAndMaxChapterHash, rtl);
 }
 
 TextSpecificData* BibleQuerier::_getTextSpecificData(int bibletextId)
@@ -212,7 +230,7 @@ VerseNode* BibleQuerier::_readInChapterDataForParallelText(int bibletextId, QSet
     return new VerseNode();
 }
 
-QString BibleQuerier::_constructXml(VerseNode* grid)
+QString BibleQuerier::_constructXml(QList<int> bibletextIds, VerseNode* grid)
 {
     QString wholeChapter = "<normalisedChapter>";
     wholeChapter += "<table>";
@@ -225,14 +243,26 @@ QString BibleQuerier::_constructXml(VerseNode* grid)
 
         wholeChapter += "<tr>";
 
+        int index = 0;
+
         while(cell != 0)
         {
+            bool rtl = _getTextSpecificData(bibletextIds.at(index))->rtl;
 
             wholeChapter += "<td>";
+
+            if(rtl)
+                wholeChapter += "<rtl>";
+
             wholeChapter += cell->xml;
+
+            if(rtl)
+                wholeChapter += "</rtl>";
+
             wholeChapter += "</td>";
 
             cell = cell->right;
+            index++;
         }
 
         wholeChapter += "</tr>";
@@ -274,7 +304,7 @@ ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletex
             chainHeads.append(_readInChapterDataForParallelText(bibletextId, parallelIds, idsToInclude.value(bibletextId), firstIdsMap, lastIdsMap));
         }
 
-        QString xml = _constructXml(ParallelGridConstructor::constructGrid(chainHeads));
+        QString xml = _constructXml(bibletextIds, ParallelGridConstructor::constructGrid(chainHeads));
 
         VerseNode* value;
         foreach(value, chainHeads)
@@ -428,7 +458,7 @@ ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletex
 //    return textInfos;
 //}
 
-QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo)
+QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rtl)
 {
     QSqlQuery query;
     query.setForwardOnly(true);
@@ -444,11 +474,15 @@ QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo)
     }
 
     QString result = "<normalisedChapter>";
+    if(rtl)
+        result += "<rtl>";
     while(query.next())
     {
         QString text = query.value(0).toString();
         result += text;
     }
+    if(rtl)
+        result += "</rtl>";
     result += "</normalisedChapter>";
 
     return result;
@@ -464,7 +498,7 @@ QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter)
 
     if(min > 0 && max > 0)
     {
-        return readInBible(bibletextId, min, max);
+        return readInBible(bibletextId, min, max, textSpecificData->rtl);
     }
 
     return "";

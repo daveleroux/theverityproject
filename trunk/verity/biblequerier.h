@@ -34,14 +34,14 @@ private:
     VerseNode* _readInChapterDataForParallelText(int bibletextId, QSet<int>& parallelIds, int idToInclude, QMap<int, int>& firstIdsMap, QMap<int, int>& lastIdsMap);
     VerseNode* _readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds);
 
-    QString _constructXml(VerseNode* grid);
+    QString _constructXml(QList<int> bibletextIds, VerseNode* grid);
 
     QStringList _search(QString searchTerms);
 
     QString asString(QList<int> list);
 
 //    QList<TextInfo> readInTisch(int idFrom, int idTo); //must clean up
-    QString readInBible(int bibletextId, int idFrom, int idTo);
+    QString readInBible(int bibletextId, int idFrom, int idTo, bool rtl);
 //    QList<TextInfo> readInWlc(int idFrom, int idTo); //must clean up
 
 

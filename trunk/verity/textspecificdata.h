@@ -12,7 +12,8 @@ public:
     int minChapter;
     int maxChapter;
     QHash<int, MinAndMaxIds> hash;
-    TextSpecificData(int bibletextId, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash);
+    bool rtl;
+    TextSpecificData(int bibletextId, int minChapter, int maxChapter, QHash<int, MinAndMaxIds> hash, bool rtl);
 };
 
 #endif // TEXTSPECIFICDATA_H
