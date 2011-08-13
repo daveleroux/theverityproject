@@ -41,13 +41,22 @@ ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
                    "</html>";
 
     scrollListener = new ScrollListener();
+    javascriptClickListener = new JavascriptClickListener();
+
     connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
 
         webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+        webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
 
 
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
     connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this , SLOT(javaScriptWindowObjectClearedSlot()));
+}
+
+ChapterDisplayer::~ChapterDisplayer()
+{
+    delete scrollListener;
+    delete javascriptClickListener;
 }
 
 QString ChapterDisplayer::transformToHtml(QString xml)
@@ -86,6 +95,9 @@ QString ChapterDisplayer::transformToHtml(QString xml)
         xml.replace("<"+key+">", "<span class=\""+value+"\">");
         xml.replace("</"+key+">", "</span>");
     }
+
+    xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
+
     return xml;
 }
 
@@ -565,6 +577,7 @@ void ChapterDisplayer::javaScriptWindowObjectClearedSlot()
     webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
     webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
 
+    webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
 }
 
 void ChapterDisplayer::loadFinished(bool b)

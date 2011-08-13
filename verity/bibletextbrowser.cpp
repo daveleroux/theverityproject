@@ -53,6 +53,7 @@ BibleTextBrowser::BibleTextBrowser() : QWebView()
     page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
 }
 
+
 void BibleTextBrowser::writeOutSettings()
 {
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);

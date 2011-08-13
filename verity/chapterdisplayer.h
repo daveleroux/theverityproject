@@ -8,6 +8,7 @@
 #include <QtWebKit/QWebFrame>
 #include <QWebElement>
 #include "scrolllistener.h"
+#include "javascriptclicklistener.h"
 
 class ChapterDisplayer : public QObject
 {
@@ -23,6 +24,7 @@ protected:
     QMap<int, ChapterRepresentation*> chapters;
 
     ScrollListener* scrollListener;
+    JavascriptClickListener* javascriptClickListener;
 
     virtual ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
 
@@ -58,6 +60,7 @@ public:
     ChapterDisplayer(QWebView* webView, QList<int> bibleTextIds);
     void display(int id, int normalisedChapter);
     void checkCanScroll();
+    ~ChapterDisplayer();
 
 public slots:
     void scrolled();

@@ -8,6 +8,8 @@
 #include "textinfo.h"
 #include "versereference.h"
 #include "chapterdisplayer.h"
+#include "javascriptclicklistener.h"
+
 #include <QtWebKit/QWebView>
 #include <QtWebKit/QWebFrame>
 #include <QWebElement>

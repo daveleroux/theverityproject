@@ -37,7 +37,12 @@ SOURCES += main.cpp \
     searchbrowser.cpp \
     locationlineedit.cpp \
     scrolllistener.cpp \
-    paralleldto.cpp
+    paralleldto.cpp \
+    eventmanager.cpp \
+    event.cpp \
+    wordclickedevent.cpp \
+    listener.cpp \
+    javascriptclicklistener.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -69,7 +74,12 @@ HEADERS += mainwindow.h \
     searchbrowser.h \
     locationlineedit.h \
     scrolllistener.h \
-    paralleldto.h
+    paralleldto.h \
+    eventmanager.h \
+    event.h \
+    wordclickedevent.h \
+    listener.h \
+    javascriptclicklistener.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin
