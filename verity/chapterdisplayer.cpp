@@ -75,6 +75,8 @@ QString ChapterDisplayer::transformToHtml(QString xml)
     replaceMap.insert("verse", "verse");
     replaceMap.insert("normalisedChapter", "normalisedChapter");
     replaceMap.insert("normalisedChapter", "normalisedChapter");
+    replaceMap.insert("rtl", "rtl");
+
 
     for(int i=0; i<replaceMap.keys().size(); i++)
     {
