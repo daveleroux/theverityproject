@@ -26,18 +26,18 @@ QString MainWindow::replaceAll(QString wholeChapter, QMap<QString, QString> repl
 
 QString MainWindow::getParallelHtml(int normalisedChapter)
 {
-//    static QString fake = 0;
-//    if(fake == 0)
-//    {
-//        QFile tmp("example2.html");
-//        if(!tmp.open(QIODevice::ReadOnly))
-//            exit(1);
+    static QString fake = 0;
+    if(fake == 0)
+    {
+        QFile tmp("test.html");
+        if(!tmp.open(QIODevice::ReadOnly))
+            exit(1);
 
-//        QByteArray byteArray = tmp.readAll();
-//        fake = QString::fromUtf8(byteArray.data());
+        QByteArray byteArray = tmp.readAll();
+        fake = QString::fromUtf8(byteArray.data());
 
-//    }
-//    return fake;
+    }
+    return fake;
 
 
     timer t;
@@ -214,6 +214,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     int firstChapterToView = 1005;
     append(firstChapterToView, getParallelHtml(firstChapterToView));
     checkCanScroll();
+    QWebElement w = webView->page()->mainFrame()->documentElement().findFirst("span[id=\"1\"]");
+    qDebug() << w.geometry().y();
+
+//    float perc = w.geometry().y()/(float)webView->page()->mainFrame()->geometry().height();
+    float perc = w.geometry().y()/(float)webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild().geometry().height();
+    qDebug() << perc; //+ webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height()
+    float result = perc * (webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) ) ;
+    qDebug() << "setting to " << result;
+    webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical,result );
+    qDebug() << w.geometry().y();
+    qDebug() << "scroll value " << webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+    qDebug() << w.tagName();
+
+    webView->findText("serpent");
 }
 
 bool MainWindow::mustAppend()
@@ -329,12 +343,12 @@ int MainWindow::getDocumentHeight()
 //        QVariant result =  webView->page()->mainFrame()->evaluateJavaScript("document.body.firstChild.scrollHeight");
 //        return result.toInt();
 
-    QWebElement documentElement = webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild();
+    QWebElement element = webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild();
     //    QString widthProperty = documentElement.styleProperty("scrollHeight",QWebElement::ComputedStyle); //forces stuff to finish see https://bugreports.qt.nokia.com//browse/QTBUG-18034
     //    qDebug() << "width property" << widthProperty;
     //    QString heightProperty = documentElement.styleProperty("scrollHeight",QWebElement::ComputedStyle);
     //    qDebug() << heightProperty;
-    return documentElement.geometry().height();
+    return element.geometry().height();
     //   return webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() +
     //           webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical);
 }
