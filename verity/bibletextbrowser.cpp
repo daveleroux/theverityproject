@@ -88,7 +88,7 @@ void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int norm
         chapterDisplayer = new SingleTextChapterDisplayer(this, bibletextIds);
     }
 
-    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
+//    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
 
     chapterDisplayer->display(idLocation, normalisedChapterLocation);
 }

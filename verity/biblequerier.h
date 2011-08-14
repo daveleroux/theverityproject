@@ -34,6 +34,10 @@ private:
     VerseNode* _readInChapterDataForParallelText(int bibletextId, QSet<int>& parallelIds, int idToInclude, QMap<int, int>& firstIdsMap, QMap<int, int>& lastIdsMap);
     VerseNode* _readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds);
 
+    QList<int> _getWordHandlerIds(int bibletextId);
+    int _getStrongsNum(int bibletextId, int wordId);
+    QBitArray _getNormalisedMorphTag(int bibletextId, int wordId);
+
     QString _constructXml(QList<int> bibletextIds, VerseNode* grid);
 
     QStringList _search(QString searchTerms);
@@ -53,6 +57,10 @@ public:
     static ParallelDTO readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter);
 
     static QStringList search(QString searchTerms);
+
+    static QList<int> getWordHandlerIds(int bibletextId);
+    static int getStrongsNum(int bibletextId, int wordId);
+    static QBitArray getNormalisedMorphTag(int bibletextId, int wordId);
 };
 
 #endif // BIBLEQUERIER_H

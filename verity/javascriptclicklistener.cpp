@@ -1,6 +1,7 @@
 #include "javascriptclicklistener.h"
 
 #include <QDebug>
+#include "wordclickedevent.h"
 
 JavascriptClickListener::JavascriptClickListener()
 {
@@ -8,5 +9,5 @@ JavascriptClickListener::JavascriptClickListener()
 
 void JavascriptClickListener::wordClicked(int bibletextId, int wordId)
 {
-    qDebug() << "got a wordclicked " << bibletextId << " " << wordId;
+    (new WordClickedEvent(bibletextId, wordId))->fire();
 }

@@ -7,8 +7,7 @@ class Listener
 {
 public:
     Listener();
-    bool handlesEvent(Event* event);
-    void handleEvent(Event* event);
+    virtual void handleEvent(Event* event) = 0;
 };
 
 #endif // LISTENER_H

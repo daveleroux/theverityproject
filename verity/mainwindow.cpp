@@ -8,6 +8,10 @@
 #include "parsingdisplaybrowser.h"
 #include "textinfo.h"
 #include "referencefilterproxymodel.h"
+#include "eventmanager.h"
+#include "wordclickedevent.h"
+#include "wordclickedlistener.h"
+#include "strongsevent.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -52,7 +56,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
-    connect(browser, SIGNAL(wordClicked(TextInfo*)), selectedBrowser, SLOT(display(TextInfo*)));
+//    connect(browser, SIGNAL(wordClicked(TextInfo*)), selectedBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
@@ -92,18 +96,20 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     layoutWidget->setLayout(layout);
 
     dictionaryDock->setWidget(layoutWidget);
-    connect(browser, SIGNAL(wordClicked(TextInfo*)), dictionaryBrowser, SLOT(display(TextInfo*)));
+//    connect(browser, SIGNAL(wordClicked(TextInfo*)), dictionaryBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
 
     QToolBar* toolbar = new QToolBar();
     toolbar->layout()->setSpacing(3);
 
-    QString activeTexts = settings.value(ACTIVE_TEXTS).toString();
-    if (activeTexts.isNull())
-    {
-        activeTexts = "net#tisch";
-    }
+//    QString activeTexts = settings.value(ACTIVE_TEXTS).toString();
+//    if (activeTexts.isNull())
+//    {
+//        activeTexts = "net#tisch#wlc";
+//    }
+    QString activeTexts = "net#tisch#wlc";
+
     QStringList activeTextList = activeTexts.split("#");
 
     QList<QString> textsAvailable;
@@ -516,6 +522,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     addToolBar(toolbar);
     this->setWindowIcon(QIcon(DATA_PATH + "/verity.ico"));
     settings.endGroup();
+
+    EventManager::addListener(EventType::WORD_CLICKED, new WordClickedListener());
+    EventManager::addListener(EventType::STRONGS, dictionaryBrowser);
+    EventManager::addListener(EventType::PARSING, selectedBrowser);
 }
 
 void MainWindow::textToggled(bool checked)

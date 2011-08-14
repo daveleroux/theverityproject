@@ -1,17 +1,35 @@
 #include "dictionarybrowser.h"
 #include "globalvariables.h"
+#include "strongsevent.h"
+#include "parsingevent.h"
 
 #include <QtSql>
 #include <QXmlQuery>
 #include <QByteArray>
 #include <QDesktopServices>
 #include <QTextBrowser>
+#include <QDebug>
 
-DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent)
+DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent), Listener()
 {
     zoomIn(2);
 }
 
+void DictionaryBrowser::handleEvent(Event* event)
+{
+    StrongsEvent* strongsEvent = static_cast<StrongsEvent*>(event);
+    if(strongsEvent->bibletextId == 2) //@todo remove this hack
+    {
+        QUrl url("greek://"+ QString().setNum(strongsEvent->strongsNum));
+        setSource(url);
+    }
+    else
+    {
+        (new ParsingEvent(QBitArray()))->fire();
+        QUrl url("hebrew://"+ QString().setNum(strongsEvent->strongsNum));
+        setSource(url);
+    }
+}
 
 QVariant DictionaryBrowser::loadResource(int type, const QUrl& url)
 {
