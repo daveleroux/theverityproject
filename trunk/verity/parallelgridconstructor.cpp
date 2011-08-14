@@ -77,8 +77,6 @@ VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
         {
             if(nextChainNode->left == 0)
             {
-                if(nextChainNode->parallelId == 31305)
-                    qDebug() << "hah";
                 VerseNode* target = nextChainNode;
                 VerseNode* currentLeft = target->up->left;
                 while(currentLeft != 0)

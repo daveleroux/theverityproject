@@ -3,15 +3,18 @@
 
 // a NON-thread-safe singleton
 
+#include "globalvariables.h"
 #include "event.h"
 #include "listener.h"
-#include <QList>
+#include <QHash>
+#include <typeinfo>
+using namespace std;
 
 class EventManager
 {
 private:
 
-    QList<Listener*> listeners;
+    QHash<EventType::EventType, QList<Listener*>* > hash;
 
     EventManager();
 
@@ -22,9 +25,11 @@ private:
 
 
     void _handleEvent(Event* event);
+    void _addListener(EventType::EventType, Listener* listener);
 
 public:
     static void handleEvent(Event* event);
+    static void addListener(EventType::EventType, Listener* listener);
 
 };
 

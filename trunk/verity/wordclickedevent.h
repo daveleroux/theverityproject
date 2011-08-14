@@ -9,6 +9,7 @@ public:
     int bibletextId;
     int wordId;
     WordClickedEvent(int bibletextId, int wordId);
+    EventType::EventType getEventType();
 };
 
 #endif // WORDCLICKEDEVENT_H

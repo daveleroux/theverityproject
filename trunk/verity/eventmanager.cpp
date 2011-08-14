@@ -4,14 +4,33 @@ EventManager::EventManager()
 {
 }
 
-void EventManager::_handleEvent(Event* event)
+void EventManager::_handleEvent(Event* eventToHandle)
 {
-    foreach(Listener* listener, listeners)
+    QList<Listener*>* list = hash.value(eventToHandle->getEventType());
+    if(list != 0)
     {
-        if(listener->handlesEvent(event))
-            listener->handleEvent(event);
+        for(int i=0; i<list->size(); i++)
+        {
+           list->at(i)->handleEvent(eventToHandle);
+        }
     }
-    delete event;
+
+    delete eventToHandle;
+}
+
+void EventManager::_addListener(EventType::EventType eventType, Listener* listener)
+{
+    QList<Listener*>* list = hash.value(eventType);
+    if(list == 0)
+    {
+        list = new QList<Listener*>();
+        list->append(listener);
+        hash.insert(eventType, list);
+    }
+    else
+    {
+        list->append(listener);
+    }
 }
 
 EventManager& EventManager::instance()
@@ -25,3 +44,7 @@ void EventManager::handleEvent(Event* event)
     return instance()._handleEvent(event);
 }
 
+void EventManager::addListener(EventType::EventType eventType, Listener* listener)
+{
+    instance()._addListener(eventType, listener);
+}

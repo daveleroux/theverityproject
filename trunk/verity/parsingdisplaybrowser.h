@@ -4,8 +4,9 @@
 #include <QTextBrowser>
 #include "textinfo.h"
 #include "textinfo.h"
+#include "listener.h"
 
-class ParsingDisplayBrowser : public QTextBrowser
+class ParsingDisplayBrowser : public QTextBrowser, public Listener
 {
     Q_OBJECT
 
@@ -14,9 +15,10 @@ public:
 
 protected:
     QMimeData* createMimeDataFromSelection() const;
+    void handleEvent(Event* event);
 
 public slots:
-    void display(TextInfo*);
+    void display(QBitArray);
 };
 
 #endif // PARSINGDISPLAYBROWSER_H

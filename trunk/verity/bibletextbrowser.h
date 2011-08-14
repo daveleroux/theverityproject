@@ -34,7 +34,7 @@ public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);
 
 signals:
-    void wordClicked(TextInfo*);
+//    void wordClicked(TextInfo*);
 //    void checkCanScrollSignal(int v);
 };
 

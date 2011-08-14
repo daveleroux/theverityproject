@@ -19,4 +19,14 @@ extern QString FONT_SETTING;
 
 extern QString DATA_PATH;
 
+namespace EventType
+{
+    enum EventType
+    {
+        STRONGS,
+        WORD_CLICKED,
+        PARSING,
+    };
+}
+
 #endif // GLOBALVARIABLES_H

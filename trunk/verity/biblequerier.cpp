@@ -504,6 +504,62 @@ QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter)
     return "";
 }
 
+QList<int> BibleQuerier::_getWordHandlerIds(int bibletextId)
+{
+    QList<int> result;
+
+    QSqlQuery query;
+
+    if(!query.exec("select wordhandler_id from wordhandlers where bibletext_id="+ QString().setNum(bibletextId)))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    while(query.next())
+    {
+        result.append(query.value(0).toInt());
+    }
+
+    return result;
+}
+
+int BibleQuerier::_getStrongsNum(int bibletextId, int wordId)
+{
+
+    QSqlQuery query;
+
+    if(!query.exec("select strongs_number from strongs_word where bibletext_id="+ QString().setNum(bibletextId) + " and word_id=" + QString().setNum(wordId)))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    query.next();
+    return query.value(0).toInt();
+}
+
+QBitArray BibleQuerier::_getNormalisedMorphTag(int bibletextId, int wordId)
+{
+
+    QSqlQuery query;
+
+    if(!query.exec("select normalised_morph_tag from type_t_parsing where bibletext_id="+ QString().setNum(bibletextId) + " and word_id=" + QString().setNum(wordId)))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    query.next();
+
+
+    QByteArray normalisedMorphTagBytes = QByteArray::fromBase64(query.value(0).toByteArray());
+    QDataStream stream(normalisedMorphTagBytes);
+    QBitArray normalisedMorphTag(81);
+    stream >> normalisedMorphTag;
+
+    return normalisedMorphTag;
+}
 
 BibleQuerier& BibleQuerier::instance()
 {
@@ -530,6 +586,22 @@ TextSpecificData* BibleQuerier::getTextSpecificData(int bibletextId)
 {
     return instance()._getTextSpecificData(bibletextId);
 }
+
+QList<int> BibleQuerier::getWordHandlerIds(int bibletextId)
+{
+    return instance()._getWordHandlerIds(bibletextId);
+}
+
+int BibleQuerier::getStrongsNum(int bibletextId, int wordId)
+{
+    return instance()._getStrongsNum(bibletextId, wordId);
+}
+
+QBitArray BibleQuerier::getNormalisedMorphTag(int bibletextId, int wordId)
+{
+    return instance()._getNormalisedMorphTag(bibletextId, wordId);
+}
+
 
 QStringList BibleQuerier::search(QString searchTerms)
 {

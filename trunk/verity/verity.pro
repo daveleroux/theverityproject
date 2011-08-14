@@ -42,7 +42,13 @@ SOURCES += main.cpp \
     event.cpp \
     wordclickedevent.cpp \
     listener.cpp \
-    javascriptclicklistener.cpp
+    javascriptclicklistener.cpp \
+    wordclickedlistener.cpp \
+    wordhandler.cpp \
+    strongswordhandler.cpp \
+    parsingwordhandler.cpp \
+    strongsevent.cpp \
+    parsingevent.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -79,11 +85,18 @@ HEADERS += mainwindow.h \
     event.h \
     wordclickedevent.h \
     listener.h \
-    javascriptclicklistener.h
+    javascriptclicklistener.h \
+    wordclickedlistener.h \
+    wordhandler.h \
+    strongswordhandler.h \
+    parsingwordhandler.h \
+    strongsevent.h \
+    parsingevent.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin
 datatarget.path = /usr/share/verity/
-datatarget.files += bibles.sqlite
+datatarget.files += verity.sqlite
 datatarget.files += style.xsl
 datatarget.files += hebrew-style.xsl
+datatarget.files += bible.css
