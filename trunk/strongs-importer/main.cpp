@@ -132,12 +132,14 @@ int main(int argc, char *argv[])
     QCoreApplication a(argc, argv);
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName("bibles.sqlite");
+    db.setDatabaseName("verity.sqlite");
     if (!db.open())
     {
         qDebug() << "couldn't open db" << endl;
         return 1;
     }
+
+    db.transaction();
 
     QSqlQuery query;
     query.exec("drop table strongs");
@@ -235,6 +237,7 @@ int main(int argc, char *argv[])
     }
 
     query.exec("create index idx_strongs on strongs (strongs_number)");
+    db.commit();
     db.close();
 
     return 0;
