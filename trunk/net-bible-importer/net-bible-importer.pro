@@ -16,7 +16,9 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp \
-    chunk.cpp
+    chunk.cpp \
+    note.cpp
 
 HEADERS += \
-    chunk.h
+    chunk.h \
+    note.h
