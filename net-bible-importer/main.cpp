@@ -5,7 +5,15 @@
 #include <QDomNode>
 #include <QDebug>
 #include <QFile>
+#include <QMap>
 #include "chunk.h"
+#include "note.h"
+
+int noteId;
+Note* currentNote;
+QMap<QString, int> noteIdMap;
+//QDomNode* notePlaceToAdd = 0;
+int netNoteChapterCount;
 
 Chunk* currentChunk;
 QList<Chunk*> allChunks;
@@ -56,13 +64,13 @@ QString getDatabaseTagName(QString netTagName)
 
 void printElement(QDomElement element)
 {
-        QTextStream stream;
-        QString streamString;
-        stream.setString(&streamString);
-        stream << element;
+    QTextStream stream;
+    QString streamString;
+    stream.setString(&streamString);
+    stream << element;
 
-        qDebug() << "element:";
-        qDebug() << *stream.string();
+    qDebug() << "element:";
+    qDebug() << *stream.string();
 }
 
 void appendCurrentChunk()
@@ -224,6 +232,17 @@ void setNormalisedChapterFieldAndPutInChaptersAndVerses()
     }
 }
 
+
+QDomElement createNoteElement(QString name)
+{
+    return currentNote->xmlDoc.createElement(name);
+}
+
+QDomText createNoteTextNode(QString data)
+{
+    return currentNote->xmlDoc.createTextNode(data);
+}
+
 QDomElement createElement(QString name)
 {
     return currentChunk->xmlDoc.createElement(name);
@@ -255,10 +274,20 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
                 assert(oldChildElement.childNodes().size(), 1);
                 assert(oldChildElement.firstChildElement().tagName(), "SUP");
                 assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-                QDomElement newChild = createElement(getDatabaseTagName("note"));
+
+                QDomElement newChild = createElement(getDatabaseTagName("netNote"));
+
                 newTreeParent.appendChild(newChild);
-                QDomText newChildChild = createTextNode(oldChildElement.attribute("href"));
-                newChild.appendChild(newChildChild);                
+
+                QString stringId = oldChildElement.attribute("href");
+                int noteId = noteIdMap.value(stringId);
+
+                newChild.setAttribute("id", noteId);
+
+                QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
+                netNoteChapterCount++;
+                newChild.appendChild(newChildChild);
+
             }
             else if(oldChildElement.tagName() == "span")
             {
@@ -333,9 +362,16 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     assert(oldChildElement.childNodes().size(), 1);
                     assert(oldChildElement.firstChildElement().tagName(), "SUP");
                     assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-                    QDomElement newChild = createElement(getDatabaseTagName("note"));
+                    QDomElement newChild = createElement(getDatabaseTagName("netNote"));
                     placeToAdd->appendChild(newChild);
-                    QDomText newChildChild = createTextNode(oldChildElement.attribute("href"));                    
+
+                    QString stringId = oldChildElement.attribute("href");
+                    int noteId = noteIdMap.value(stringId);
+
+                    newChild.setAttribute("id", noteId);
+
+                    QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
+                    netNoteChapterCount++;
                     newChild.appendChild(newChildChild);
                 }
             }
@@ -452,7 +488,7 @@ void doParagraph(QDomElement paragraphElement)
 
     QString paragraphClass = paragraphElement.attribute("class");
     if( (paragraphClass == "paragraphtitle" && !(specialCase))
-                || paragraphClass == "section"
+        || paragraphClass == "section"
                 || paragraphClass == "psasuper"
                 || paragraphClass == "lamhebrew" ) //e.g. see Ps 119
         {
@@ -524,15 +560,15 @@ void doParagraph(QDomElement paragraphElement)
         else //it's in the middle of a verse so must be part of its chunk
         {
 
-//            assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
-//            currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
+            //            assert(currentChunk->xmlDoc.firstChild().lastChild().toElement().tagName(), "br");
+            //            currentChunk->xmlDoc.firstChild().removeChild(currentChunk->xmlDoc.firstChild().lastChild());
 
             QDomNode newElement = createElement(getDatabaseTagName(paragraphClass));
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
             buildTitleChunk(newElement, paragraphElement);
 
             currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
-//            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
+            //            currentChunk->xmlDoc.firstChild().appendChild(createElement(getDatabaseTagName("br")));
         }
     }
     else if(paragraphClass == "")
@@ -553,9 +589,402 @@ void doParagraph(QDomElement paragraphElement)
     }
 }
 
-
-void doHtm(QString baseBookName, QString chapterFilename)
+void putNoteInDB(Note* note)
 {
+    QSqlQuery query;
+    query.prepare("insert into net_notes values(:id, :note)");
+
+    query.bindValue(":id", note->noteId);
+    query.bindValue(":text", note->xmlDoc.toString(-1));
+
+
+    if(!query.exec())
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+
+}
+
+void writeOutCurrentNote()
+{
+    if(currentNote != 0)
+    {
+        noteIdMap.insert(currentNote->stringId, currentNote->noteId);
+
+        putNoteInDB(currentNote);
+
+        currentNote = 0;
+    }
+}
+
+//QDomElement* getNotePlaceToAdd()
+//{
+//    qDebug() << "in getNotePlaceToAdd:";
+//    //    qDebug() << currentNote->xmlDoc.toString();
+
+//    QDomElement* result = &currentNote->xmlDoc.firstChildElement();
+//    if(result->hasChildNodes())
+//        result = &result->lastChildElement();
+
+//    if(result->isNull())
+//    {
+//        int x = 10;
+//    }
+//    return result;
+//}
+
+void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
+{
+    for(int i=0; i<oldTreeParent.childNodes().size(); i++)
+    {
+        QDomNode oldChild = oldTreeParent.childNodes().at(i);
+
+        if(oldChild.isText())
+        {
+            QDomText newChildText = createNoteTextNode(oldChild.toText().data());
+            newTreeParent.appendChild(newChildText);
+            assert(oldChild.childNodes().size(), 0);
+        }
+        else if(oldChild.isElement())
+        {
+            QDomElement oldChildElement = oldChild.toElement();
+
+            if(oldChildElement.tagName() == "span")
+            {
+                assert(oldChildElement.childNodes().size(), 1);
+                assert(oldChildElement.firstChild().isText());
+
+                if(oldChildElement.attribute("class") == "smallcaps")
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("smallcaps"));
+                    newTreeParent.appendChild(newChild);
+                    newChild.appendChild(createNoteTextNode(oldChildElement.firstChild().toText().data()));
+
+                }
+                else if (oldChildElement.attribute("class") == "fnreference")
+                {
+
+                }
+                else
+                {
+                    qDebug() << "unknown span: " << oldChildElement.attribute("class");
+                    exit(1);
+                }
+
+                //                    QDomElement newChild = createElement(getDatabaseTagName("smallcaps"));
+                //                    placeToAdd->appendChild(newChild);
+                //                    QDomNode* temp = placeToAdd;
+                //                    placeToAdd = &newChild;
+                //                    buildVerseChunk(paragraphClass, oldChild);
+                //                    placeToAdd = temp;
+
+            }
+            else if(oldChildElement.tagName() == "b")
+            {
+                assert(oldChildElement.childNodes().size(), 1);
+                assert(oldChildElement.firstChild().isText());
+
+                if(oldChildElement.firstChild().toText().data() == "tn")
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("translatorsNote"));
+                    currentNote->xmlDoc.firstChildElement().appendChild(newChild);
+                    //                    notePlaceToAdd = &newChild;
+
+                    newTreeParent = newChild;
+
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    newChild.appendChild(boldChild);
+
+                    boldChild.appendChild(createNoteTextNode("Translator's Note"));
+
+                }
+                else if(oldChildElement.firstChild().toText().data() == "sn")
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("studyNote"));
+                    currentNote->xmlDoc.firstChildElement().appendChild(newChild);
+                    //                    notePlaceToAdd = &newChild;
+
+                    newTreeParent = newChild;
+
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    newChild.appendChild(boldChild);
+
+                    boldChild.appendChild(createNoteTextNode("Study Note"));
+
+                }
+                else if(oldChildElement.firstChild().toText().data() == "tc")
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("textCriticalNote"));
+                    currentNote->xmlDoc.firstChildElement().appendChild(newChild);
+                    //                    notePlaceToAdd = &newChild;
+
+                    newTreeParent = newChild;
+
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    newChild.appendChild(boldChild);
+
+                    boldChild.appendChild(createNoteTextNode("Text-Critical Note"));
+
+                }
+                else if(oldChildElement.firstChild().toText().data() == "map")
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("mapNote"));
+                    currentNote->xmlDoc.firstChildElement().appendChild(newChild);
+                    //                    notePlaceToAdd = &newChild;
+
+                    newTreeParent = newChild;
+
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    newChild.appendChild(boldChild);
+
+                    boldChild.appendChild(createNoteTextNode("Map Note"));
+
+                }
+                else
+                {
+                    QDomElement newChild = createNoteElement(getDatabaseTagName("b"));
+                    newTreeParent.appendChild(newChild);
+                    newChild.appendChild(createNoteTextNode(oldChildElement.firstChild().toText().data()));
+                }
+            }
+            else if(oldChildElement.tagName() == "br")
+            {
+                assert(oldChildElement.childNodes().size(), 0);
+                QDomElement newChild = createNoteElement(getDatabaseTagName("br"));
+                newTreeParent.appendChild(newChild);
+            }
+            else if (oldChildElement.tagName() == "i")
+            {
+                //                assert(oldChildElement.childNodes().size(), 1);
+                //                assert(oldChildElement.firstChild().isText());
+
+                QDomElement newChild = createNoteElement(getDatabaseTagName("i"));
+                newTreeParent.appendChild(newChild);
+                buildNote(newChild, oldChildElement);
+            }
+            else if (oldChildElement.tagName() == "sup")
+            {
+//                assert(oldChildElement.childNodes().size(), 1);
+//                assert(oldChildElement.firstChild().isText());
+
+                QDomElement newChild = createNoteElement(getDatabaseTagName("sup"));
+                newTreeParent.appendChild(newChild);
+                buildNote(newChild, oldChildElement);
+            }
+            else if (oldChildElement.tagName() == "font")
+            {
+                if(oldChildElement.attribute("face") == "Greek Uncials")
+                {
+                   buildNote(newTreeParent, oldChildElement);
+                }
+                else
+                {
+                    QDomElement newChild;
+                    if(oldChildElement.attribute("face") =="Galaxie Unicode Hebrew")
+                    {
+                        newChild = createNoteElement(getDatabaseTagName("hebrew"));
+                    }
+                    else if(oldChildElement.attribute("face") == "Galaxie Unicode Greek")
+                    {
+                        newChild = createNoteElement(getDatabaseTagName("greek"));
+                    }
+                    else if(oldChildElement.attribute("face") =="Scholar" || oldChildElement.attribute("face") == "Greek" || oldChildElement.attribute("face") == "Greektl")
+                    {
+                        newChild = createNoteElement(getDatabaseTagName("i"));
+
+                    }
+                    else
+                    {
+                        qDebug() << "unknown font face "<< oldChildElement.attribute("face");
+                        exit(1);
+                    }
+                    newTreeParent.appendChild(newChild);
+                    buildNote(newChild, oldChildElement);
+                }
+            }
+            else
+            {
+                qDebug() << "unknown element tag " << oldChildElement.tagName();
+                exit(1);
+            }
+        }
+        else
+        {
+            qDebug() << "not text or element";
+            exit(1);
+        }
+    }
+}
+
+void doNoteParagraph(QString noteChapterFilename, QDomElement paragraphElement)
+{
+    assert(paragraphElement.attribute("class"), "footnote");
+
+    QDomElement firstChild = paragraphElement.firstChildElement();
+    if(firstChild.nodeName() == "span")
+    {
+        assert(firstChild.attribute("class"), "fnreference");
+
+        writeOutCurrentNote();
+
+        noteId++;
+        QString localNumber = firstChild.firstChild().toText().data();
+        currentNote = new Note(noteId, noteChapterFilename + "#note" + localNumber);
+
+    }
+    //    notePlaceToAdd = &(currentNote->xmlDoc.firstChild());
+
+    buildNote(currentNote->xmlDoc.firstChild(), paragraphElement);
+}
+
+void importNoteChapter(QString chapterFilenameWithoutFiletype)
+{
+    QString noteChapterFilename =  chapterFilenameWithoutFiletype + "_notes.htm";
+
+    QDomDocument doc("mydocument");
+    QFile file("netbible/" + noteChapterFilename);
+    if (!file.open(QIODevice::ReadOnly))
+        exit(1);
+
+    QByteArray byteArray = file.readAll();
+
+    QString wholeFile = QString::fromUtf8(byteArray.data());
+
+    wholeFile.replace("<LINK REL=StyleSheet HREF=\"style.css\" TYPE=\"text/css\" MEDIA=screen>", "");
+
+    wholeFile.replace(QRegExp("<note=[0-9]*>"), "");
+
+    wholeFile.replace(QRegExp("<A NAME=\"[0-9]*\">"), "");
+
+    wholeFile.replace("<BODY BGCOLOR=\"#ddddc5\"><p>", "<body>");
+    wholeFile.replace("<HTML>", "<html>");
+
+    if(wholeFile.indexOf("</body>") == -1)
+    {
+        wholeFile.append("</body></html>");
+    }
+
+    if(noteChapterFilename == "pro1_notes.htm"
+       || noteChapterFilename == "sos4_notes.htm"
+       || noteChapterFilename == "sos7_notes.htm"
+       || noteChapterFilename == "jon2_notes.htm"
+       || noteChapterFilename == "1ti5_notes.htm")
+    {
+        wholeFile.replace("<br>", "");
+    }
+
+    if(noteChapterFilename == "nah1_notes.htm")
+    {
+        wholeFile.replace("<br>", "<br/>");
+    }
+
+    if(noteChapterFilename == "deu9_notes.htm")
+    {
+        wholeFile.replace("<font face=\"Scholar\">a</font><font face=\"Hebrewtl\">r</font>", "<font face=\"Scholar\">ar</font>");
+    }
+
+    if(noteChapterFilename == "rut1_notes.htm")
+    {
+        wholeFile.replace("<b><font face=\"Galaxie Unicode Hebrew\">&#1499;&#1468;&#1460;&#1497;</font></b>", "<font face=\"Galaxie Unicode Hebrew\">&#1499;&#1468;&#1460;&#1497;</font>");
+    }
+
+    if(noteChapterFilename == "neh8_notes.htm")
+    {
+        wholeFile.replace("</font><font face=\"Hebrewtl\">y</font>", "y</font>");
+    }
+
+    if(noteChapterFilename == "job21_notes.htm")
+    {
+        wholeFile.replace("<b><font face=\"Galaxie Unicode Hebrew\">&#1495;&#1458;&#1489;&#1464;&#1500;&#1460;&#1497;&#1501;</font></b>", "<font face=\"Galaxie Unicode Hebrew\">&#1495;&#1458;&#1489;&#1464;&#1500;&#1460;&#1497;&#1501;</font>");
+    }
+
+    if(noteChapterFilename == "psa9_notes.htm")
+    {
+        wholeFile.replace("<font face=\"Hebrewtl\">/</font>", "");
+    }
+
+    if(noteChapterFilename == "pro16_notes.htm")
+    {
+        wholeFile.replace("(<font face=\"Hebrewtl\">z~E</font>) ", "");
+    }
+    //    if(noteChapterFilename == "pro4_notes.htm")
+    //    {
+    wholeFile.replace("<b><font", "<font");
+    wholeFile.replace("</font></b>", "</font>");
+    //    }
+
+    wholeFile.replace("<i>NBD<sup>3</sup></i>", "<i>NBD</i><sup>3</sup>");//yes, I'm hacking
+    wholeFile.replace("<b><i>and</i></b>", "<b>and</b>");
+
+    wholeFile.replace("<b><i> </i></b>", " ");
+
+    wholeFile.replace("<i> </i>", " ");
+
+    wholeFile.replace("<b><i>tn</i></b>", "<b>tn</b>");
+    wholeFile.replace("<b><i>sn</i></b>", "<b>sn</b>");
+
+
+
+    if(noteChapterFilename == "lev16_notes.htm")
+    {
+        wholeFile.replace("<i><font face=\"Galaxie Unicode Hebrew\">&#1490;&#1468;&#1464;&#1494;&#1468;&#1461;&#1512;</font> </i>", "<font face=\"Galaxie Unicode Hebrew\">&#1490;&#1468;&#1464;&#1494;&#1468;&#1461;&#1512;</font> ");
+    }
+
+    //    if(noteChapterFilename == "eze5_notes.htm")
+    //    {
+    wholeFile.replace("&#8216;<font face=\"Hebrewtl\">h!nn#n' ?l?K&gt;</font>,&#8217;", "");
+    //    }
+
+    if(noteChapterFilename == "eze13_notes.htm" || noteChapterFilename == "eze30_notes.htm")
+    {
+        wholeFile.replace("Hebrewtl", "Scholar");
+    }
+
+    wholeFile.replace("<font face=\"Scholar\"> </font>", " ");
+    wholeFile.replace("<font face=\"Hebrewtl\"> </font>", " ");
+    wholeFile.replace("<font face=\"Galaxie Unicode Hebrew\"> </font>", " ");
+    wholeFile.replace("<font face=\"Galaxie Unicode Greek\"> </font>", " ");
+
+    wholeFile.replace("<span class=\"smallcaps\"> </span>", " ");
+    wholeFile.replace("<sup> </sup>", " ");
+
+    wholeFile.replace("<b>,</b>", ",");
+
+
+    QString errorMsg;
+    int errorLine;
+    int errorColumn;
+    if(!doc.setContent(wholeFile, &errorMsg , &errorLine, &errorColumn))
+    {
+        file.close();
+
+        qDebug() << "xml not well formed:";
+        qDebug() << noteChapterFilename;
+        qDebug() << errorMsg;
+        qDebug() << errorLine;
+        qDebug() << errorColumn;
+        exit(1);
+    }
+
+    QDomNodeList paragraphs = doc.elementsByTagName("p");
+
+    for(int i=0; i<paragraphs.size(); i++)
+    {
+        //        qDebug() << "para: " << i+1;
+        QDomElement paragraph = paragraphs.at(i).toElement();
+        doNoteParagraph(noteChapterFilename, paragraph);
+    }
+
+    writeOutCurrentNote();
+}
+
+void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFiletype)
+{
+    netNoteChapterCount = 1;
+
+    QString chapterFilename = chapterFilenameWithoutFiletype + ".htm";
+
     QDomDocument doc("mydocument");
     QFile file("netbible/" + chapterFilename);
     if (!file.open(QIODevice::ReadOnly))
@@ -759,11 +1188,41 @@ QString getBookName(int bookNumber)
     return books.at(bookNumber-1);
 }
 
+QList<QString> getChapterFilenames(QString fileName)
+{
+    QList<QString> result;
+
+    QFile tocFile("netbible/"+fileName +"_toc.htm");
+    if(!tocFile.open(QIODevice::ReadOnly))
+        exit(1);
+
+    QByteArray tocByteArray = tocFile.readAll();
+    QString toc = QString::fromUtf8(tocByteArray.data());
+
+    int start = toc.indexOf("<a href=\"");
+    while(start >=0)
+    {
+        int endQuote = toc.indexOf("\"", start+9);
+        QString chapterFilename = toc.mid(start+9,endQuote-start-9-4);
+
+        result.append(chapterFilename);
+
+        start = toc.indexOf("<a href=\"", start+1);
+
+    }
+
+    tocFile.close();
+
+    return result;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
     currentChunk = 0;    
+    currentNote = 0;
+    noteId  = 0;
 
     map.insert("paragraphtitle", "paragraphTitle");
     map.insert("section", "section");
@@ -771,7 +1230,7 @@ int main(int argc, char *argv[])
     map.insert("lamhebrew", "hebrewParagraph");
     map.insert("sosspeaker", "speakerHeading");
 
-    map.insert("note", "note");
+    map.insert("netNote", "netNote");
     map.insert("smallcaps", "smallCaps");
     map.insert("b", "b");
     map.insert("i", "i");
@@ -788,6 +1247,14 @@ int main(int argc, char *argv[])
     map.insert("chapter", "chapter");
     map.insert("bookName", "bookName");
     map.insert("verse", "verse");
+
+
+    map.insert("translatorsNote", "translatorsNote");
+    map.insert("studyNote", "studyNote");
+    map.insert("textCriticalNote", "textCriticalNote");
+    map.insert("mapNote", "mapNote");
+    map.insert("sup", "sup");
+    map.insert("greek", "greek");
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("verity.sqlite");
@@ -887,6 +1354,31 @@ int main(int argc, char *argv[])
 
 
 
+    query.exec("drop table net_notes");
+
+    if(!query.exec("create table net_notes ( "
+                   "id int, "
+                   "note varchar(5000))"))
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
+
+    for(int i=0; i<fileNames.size(); i++)
+    {
+        qDebug() << "notes for: " << fileNames.at(i);
+        QList<QString> chapterFilenames = getChapterFilenames(fileNames.at(i));
+
+        foreach(QString chapterFilename, chapterFilenames)
+        {
+            importNoteChapter(chapterFilename);
+        }
+    }
+
+    query.exec("create index idx_net_notes on net_notes (id)");
+    db.commit();
+    db.transaction();
+
     for(int i=0; i<fileNames.size(); i++)
     {
         qDebug() << fileNames.at(i);
@@ -901,27 +1393,12 @@ int main(int argc, char *argv[])
         appendCurrentChunk();
 
 
-        QFile tocFile("netbible/"+fileNames.at(i)+"_toc.htm");
-        if(!tocFile.open(QIODevice::ReadOnly))
-            exit(1);
+        QList<QString> chapterFilenames = getChapterFilenames(fileNames.at(i));
 
-        QByteArray tocByteArray = tocFile.readAll();
-        QString toc = QString::fromUtf8(tocByteArray.data());
-
-        int start = toc.indexOf("<a href=\"");
-        while(start >=0)
+        foreach(QString chapterFilename, chapterFilenames)
         {
-            int endQuote = toc.indexOf("\"", start+9);
-            QString chapterFilename = toc.mid(start+9,endQuote-start-9);
-
-            //            if(i+1 >= 22)
-            doHtm(fileNames.at(i), chapterFilename);
-
-            start = toc.indexOf("<a href=\"", start+1);
-
+            importBibleChapter(fileNames.at(i), chapterFilename);
         }
-
-        tocFile.close();        
     }
 
     setNormalisedChapterFieldAndPutInChaptersAndVerses();
