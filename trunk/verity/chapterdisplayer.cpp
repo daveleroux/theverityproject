@@ -98,6 +98,8 @@ QString ChapterDisplayer::transformToHtml(QString xml)
 
     xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
 
+    xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
+
     return xml;
 }
 
