@@ -26,6 +26,7 @@ namespace EventType
         STRONGS,
         WORD_CLICKED,
         PARSING,
+        NET_NOTE,
     };
 }
 

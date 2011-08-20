@@ -4,9 +4,11 @@
 #include <QDebug>
 #include <QtSql>
 #include "parsingevent.h"
+#include "eventmanager.h"
 
 ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(parent), Listener()
 {
+    EventManager::addListener(EventType::PARSING, this);
     zoomIn(2);
 }
 

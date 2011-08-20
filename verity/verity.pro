@@ -48,7 +48,9 @@ SOURCES += main.cpp \
     strongswordhandler.cpp \
     parsingwordhandler.cpp \
     strongsevent.cpp \
-    parsingevent.cpp
+    parsingevent.cpp \
+    netnotebrowser.cpp \
+    netnoteevent.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -91,7 +93,9 @@ HEADERS += mainwindow.h \
     strongswordhandler.h \
     parsingwordhandler.h \
     strongsevent.h \
-    parsingevent.h
+    parsingevent.h \
+    netnotebrowser.h \
+    netnoteevent.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

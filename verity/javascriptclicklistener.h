@@ -10,6 +10,7 @@ public:
     JavascriptClickListener();
 public slots:
     void wordClicked(int bibletextId, int wordId);
+    void netNoteClicked(int id);
 };
 
 #endif // JAVASCRIPTCLICKLISTENER_H

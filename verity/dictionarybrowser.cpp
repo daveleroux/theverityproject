@@ -2,6 +2,7 @@
 #include "globalvariables.h"
 #include "strongsevent.h"
 #include "parsingevent.h"
+#include "eventmanager.h"
 
 #include <QtSql>
 #include <QXmlQuery>
@@ -13,6 +14,7 @@
 DictionaryBrowser::DictionaryBrowser(QWidget* parent) : QTextBrowser(parent), Listener()
 {
     zoomIn(2);
+    EventManager::addListener(EventType::STRONGS, this);
 }
 
 void DictionaryBrowser::handleEvent(Event* event)

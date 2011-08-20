@@ -47,7 +47,7 @@ private:
 //    QList<TextInfo> readInTisch(int idFrom, int idTo); //must clean up
     QString readInBible(int bibletextId, int idFrom, int idTo, bool rtl);
 //    QList<TextInfo> readInWlc(int idFrom, int idTo); //must clean up
-
+    QString _getNetNote(int id);
 
 public:
     static VerseLocation* getVerseLocation(int bibletextId, VerseReference verseReference);
@@ -61,6 +61,7 @@ public:
     static QList<int> getWordHandlerIds(int bibletextId);
     static int getStrongsNum(int bibletextId, int wordId);
     static QBitArray getNormalisedMorphTag(int bibletextId, int wordId);
+    static QString getNetNote(int id);
 };
 
 #endif // BIBLEQUERIER_H

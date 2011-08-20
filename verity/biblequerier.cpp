@@ -561,6 +561,20 @@ QBitArray BibleQuerier::_getNormalisedMorphTag(int bibletextId, int wordId)
     return normalisedMorphTag;
 }
 
+QString BibleQuerier::_getNetNote(int id)
+{
+    QSqlQuery query;
+
+    if(!query.exec("select note from net_notes where id="+ QString().setNum(id) ))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+    query.next();
+    return query.value(0).toString();
+}
+
 BibleQuerier& BibleQuerier::instance()
 {
     static BibleQuerier singleton;
@@ -606,6 +620,11 @@ QBitArray BibleQuerier::getNormalisedMorphTag(int bibletextId, int wordId)
 QStringList BibleQuerier::search(QString searchTerms)
 {
     return instance()._search(searchTerms);
+}
+
+QString BibleQuerier::getNetNote(int id)
+{
+    return instance()._getNetNote(id);
 }
 
 QStringList BibleQuerier::_search(QString searchTerms)
