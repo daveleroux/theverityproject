@@ -12,6 +12,7 @@
 #include "wordclickedevent.h"
 #include "wordclickedlistener.h"
 #include "strongsevent.h"
+#include "netnotebrowser.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -52,12 +53,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     browser = new BibleTextBrowser();
     setCentralWidget(browser);
 
+    setCorner(Qt::BottomLeftCorner, Qt::LeftDockWidgetArea);
+    setCorner(Qt::BottomRightCorner, Qt::RightDockWidgetArea);
+
     QDockWidget* selectedDock = new QDockWidget("Parsing", this);
     selectedDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     ParsingDisplayBrowser* selectedBrowser = new ParsingDisplayBrowser(selectedDock);
     selectedDock->setWidget(selectedBrowser);
 //    connect(browser, SIGNAL(wordClicked(TextInfo*)), selectedBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
+
+    QDockWidget* netNoteDock = new QDockWidget("Net Notes", this);
+    netNoteDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    NetNoteBrowser* netNoteBrowser = new NetNoteBrowser(netNoteDock);
+    netNoteDock->setWidget(netNoteBrowser);
+    addDockWidget(Qt::BottomDockWidgetArea, netNoteDock);
+//    netNoteDock->setSizePolicy(QSizePolicy::QRect(0,0, netNoteDock->width(), 100));;
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
     dictionaryDock->setAllowedAreas(Qt::AllDockWidgetAreas);
@@ -507,7 +518,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     }
 
-    this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
+//    this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
 
     verseLineOutput = new QLabel();
 
@@ -524,8 +535,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     settings.endGroup();
 
     EventManager::addListener(EventType::WORD_CLICKED, new WordClickedListener());
-    EventManager::addListener(EventType::STRONGS, dictionaryBrowser);
-    EventManager::addListener(EventType::PARSING, selectedBrowser);
+
+
 }
 
 void MainWindow::textToggled(bool checked)
