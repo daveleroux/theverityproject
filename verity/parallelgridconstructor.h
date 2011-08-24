@@ -3,12 +3,13 @@
 
 #include "textinfo.h"
 #include "versenode.h"
+#include "grid.h"
 
 class ParallelGridConstructor
 {
 public:
 //    static VerseNode* constructChain(QList<TextInfo> textInfos);
-    static VerseNode* constructGrid(QList<VerseNode*> chainHeads);
+    static Grid constructGrid(QList<VerseNode*> chainHeads);
 };
 
 #endif // PARALLELGRIDCONSTRUCTOR_H

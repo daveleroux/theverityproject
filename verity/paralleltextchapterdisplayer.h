@@ -12,6 +12,8 @@ protected:
 
     QSet<int> extractParallelIds(QList<TextInfo> textInfos);
 
+    QString transformToHtml(QString xml, bool evenStart);
+
 public:
     ParallelTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds);
 };

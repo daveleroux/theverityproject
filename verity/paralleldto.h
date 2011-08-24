@@ -9,8 +9,9 @@ struct ParallelDTO
     QString xml;
     QMap<int, int> firstIdsMap;
     QMap<int, int> lastIdsMap;
+    bool evenNumberOfRows;
 
-    ParallelDTO(QString xml, QMap<int, int> firstIdsMap, QMap<int, int> lastIdsMap);
+    ParallelDTO(QString xml, QMap<int, int> firstIdsMap, QMap<int, int> lastIdsMap, bool evenNumberOfRows);
 };
 
 #endif // PARALLELDTO_H

@@ -50,7 +50,8 @@ SOURCES += main.cpp \
     strongsevent.cpp \
     parsingevent.cpp \
     netnotebrowser.cpp \
-    netnoteevent.cpp
+    netnoteevent.cpp \
+    grid.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -95,7 +96,8 @@ HEADERS += mainwindow.h \
     strongsevent.h \
     parsingevent.h \
     netnotebrowser.h \
-    netnoteevent.h
+    netnoteevent.h \
+    grid.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

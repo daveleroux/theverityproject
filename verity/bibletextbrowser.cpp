@@ -17,6 +17,7 @@ using namespace std;
 
 BibleTextBrowser::BibleTextBrowser() : QWebView()
 {
+
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
 
@@ -88,7 +89,7 @@ void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int norm
         chapterDisplayer = new SingleTextChapterDisplayer(this, bibletextIds);
     }
 
-//    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
+    //    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
 
     chapterDisplayer->display(idLocation, normalisedChapterLocation);
 }
@@ -116,6 +117,22 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
             msgBox.setText(verseReference.stringRepresentation + " could not be found in the primary text");
             msgBox.exec();
         }
+    }
+}
+
+void BibleTextBrowser::wheelEvent(QWheelEvent *event)
+{
+    if((QApplication::keyboardModifiers() & Qt::ControlModifier) > 0)
+    {
+        int numDegrees = event->delta() / 8;
+        int numSteps = numDegrees / 15;
+        float zoom = numSteps/10.0f;
+        setTextSizeMultiplier(textSizeMultiplier() + zoom);
+        event->accept();
+    }
+    else
+    {
+        QWebView::wheelEvent(event);
     }
 }
 

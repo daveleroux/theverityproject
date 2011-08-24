@@ -85,6 +85,7 @@ QString ChapterDisplayer::transformToHtml(QString xml)
     replaceMap.insert("normalisedChapter", "normalisedChapter");
     replaceMap.insert("normalisedChapter", "normalisedChapter");
     replaceMap.insert("rtl", "rtl");
+    replaceMap.insert("greek", "greek");
 
 
     for(int i=0; i<replaceMap.keys().size(); i++)
@@ -96,7 +97,7 @@ QString ChapterDisplayer::transformToHtml(QString xml)
         xml.replace("</"+key+">", "</span>");
     }
 
-    xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
+    xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span class=\"word\" onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
 
     xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
 

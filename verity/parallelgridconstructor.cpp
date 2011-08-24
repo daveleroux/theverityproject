@@ -32,7 +32,7 @@
 //    return new VerseNode();
 //}
 
-VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
+Grid ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
 {
     for(int i=0; i<chainHeads.size()-1; i++)
     {
@@ -95,5 +95,14 @@ VerseNode* ParallelGridConstructor::constructGrid(QList<VerseNode*> chainHeads)
 
     }
 
-    return chainHeads.at(0);
+    bool evenNumberOfRows = true;
+    VerseNode* count = chainHeads.at(0);
+    while(count->down != 0)
+    {
+        evenNumberOfRows = !evenNumberOfRows;
+        count = count->down;
+    }
+
+    return Grid(chainHeads.at(0),evenNumberOfRows);
+
 }
