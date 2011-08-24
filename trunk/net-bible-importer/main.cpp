@@ -685,7 +685,9 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
                 assert(oldChildElement.childNodes().size(), 1);
                 assert(oldChildElement.firstChild().isText());
 
-                if(oldChildElement.firstChild().toText().data() == "tn")
+                QString test = oldChildElement.firstChild().toText().data();
+                test = test.trimmed();
+                if(test == "tn")
                 {
                     QDomElement newChild = createNoteElement(getDatabaseTagName("translatorsNote"));
                     currentNote->xmlDoc.firstChildElement().appendChild(newChild);
@@ -693,13 +695,13 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
 
                     newTreeParent = newChild;
 
-                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("heading"));
                     newChild.appendChild(boldChild);
 
                     boldChild.appendChild(createNoteTextNode("Translator's Note"));
 
                 }
-                else if(oldChildElement.firstChild().toText().data() == "sn")
+                else if(test == "sn")
                 {
                     QDomElement newChild = createNoteElement(getDatabaseTagName("studyNote"));
                     currentNote->xmlDoc.firstChildElement().appendChild(newChild);
@@ -707,13 +709,13 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
 
                     newTreeParent = newChild;
 
-                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("heading"));
                     newChild.appendChild(boldChild);
 
                     boldChild.appendChild(createNoteTextNode("Study Note"));
 
                 }
-                else if(oldChildElement.firstChild().toText().data() == "tc")
+                else if(test == "tc")
                 {
                     QDomElement newChild = createNoteElement(getDatabaseTagName("textCriticalNote"));
                     currentNote->xmlDoc.firstChildElement().appendChild(newChild);
@@ -721,13 +723,13 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
 
                     newTreeParent = newChild;
 
-                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("heading"));
                     newChild.appendChild(boldChild);
 
                     boldChild.appendChild(createNoteTextNode("Text-Critical Note"));
 
                 }
-                else if(oldChildElement.firstChild().toText().data() == "map")
+                else if(test == "map")
                 {
                     QDomElement newChild = createNoteElement(getDatabaseTagName("mapNote"));
                     currentNote->xmlDoc.firstChildElement().appendChild(newChild);
@@ -735,7 +737,7 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
 
                     newTreeParent = newChild;
 
-                    QDomElement boldChild = createNoteElement(getDatabaseTagName("b"));
+                    QDomElement boldChild = createNoteElement(getDatabaseTagName("heading"));
                     newChild.appendChild(boldChild);
 
                     boldChild.appendChild(createNoteTextNode("Map Note"));
@@ -1255,6 +1257,7 @@ int main(int argc, char *argv[])
     map.insert("mapNote", "mapNote");
     map.insert("sup", "sup");
     map.insert("greek", "greek");
+    map.insert("heading", "heading");
 
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName("verity.sqlite");
@@ -1267,16 +1270,6 @@ int main(int argc, char *argv[])
 
     QSqlQuery query(db);
 
-    query.exec("drop table bibles");
-
-    if(!query.exec("create table bibles (id integer primary key autoincrement, "
-                   "bibletext_id int, "
-                   "book_number int, normalised_chapter integer, chapter integer, "
-                   "verse integer, text varchar(5000), parallel int)"))
-    {
-        qDebug() << "failed: "<< query.lastError()  << endl;
-        exit(1);
-    }
 
 
     books << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
@@ -1378,6 +1371,20 @@ int main(int argc, char *argv[])
     query.exec("create index idx_net_notes on net_notes (id)");
     db.commit();
     db.transaction();
+
+//    db.close();
+//    return 0;
+
+    query.exec("drop table bibles");
+
+    if(!query.exec("create table bibles (id integer primary key autoincrement, "
+                   "bibletext_id int, "
+                   "book_number int, normalised_chapter integer, chapter integer, "
+                   "verse integer, text varchar(5000), parallel int)"))
+    {
+        qDebug() << "failed: "<< query.lastError()  << endl;
+        exit(1);
+    }
 
     for(int i=0; i<fileNames.size(); i++)
     {
