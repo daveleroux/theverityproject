@@ -454,30 +454,30 @@ void DbUpdater::update()
 
 //CHEAT
 
-//    query = queryAndCheck("select id, parallel from parallel_backup");
+    query = queryAndCheck("select id, parallel from parallel_backup");
 
-//    int count = 0;
+    int count = 0;
 
-//    while(query.next())
-//    {
-//      int id = query.value(0).toInt();
-//      int parallel = query.value(1).toInt();
+    while(query.next())
+    {
+      int id = query.value(0).toInt();
+      int parallel = query.value(1).toInt();
 
-//      queryAndCheck("update bibles set parallel=" + QString::number(parallel) +
-//                    " where id=" + QString().setNum(id));
+      queryAndCheck("update bibles set parallel=" + QString::number(parallel) +
+                    " where id=" + QString().setNum(id));
 
-//      count++;
-//      if(count%5000 == 0)
-//      {
-//          db.commit();
-//          db.transaction();
-//      }
-//    }
+      count++;
+      if(count%5000 == 0)
+      {
+          db.commit();
+          db.transaction();
+      }
+    }
 
-//    db.commit();
-//    db.close();
+    db.commit();
+    db.close();
 
-//    return;
+    return;
 
 //END CHEAT
 
