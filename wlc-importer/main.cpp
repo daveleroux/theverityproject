@@ -193,7 +193,8 @@ int main(int argc, char *argv[])
         QDomDocument chunk;
         chunk.appendChild(chunk.createElement("chunk"));
         chunk.firstChild().appendChild(chunk.createElement("bookName"));
-        chunk.firstChild().firstChild().appendChild(chunk.createTextNode(standardBookNames.at(i)));
+        chunk.firstChild().firstChild().appendChild(chunk.createElement("hebrew"));
+        chunk.firstChild().firstChild().firstChild().appendChild(chunk.createTextNode(standardBookNames.at(i)));
         qDebug() << standardBookNames.at(i);
         writeOutChunk(query, i+1, normalisedChapter, 0, 0,  chunk.toString(-1));
 
