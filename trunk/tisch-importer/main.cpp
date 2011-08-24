@@ -419,7 +419,8 @@ void writeOut(QSqlDatabase db, QSqlQuery query)
         QDomDocument chunk;
         chunk.appendChild(chunk.createElement("chunk"));
         chunk.firstChild().appendChild(chunk.createElement("bookName"));
-        chunk.firstChild().firstChild().appendChild(chunk.createTextNode(book->name));
+        chunk.firstChild().firstChild().appendChild(chunk.createElement("greek"));
+        chunk.firstChild().firstChild().firstChild().appendChild(chunk.createTextNode(book->name));
         qDebug() << book->name;
 
         writeOutChunk(query, i+40, normalisedChapter, 0, 0,  chunk.toString(-1));
@@ -448,6 +449,7 @@ void writeOut(QSqlDatabase db, QSqlQuery query)
                     chunk.firstChild().appendChild(place);
 
                     place = place.appendChild(chunk.createElement("bodyText"));
+                    place = place.appendChild(chunk.createElement("greek"));
                     if(verseInt == 1 && l == 0)
                     {
                         QDomNode chapterPlace = place.appendChild(chunk.createElement("chapter"));
