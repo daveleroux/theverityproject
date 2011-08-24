@@ -1,0 +1,179 @@
+
+table.evenstart tr, table.oddstart tr:nth-of-type(odd) 
+{
+	background-color:#f8fffa;
+}
+
+table.evenstart tr:nth-of-type(odd), table.oddstart tr
+{
+	background-color:#e6ebf2;
+}
+
+table
+{
+	table-layout: fixed;
+	width: 100%;
+}
+td
+{
+	padding: 5px;
+}
+.word
+{
+	cursor: pointer;
+}
+.netNote
+{
+	color: #0000ff;
+	vertical-align: baseline;
+/*	font-size: 0.8em;*/
+	font-size: 14px;
+	font-family: "Sans";
+	position: relative;
+	top: -0.4em;
+	cursor: pointer;
+}
+
+.smallCaps
+{
+	font-variant: small-caps;
+}
+
+.b
+{
+	font-weight: bold;
+}
+
+.i
+{
+	font-style: italic;
+}
+
+.rtl
+{
+	display: block;
+	direction: rtl;
+}
+
+/*
+.translatorsNote, .studyNote, .mapNote, .textCriticalNote
+{
+	display: block;
+}*/
+
+.greek
+{
+	font-family: "GentiumAlt";
+}
+.hebrew
+{
+	font-family: "SBL Hebrew";
+	font-size: 2em;
+	line-height: 130%; /* why is this needed, why does it not inherit from bodyText */
+	
+}
+
+.heading
+{
+	display: block;
+	font-weight: bold;
+
+}
+
+.note
+{
+	line-height: 150%;
+}
+
+.paragraphTitle, .section, .bookName, .speakerHeading
+{
+	display: block;
+	font-weight: bold;
+	padding-bottom: 20px;
+	padding-top: 5px;
+}
+
+.bookName
+{
+	font-size: 1.5em;
+}
+
+.bookName .hebrew
+{
+	font-size: 1.3em;
+}
+
+.psalmSuperscription
+{
+	display: block;
+	font-style: italic;
+	padding-bottom: 20px;
+	padding-top: 5px;
+}
+
+.blockQuote
+{
+	font-style: italic;
+}
+
+.bodyText, .poetry, .bodyBlock, .blockQuote
+{
+	line-height: 150%;
+}
+
+.poetry
+{
+	padding-left: 10px;
+}
+
+.rtl .chapter
+{
+	float: right;
+}
+.chapter
+{
+	display: block;
+	font-weight: bold;
+	float: left; /* not gonna work for hebrew */
+	padding-right: 5px;
+/*	padding-bottom: 5px;*/
+	font-size: 24px;
+	font-family: "Sans";
+
+}
+
+.sup
+{
+	vertical-align: baseline;
+	font-size: 14px;
+	font-family: "Sans";
+	position: relative;
+	top: -0.4em;
+}
+
+.verse
+{
+	color: #ff0000;
+	vertical-align: baseline;
+/*	font-size: 0.8em;*/
+	font-size: 14px;
+	font-family: "Sans";
+	position: relative;
+	top: -0.4em;
+/*	padding-left: 2px;
+	padding-right: 2px;*/
+
+	/*font-size: xx-small;
+	vertical-align: super;*/
+}
+
+.alternateVerse
+{
+	color: #a0a0a0;
+}
+
+.rtl .verse
+{
+	padding-left: 3px;
+}
+
