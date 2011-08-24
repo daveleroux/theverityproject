@@ -26,6 +26,15 @@ ParallelTextChapterDisplayer::ParallelTextChapterDisplayer(QWebView* webView, QL
 //    return result;
 //}
 
+QString ParallelTextChapterDisplayer::transformToHtml(QString xml, bool evenStart)
+{
+    QString result = ChapterDisplayer::transformToHtml(xml);
+    QString classType = evenStart? "evenStart" : "oddStart";
+    result.replace("<table>", "<table class=\"" + classType + "\">");
+    return result;
+}
+
+
 ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {    
 //    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
@@ -42,6 +51,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
         {
             parallelChRep = (ParallelChapterRepresentation*)chapters.value(getFirstNormChapter());
             idsToInclude = parallelChRep->getIdsToIncludeIfPrepending();
+
         }
         else //appending
         {
@@ -52,7 +62,31 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
 
     ParallelDTO parallelDTO = BibleQuerier::readInChapterDataForParallel(bibletextIds, idsToInclude, normalisedChapter);
 
-    return new ParallelChapterRepresentation(normalisedChapter, transformToHtml(parallelDTO.xml), parallelDTO.firstIdsMap, parallelDTO.lastIdsMap);
+
+    bool evenStartToSet = false;
+
+    if(chapters.size() > 0)
+    {
+        int firstNormalisedChapter = getFirstNormChapter();
+        if(normalisedChapter < firstNormalisedChapter) //prepending
+        {
+            parallelChRep = (ParallelChapterRepresentation*)chapters.value(getFirstNormChapter());
+            evenStartToSet = (parallelChRep->isEvenStart() && parallelDTO.evenNumberOfRows) || (!parallelChRep->isEvenStart() && !parallelDTO.evenNumberOfRows);
+
+        }
+        else //appending
+        {
+            parallelChRep = (ParallelChapterRepresentation*)chapters.value(getLastNormChapter());
+            evenStartToSet = (parallelChRep->isEvenStart() && parallelChRep->isEvenNumberOfRows()) || (!parallelChRep->isEvenStart() && !parallelChRep->isEvenNumberOfRows());
+        }
+    }
+
+    QString html = transformToHtml(parallelDTO.xml, evenStartToSet);
+
+    ParallelChapterRepresentation* result = new ParallelChapterRepresentation(normalisedChapter, html, parallelDTO.firstIdsMap, parallelDTO.lastIdsMap, parallelDTO.evenNumberOfRows);
+    result->setEvenStart(evenStartToSet);
+
+    return result;
 
 //    QList<TextInfo> primaryTextTextInfos = BibleQuerier::readInChapterData(getPrimaryText(), normalisedChapter);
 

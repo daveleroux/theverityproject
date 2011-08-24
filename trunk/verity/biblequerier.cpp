@@ -296,26 +296,33 @@ ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletex
         firstIdsMap.insert(bibletextId, idFrom); //these two lines actually not necessary but done for tidiness
         lastIdsMap.insert(bibletextId, idTo);
 
+        QList<int> usingBibletextIds;
+        usingBibletextIds.append(bibletextId);
+
         chainHeads.append(_readInFromMinToMax(bibletextId, idFrom, idTo, parallelIds));
 
         for(int i=1; i<bibletextIds.size(); i++)
         {
             int bibletextId = bibletextIds.at(i);
-            chainHeads.append(_readInChapterDataForParallelText(bibletextId, parallelIds, idsToInclude.value(bibletextId), firstIdsMap, lastIdsMap));
+            VerseNode* verseNode = _readInChapterDataForParallelText(bibletextId, parallelIds, idsToInclude.value(bibletextId), firstIdsMap, lastIdsMap);
+            if(verseNode->down != 0)
+            {
+                usingBibletextIds.append(bibletextId);
+                chainHeads.append(verseNode);
+            }
         }
 
-        QString xml = _constructXml(bibletextIds, ParallelGridConstructor::constructGrid(chainHeads));
+        Grid grid = ParallelGridConstructor::constructGrid(chainHeads);
+        QString xml = _constructXml(usingBibletextIds, grid.verseNode);
 
         VerseNode* value;
         foreach(value, chainHeads)
             delete value;
 
-        return ParallelDTO(xml, firstIdsMap, lastIdsMap);
-
-
+        return ParallelDTO(xml, firstIdsMap, lastIdsMap, grid.evenNumberOfRows);
     }
 
-    return ParallelDTO("", QMap<int, int>(), QMap<int,int>());
+    return ParallelDTO("", QMap<int, int>(), QMap<int,int>(), false);
 
 
     //    QList<TextInfo> result;

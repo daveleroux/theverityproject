@@ -3,11 +3,14 @@
 ParallelChapterRepresentation::ParallelChapterRepresentation(int normalisedChapter,
                                                              QString html,
                                                              QMap<int, int> firstIdsMap,
-                                                             QMap<int, int> lastIdsMap) : ChapterRepresentation(normalisedChapter,
+                                                             QMap<int, int> lastIdsMap,
+                                                             bool evenNumberOfRows) : ChapterRepresentation(normalisedChapter,
                                                                                                                 html)
 {
+    evenStart = false;
     this->firstIdsMap = firstIdsMap;
     this->lastIdsMap = lastIdsMap;
+    this->evenNumberOfRows = evenNumberOfRows;
 }
 
 QMap<int, int> ParallelChapterRepresentation::getIdsToIncludeIfPrepending()
@@ -30,3 +33,17 @@ QMap<int, int> ParallelChapterRepresentation::getIdsToIncludeIfAppending()
     return result;
 }
 
+bool ParallelChapterRepresentation::isEvenStart()
+{
+    return evenStart;
+}
+
+bool ParallelChapterRepresentation::isEvenNumberOfRows()
+{
+    return evenNumberOfRows;
+}
+
+void ParallelChapterRepresentation::setEvenStart(bool evenStart)
+{
+    this->evenStart = evenStart;
+}

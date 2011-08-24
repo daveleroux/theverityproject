@@ -20,6 +20,7 @@ class BibleTextBrowser : public QWebView
 
 private:
     ChapterDisplayer* chapterDisplayer;
+    bool isCtrlDown;
 
 public:
     BibleTextBrowser();
@@ -29,6 +30,7 @@ protected:
 
     void display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocaction);
 //    QMimeData* createMimeDataFromSelection() const;
+    void wheelEvent(QWheelEvent *event);
 
 public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);
