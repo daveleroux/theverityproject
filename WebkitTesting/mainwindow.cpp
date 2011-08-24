@@ -214,20 +214,26 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     int firstChapterToView = 1005;
     append(firstChapterToView, getParallelHtml(firstChapterToView));
     checkCanScroll();
-    QWebElement w = webView->page()->mainFrame()->documentElement().findFirst("span[id=\"1\"]");
-    qDebug() << w.geometry().y();
+//    QWebElement w = webView->page()->mainFrame()->findFirstElement("span[id=\"23\"]");
+//    qDebug() << w.geometry().y();
 
 //    float perc = w.geometry().y()/(float)webView->page()->mainFrame()->geometry().height();
-    float perc = w.geometry().y()/(float)webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild().geometry().height();
-    qDebug() << perc; //+ webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height()
-    float result = perc * (webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) ) ;
-    qDebug() << "setting to " << result;
-    webView->page()->mainFrame()->setScrollBarValue(Qt::Vertical,result );
-    qDebug() << w.geometry().y();
-    qDebug() << "scroll value " << webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
-    qDebug() << w.tagName();
+//    float perc = w.geometry().y()/(float)webView->page()->mainFrame()->documentElement().firstChild().nextSibling().firstChild().geometry().height();
+//    qDebug() << perc; //+ webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height()
+//    float result = perc * (webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical) ) ;
+//    qDebug() << "setting to " << result;
 
-    webView->findText("serpent");
+//    webView->page()->mainFrame()->setScrollPosition(QPoint(0, w.geometry().top()) );
+
+//    webView->page()->mainFrame()->setScrollPosition(QPoint(0, 0));
+
+
+//    qDebug() << w.geometry().y();
+//    qDebug() << "scroll value " << webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+//    qDebug() << w.tagName();
+
+//    webView->findText("serpent");
+    webView->page()->mainFrame()->scrollToAnchor("23");
 }
 
 bool MainWindow::mustAppend()
