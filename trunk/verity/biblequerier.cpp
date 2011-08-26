@@ -141,12 +141,12 @@ QString BibleQuerier::asString(QList<int> list)
     return string;
 }
 
-VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds)
+VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds, int selectedId)
 {
     QSqlQuery query;
     query.setForwardOnly(true);
 
-    if(!query.exec("select text, parallel from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
+    if(!query.exec("select id, text, parallel from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
                    + QString().setNum(idFrom) +
                    " and id <= " + QString().setNum(idTo) +
                    " order by id asc"))
@@ -161,8 +161,11 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
 
     while(query.next())
     {
-        QString xml = query.value(0).toString();
-        int parallel = query.value(1).toInt();
+        int id = query.value(0).toInt();
+        QString xml = query.value(1).toString();
+        if(id == selectedId)
+            xml = "<selectedId>" + xml + "</selectedId>";
+        int parallel = query.value(2).toInt();
 
         parallelIds.insert(parallel);
 
@@ -275,7 +278,7 @@ QString BibleQuerier::_constructXml(QList<int> bibletextIds, VerseNode* grid)
     return wholeChapter;
 }
 
-ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter)
+ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter, int selectedId)
 {
     int bibletextId = bibletextIds.at(0);
 
@@ -299,13 +302,13 @@ ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletex
         QList<int> usingBibletextIds;
         usingBibletextIds.append(bibletextId);
 
-        chainHeads.append(_readInFromMinToMax(bibletextId, idFrom, idTo, parallelIds));
+        chainHeads.append(_readInFromMinToMax(bibletextId, idFrom, idTo, parallelIds, selectedId));
 
         for(int i=1; i<bibletextIds.size(); i++)
         {
             int bibletextId = bibletextIds.at(i);
             VerseNode* verseNode = _readInChapterDataForParallelText(bibletextId, parallelIds, idsToInclude.value(bibletextId), firstIdsMap, lastIdsMap);
-            if(verseNode->down != 0)
+            if(verseNode->down != 0) //that is, are there any chunks with content at all
             {
                 usingBibletextIds.append(bibletextId);
                 chainHeads.append(verseNode);
@@ -465,13 +468,13 @@ ParallelDTO BibleQuerier::_readInChapterDataForParallelTexts(QList<int> bibletex
 //    return textInfos;
 //}
 
-QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rtl)
+QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rtl, int selectedId)
 {
     QSqlQuery query;
     query.setForwardOnly(true);
 
 
-    if(!query.exec("select text from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
+    if(!query.exec("select id, text from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
                    + QString().setNum(idFrom) +
                    " and id <= " + QString().setNum(idTo) +
                    " order by id asc"))
@@ -485,8 +488,16 @@ QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rt
         result += "<rtl>";
     while(query.next())
     {
-        QString text = query.value(0).toString();
+        int id = query.value(0).toInt();
+        QString text = query.value(1).toString();
+
+        if(id == selectedId)
+            result += "<selectedId>";
+
         result += text;
+
+        if(id == selectedId)
+            result += "</selectedId>";
     }
     if(rtl)
         result += "</rtl>";
@@ -495,7 +506,7 @@ QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rt
     return result;
 }
 
-QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter)
+QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter, int selectedId)
 {
     TextSpecificData* textSpecificData = _getTextSpecificData(bibletextId);
     MinAndMaxIds minAndMaxIds = textSpecificData->hash.value(normalisedChapter);
@@ -505,7 +516,7 @@ QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter)
 
     if(min > 0 && max > 0)
     {
-        return readInBible(bibletextId, min, max, textSpecificData->rtl);
+        return readInBible(bibletextId, min, max, textSpecificData->rtl, selectedId);
     }
 
     return "";
@@ -588,14 +599,14 @@ BibleQuerier& BibleQuerier::instance()
     return singleton;
 }
 
-QString BibleQuerier::readInChapterData(int bibletextId, int normalisedChapter)
+QString BibleQuerier::readInChapterData(int bibletextId, int normalisedChapter, int selectedId)
 {
-    return instance()._readInChapterData(bibletextId, normalisedChapter);
+    return instance()._readInChapterData(bibletextId, normalisedChapter, selectedId);
 }
 
-ParallelDTO BibleQuerier::readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter)
+ParallelDTO BibleQuerier::readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter, int selectedId)
 {
-    return instance()._readInChapterDataForParallelTexts(bibletextIds, idsToInclude, normalisedChapter);
+    return instance()._readInChapterDataForParallelTexts(bibletextIds, idsToInclude, normalisedChapter, selectedId);
 }
 
 VerseLocation* BibleQuerier::getVerseLocation(int bibletextId, VerseReference verseReference)

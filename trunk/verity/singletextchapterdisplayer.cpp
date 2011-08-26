@@ -9,7 +9,7 @@ SingleTextChapterDisplayer::SingleTextChapterDisplayer(QWebView* webView, QList<
 
 ChapterRepresentation* SingleTextChapterDisplayer::constructChapterRepresentation(int normalisedChapter, int idLocation)
 {
-    QString xml = BibleQuerier::readInChapterData(bibletextIds.at(0), normalisedChapter);
+    QString xml = BibleQuerier::readInChapterData(bibletextIds.at(0), normalisedChapter, idLocation);
 
     return new ChapterRepresentation(normalisedChapter, transformToHtml(xml));
 }

@@ -60,7 +60,7 @@ ChapterRepresentation* ParallelTextChapterDisplayer::constructChapterRepresentat
         }
     }
 
-    ParallelDTO parallelDTO = BibleQuerier::readInChapterDataForParallel(bibletextIds, idsToInclude, normalisedChapter);
+    ParallelDTO parallelDTO = BibleQuerier::readInChapterDataForParallel(bibletextIds, idsToInclude, normalisedChapter, idLocation);
 
 
     bool evenStartToSet = false;

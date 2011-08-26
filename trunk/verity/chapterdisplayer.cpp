@@ -45,8 +45,8 @@ ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
 
     connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
 
-        webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
-        webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
+    webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+    webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
 
 
     connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
@@ -97,6 +97,9 @@ QString ChapterDisplayer::transformToHtml(QString xml)
         xml.replace("</"+key+">", "</span>");
     }
 
+    xml.replace("<selectedId>", "<a id=\"selectedId\">");
+    xml.replace("</selectedId>", "</a>");
+
     xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span class=\"word\" onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
 
     xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
@@ -116,35 +119,39 @@ void ChapterDisplayer::display(int id, int normalisedChapter)
 
     insertFirstChapter(normalisedChapter, id);
 
-    checkCanScroll();
+    //    checkCanScroll();
 
-    //    scrollToCentre();
+    ignoreScrollEvents = true;
 
-    //    while(mustPrepend())
-    //    {
-    //        if(validChapter(getFirstNormChapter()-1))
-    //        {
-    //            prependChapter();
-    //            scrollToCentre();
-    //        }
-    //        else
-    //        {
-    //            break;
-    //        }
-    //    }
+    scrollToCentre();
 
-    //    while(mustAppend())
-    //    {
-    //        if(validChapter(getLastNormChapter()+1))
-    //        {
-    //            appendChapter();
-    //            scrollToCentre();
-    //        }
-    //        else
-    //        {
-    //            break;
-    //        }
-    //    }
+    while(mustPrepend())
+    {
+        if(validChapter(getFirstNormChapter()-1))
+        {
+            prependChapter();
+            scrollToCentre();
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    while(mustAppend())
+    {
+        if(validChapter(getLastNormChapter()+1))
+        {
+            appendChapter();
+            scrollToCentre();
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    ignoreScrollEvents = false;
 }
 
 //bool ChapterDisplayer::mustAppend(int min, int max, int value, int pageStep)
@@ -197,6 +204,11 @@ int ChapterDisplayer::getLastNormChapter()
 
 void ChapterDisplayer::scrollToCentre()
 {
+    webView->page()->mainFrame()->scrollToAnchor("selectedId");
+    if(webView->page()->mainFrame()->scrollBarValue(Qt::Vertical) < webView->page()->mainFrame()->scrollBarMaximum(Qt::Vertical))
+    {
+        webView->page()->mainFrame()->scroll(0, -(webView->page()->viewportSize().height()/4));
+    }
 }
 
 QString ChapterDisplayer::getHtmlFromChapterRepresentations()
@@ -226,13 +238,13 @@ void ChapterDisplayer::add(ChapterRepresentation* chapterRepresentation)
 
 void ChapterDisplayer::prependChapter()
 {
-//    qDebug() << "prepending";
+    //    qDebug() << "prepending";
     add(constructChapterRepresentation(getFirstNormChapter()-1));
 }
 
 void ChapterDisplayer::appendChapter()
 {
-//    qDebug() << "appending";
+    //    qDebug() << "appending";
     add(constructChapterRepresentation(getLastNormChapter()+1));
 }
 
@@ -277,7 +289,7 @@ void ChapterDisplayer::scrollTo(int value)
 
 void ChapterDisplayer::unloadFirstChapter()
 {
-//    qDebug() << "unloading first";
+    //    qDebug() << "unloading first";
     ChapterRepresentation* chRep = chapters.values().at(0);
     int unloadingHeight = chRep->getHeight();
 
@@ -293,7 +305,7 @@ void ChapterDisplayer::unloadFirstChapter()
 
 void ChapterDisplayer::unloadLastChapter()
 {
-//    qDebug() << "unloading last";
+    //    qDebug() << "unloading last";
 
     ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
     chapters.remove(chRep->getNormalisedChapter());
@@ -364,7 +376,7 @@ void ChapterDisplayer::checkCanScroll()
     {
         ignoreScrollEvents = true;
 
-//        printOutHeights("start: ");
+        //        printOutHeights("start: ");
 
         while(mustPrepend())
         {
@@ -402,7 +414,7 @@ void ChapterDisplayer::checkCanScroll()
         while(canUnloadLastChapter())
             unloadLastChapter();
 
-//        printOutHeights("end: ");
+        //        printOutHeights("end: ");
         ignoreScrollEvents = false;
     }
 }
