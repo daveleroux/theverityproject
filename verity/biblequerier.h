@@ -28,11 +28,11 @@ private:
 
     VerseLocation* _getVerseLocation(int bibletextId, VerseReference verseReference);
     TextSpecificData* _getTextSpecificData(int bibletextId);
-    QString _readInChapterData(int bibletextId, int normalisedChapter);
+    QString _readInChapterData(int bibletextId, int normalisedChapter, int selectedId);
 
-    ParallelDTO _readInChapterDataForParallelTexts(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter);
+    ParallelDTO _readInChapterDataForParallelTexts(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter, int selectedId);
     VerseNode* _readInChapterDataForParallelText(int bibletextId, QSet<int>& parallelIds, int idToInclude, QMap<int, int>& firstIdsMap, QMap<int, int>& lastIdsMap);
-    VerseNode* _readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds);
+    VerseNode* _readInFromMinToMax(int bibletextId, int idFrom, int idTo, QSet<int>& parallelIds, int selectedId=0);
 
     QList<int> _getWordHandlerIds(int bibletextId);
     int _getStrongsNum(int bibletextId, int wordId);
@@ -45,16 +45,16 @@ private:
     QString asString(QList<int> list);
 
 //    QList<TextInfo> readInTisch(int idFrom, int idTo); //must clean up
-    QString readInBible(int bibletextId, int idFrom, int idTo, bool rtl);
+    QString readInBible(int bibletextId, int idFrom, int idTo, bool rtl, int selectedId);
 //    QList<TextInfo> readInWlc(int idFrom, int idTo); //must clean up
     QString _getNetNote(int id);
 
 public:
     static VerseLocation* getVerseLocation(int bibletextId, VerseReference verseReference);
     static TextSpecificData* getTextSpecificData(int bibletextId);
-    static QString readInChapterData(int bibletextId, int normalisedChapter);
+    static QString readInChapterData(int bibletextId, int normalisedChapter, int selectedId);
 
-    static ParallelDTO readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter);
+    static ParallelDTO readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter, int selectedId);
 
     static QStringList search(QString searchTerms);
 
