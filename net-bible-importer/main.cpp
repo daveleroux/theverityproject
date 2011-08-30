@@ -280,6 +280,14 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
                 newTreeParent.appendChild(newChild);
 
                 QString stringId = oldChildElement.attribute("href");
+
+                if(!stringId.contains("#note"))
+                {
+                    stringId.replace("#","#note");
+                }
+
+                if(!noteIdMap.contains(stringId))
+                    qDebug() << "Title note ID not found: " << stringId;
                 int noteId = noteIdMap.value(stringId);
 
                 newChild.setAttribute("id", noteId);
@@ -366,6 +374,15 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     placeToAdd->appendChild(newChild);
 
                     QString stringId = oldChildElement.attribute("href");
+
+                    if(!stringId.contains("#note"))
+                    {
+                        stringId.replace("#","#note");
+                    }
+
+                    if(!noteIdMap.contains(stringId))
+                        qDebug() << "Verse note ID not found: " << stringId;
+
                     int noteId = noteIdMap.value(stringId);
 
                     newChild.setAttribute("id", noteId);
@@ -832,7 +849,7 @@ void doNoteParagraph(QString noteChapterFilename, QDomElement paragraphElement)
 
         noteId++;
         QString localNumber = firstChild.firstChild().toText().data();
-        currentNote = new Note(noteId, noteChapterFilename + "#note" + localNumber);
+        currentNote = new Note(noteId, noteChapterFilename + "#" + localNumber);
 
     }
     //    notePlaceToAdd = &(currentNote->xmlDoc.firstChild());
@@ -857,7 +874,21 @@ void importNoteChapter(QString chapterFilenameWithoutFiletype)
 
     wholeFile.replace(QRegExp("<note=[0-9]*>"), "");
 
-    wholeFile.replace(QRegExp("<A NAME=\"[0-9]*\">"), "");
+    wholeFile.replace(QRegExp("<A NAME=\"([0-9]*)\">"), "<a name=\"note\\1\"></a>");
+
+    int index = 0;
+    while((index = wholeFile.indexOf(QRegExp("<a name=\"note[0-9]*\"></a>"), index)) > 0)
+    {
+       int closeQuoteIndex = wholeFile.indexOf("\"", index + 9);
+       QString noteName = wholeFile.mid(index + 9, closeQuoteIndex - index - 9);
+
+       int spanIndex = wholeFile.indexOf("<span class=\"fnreference\">", index);
+       int spanCloseIndex = wholeFile.indexOf("<", spanIndex+1);
+       int lengthToReplace = spanCloseIndex - spanIndex - 26;
+       wholeFile.replace(spanIndex+26, lengthToReplace, noteName);
+
+       index++;
+    }
 
     wholeFile.replace("<BODY BGCOLOR=\"#ddddc5\"><p>", "<body>");
     wholeFile.replace("<HTML>", "<html>");
