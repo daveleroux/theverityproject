@@ -15,7 +15,7 @@
 #include <iostream>
 using namespace std;
 
-BibleTextBrowser::BibleTextBrowser() : QWebView()
+BibleTextBrowser::BibleTextBrowser() : VWebView()
 {
 
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
@@ -120,21 +120,6 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
     }
 }
 
-void BibleTextBrowser::wheelEvent(QWheelEvent *event)
-{
-    if((QApplication::keyboardModifiers() & Qt::ControlModifier) > 0)
-    {
-        int numDegrees = event->delta() / 8;
-        int numSteps = numDegrees / 15;
-        float zoom = numSteps/10.0f;
-        setTextSizeMultiplier(textSizeMultiplier() + zoom);
-        event->accept();
-    }
-    else
-    {
-        QWebView::wheelEvent(event);
-    }
-}
 
 
 //void BibleTextBrowser::resizeEvent(QResizeEvent* event)

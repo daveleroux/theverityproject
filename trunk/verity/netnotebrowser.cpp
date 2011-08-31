@@ -4,7 +4,7 @@
 #include "biblequerier.h"
 #include <QFile>
 
-NetNoteBrowser::NetNoteBrowser(QWidget *parent) : QWebView(parent), Listener()
+NetNoteBrowser::NetNoteBrowser(QWidget *parent) : VWebView(parent)
 {
     EventManager::addListener(EventType::NET_NOTE, this);
 
@@ -67,8 +67,8 @@ QString NetNoteBrowser::transformToHtml(QString xml)
         xml.replace("</"+key+">", "</span>");
     }
 
-//    xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
-//    xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
+    //    xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
+    //    xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
 
     return frameTop + xml + frameBottom;
 }
@@ -76,7 +76,14 @@ QString NetNoteBrowser::transformToHtml(QString xml)
 
 void NetNoteBrowser::handleEvent(Event* event)
 {
-    NetNoteEvent* netNoteEvent = static_cast<NetNoteEvent*>(event);
-    QString xml = BibleQuerier::getNetNote(netNoteEvent->id);
-    setHtml(transformToHtml(xml));
+    if(event->getEventType() == EventType::NET_NOTE)
+    {
+        NetNoteEvent* netNoteEvent = static_cast<NetNoteEvent*>(event);
+        QString xml = BibleQuerier::getNetNote(netNoteEvent->id);
+        setHtml(transformToHtml(xml));
+    }
+    else
+    {
+        VWebView::handleEvent(event);
+    }
 }
