@@ -13,14 +13,15 @@
 #include <QtWebKit/QWebView>
 #include <QtWebKit/QWebFrame>
 #include <QWebElement>
+#include "vwebview.h"
 
-class BibleTextBrowser : public QWebView
+class BibleTextBrowser : public VWebView
 {
     Q_OBJECT
 
 private:
     ChapterDisplayer* chapterDisplayer;
-    bool isCtrlDown;
+
 
 public:
     BibleTextBrowser();
@@ -30,7 +31,7 @@ protected:
 
     void display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocaction);
 //    QMimeData* createMimeDataFromSelection() const;
-    void wheelEvent(QWheelEvent *event);
+
 
 public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);

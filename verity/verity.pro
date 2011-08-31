@@ -51,7 +51,9 @@ SOURCES += main.cpp \
     parsingevent.cpp \
     netnotebrowser.cpp \
     netnoteevent.cpp \
-    grid.cpp
+    grid.cpp \
+    vwebview.cpp \
+    basicevent.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -97,7 +99,9 @@ HEADERS += mainwindow.h \
     parsingevent.h \
     netnotebrowser.h \
     netnoteevent.h \
-    grid.h
+    grid.h \
+    vwebview.h \
+    basicevent.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

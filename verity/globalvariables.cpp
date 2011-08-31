@@ -4,11 +4,10 @@ QString PROGRAM_NAME = "Verity";
 
 QString DATA_PATH = "";
 
-QString MAIN_WINDOW_SETTING_GROUP = "mainWindow";
-QString SIZE_SETTING = "size";
-QString POS_SETTING = "pos";
-QString WINDOW_STATE_SETTING = "windowStateSetting";
-QString DATA_PATH_SETTING = "dataPath";
+//QString SIZE_SETTING = "size";
+//QString POS_SETTING = "pos";
+//QString WINDOW_STATE_SETTING = "windowStateSetting";
+//QString DATA_PATH_SETTING = "dataPath";
 
 QString BIBLE_TEXT_BROWSER_SETTING_GROUP = "bibleTextBrowserSettingGroup";
 QString PARALLEL_DISPLAY_SETTINGS_GROUP = "parallelDisplaySettingsGroup";

@@ -3,8 +3,9 @@
 
 #include <QWebView>
 #include "listener.h"
+#include "vwebview.h"
 
-class NetNoteBrowser : public QWebView, public Listener
+class NetNoteBrowser : public VWebView
 {
     Q_OBJECT
 
