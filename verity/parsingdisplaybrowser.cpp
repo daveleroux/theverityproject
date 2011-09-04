@@ -6,55 +6,104 @@
 #include "parsingevent.h"
 #include "eventmanager.h"
 
-ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : QTextBrowser(parent), Listener()
+ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : VWebView(parent)
 {
     EventManager::addListener(EventType::PARSING, this);
-    zoomIn(2);
+//    zoomIn(2);
+
+    //should share this with bibletextbrowser?
+
+    frameTop = "<html>"
+               "<head>"
+               "<style type=\"text/css\">\n";
+
+    QFile tmp(DATA_PATH + "/bible.css");
+    if(!tmp.open(QIODevice::ReadOnly))
+        exit(1);
+
+    QByteArray byteArray = tmp.readAll();
+
+    frameTop += QString::fromUtf8(byteArray.data());
+
+    tmp.close();
+
+    frameTop += "</style>"
+                "</head>"
+                "<body>"
+                "<div>";
+
+    frameBottom =  "</div>"
+                   "</body>"
+                   "</html>";
+
 }
 
 void ParsingDisplayBrowser::handleEvent(Event* event)
 {
-    ParsingEvent* parsingEvent = static_cast<ParsingEvent*>(event);
-    display(parsingEvent->normalisedMorphTag);
+    if(event->getEventType() == EventType::PARSING)
+    {
+        ParsingEvent* parsingEvent = static_cast<ParsingEvent*>(event);
+        display(parsingEvent->normalisedMorphTag);
+    }
+    else
+    {
+        VWebView::handleEvent(event);
+    }
+
+}
+
+QSize ParsingDisplayBrowser::sizeHint() const
+{
+    return QSize(width(), 200);
 }
 
 void ParsingDisplayBrowser::display(QBitArray normalisedMorphTag)
 {
-    clear();
+//    clear();
 
     QList<ParseAttribute> attributes = ParsingDecoder::parse(normalisedMorphTag);
 
-    QTextCursor textCursor(document());
+//    QTextCursor textCursor(document());
 
-    QTextCharFormat boldFormat;
-    boldFormat.setFontWeight(QFont::Bold);
+//    QTextCharFormat boldFormat;
+//    boldFormat.setFontWeight(QFont::Bold);
 
-    QTextCharFormat normalFormat;
+//    QTextCharFormat normalFormat;
 
 //    textCursor.insertHtml("<h3>Parsing</h3>");
 //    textCursor.insertText("\n");
 
 
-    QTextTableFormat tableFormat;
-    tableFormat.setCellPadding(1);
-    tableFormat.setBorder(0);
+    QString table = "<table class=\"parsing\">";
+
+//    QTextTableFormat tableFormat;
+//    tableFormat.setCellPadding(1);
+//    tableFormat.setBorder(0);
 
 
-    QTextTable* textTable = textCursor.insertTable(attributes.size() + 1, 2, tableFormat);
+//    QTextTable* textTable = textCursor.insertTable(attributes.size() + 1, 2, tableFormat);
 
 
-    if(attributes.size() > 0)
-    {
-        textTable->cellAt(0,1).setFormat(boldFormat);
-    }
+//    if(attributes.size() > 0)
+//    {
+//        textTable->cellAt(0,1).setFormat(boldFormat);
+//    }
 
     for(int i=0; i<attributes.size(); i++)
     {
-        textCursor.insertText(attributes.at(i).description + ":");
-        textCursor.movePosition(QTextCursor::NextBlock);
-        textCursor.insertText(attributes.at(i).value);
-        textCursor.movePosition(QTextCursor::NextBlock);
+        table += "<tr>";
+
+        table += "<td>" + attributes.at(i).description + ": </td>";
+
+        if(i==0)
+            table += "<td><b>" + attributes.at(i).value + "</b></td>";
+        else
+            table += "<td>" + attributes.at(i).value + "</td>";
+
+        table += "</tr>";
     }
+
+    table += "</table>";
 
 //    textCursor.insertText("Lemma:");
 //    textCursor.movePosition(QTextCursor::NextBlock);
@@ -64,12 +113,14 @@ void ParsingDisplayBrowser::display(QBitArray normalisedMorphTag)
 //    else
 //        textCursor.insertText(textInfo->strongsLemma + "/" + textInfo->fribergLemma, boldFormat);
 
+    setHtml(frameTop + table + frameBottom);
+
 }
 
-QMimeData* ParsingDisplayBrowser::createMimeDataFromSelection() const
-{
-    QMimeData* mimeData = new QMimeData();
-    mimeData->setText(textCursor().selectedText());
-    return mimeData;
-}
+//QMimeData* ParsingDisplayBrowser::createMimeDataFromSelection() const
+//{
+//    QMimeData* mimeData = new QMimeData();
+//    mimeData->setText(textCursor().selectedText());
+//    return mimeData;
+//}
 
