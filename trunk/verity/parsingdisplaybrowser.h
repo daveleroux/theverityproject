@@ -5,19 +5,25 @@
 #include "textinfo.h"
 #include "textinfo.h"
 #include "listener.h"
+#include "vwebview.h"
 
-class ParsingDisplayBrowser : public QTextBrowser, public Listener
+class ParsingDisplayBrowser : public VWebView
 {
     Q_OBJECT
+
+private:
+    QString frameTop;
+    QString frameBottom;
 
 public:
     ParsingDisplayBrowser(QWidget* parent);    
 
 protected:
-    QMimeData* createMimeDataFromSelection() const;
+//    QMimeData* createMimeDataFromSelection() const;
     void handleEvent(Event* event);
+    QSize sizeHint() const;
 
-public slots:
+//public slots:
     void display(QBitArray);
 };
 

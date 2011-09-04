@@ -199,17 +199,23 @@ VerseNode* BibleQuerier::_readInChapterDataForParallelText(int bibletextId, QSet
 
     query.prepare("select id from bibles where bibletext_id=" + QString().setNum(bibletextId) + " and parallel in ("+asString(parallelIds.toList())+") order by id asc");
 
+
     if(!query.exec())
     {
         qDebug() << "failed: " << query.lastError();
         exit(1);
     }
 
+    int min = 0;
+    int max = 0;
+
     query.first();
-    int min = query.value(0).toInt();
+    if(query.isValid())
+        min = query.value(0).toInt();
 
     query.last();
-    int max = query.value(0).toInt();
+    if(query.isValid())
+        max = query.value(0).toInt();
 
 
 
