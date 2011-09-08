@@ -12,6 +12,12 @@ class vLocationDropDowns : public QWidget
 public:
     explicit vLocationDropDowns(QString activeText, QWidget *parent = 0);
 
+private slots:
+    void goClicked();
+
+signals:
+    void goSignal();
+
 private:
     QStringList availableBooks;
     QVector<int> *bookChapterRange;

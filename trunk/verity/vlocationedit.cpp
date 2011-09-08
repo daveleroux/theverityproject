@@ -28,7 +28,9 @@ vLocationEdit::vLocationEdit(QWidget *parent) :
     this->setLayout(&mainLayout);
 
     connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchView(bool)));
+
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(go()));
+    connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
 }
 
 void vLocationEdit::switchView(bool toggle)
