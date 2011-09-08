@@ -15,8 +15,9 @@
 #include <iostream>
 using namespace std;
 
-BibleTextBrowser::BibleTextBrowser() : VWebView()
+BibleTextBrowser::BibleTextBrowser() : QWebView()
 {
+    qDebug() << "BibleTextBrowser - constructing";
 
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
@@ -55,26 +56,27 @@ BibleTextBrowser::BibleTextBrowser() : VWebView()
 }
 
 
-void BibleTextBrowser::writeOutSettings()
-{
-    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
+//void BibleTextBrowser::writeOutSettings()
+//{
+//    QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
 
-    settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
+//    settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
 
-    //    settings.beginWriteArray(FONT_FAMILY_SETTINGS);
-    //    for (int i = 0; i < fontFamilies.size(); i++)
-    //    {
-    //        settings.setArrayIndex(i);
-    //        settings.setValue(TEXT_SETTING, fontFamilies.keys().at(i));
-    //        settings.setValue(FONT_SETTING, fontFamilies.value(fontFamilies.keys().at(i)));
-    //    }
-    //    settings.endArray();
+//    //    settings.beginWriteArray(FONT_FAMILY_SETTINGS);
+//    //    for (int i = 0; i < fontFamilies.size(); i++)
+//    //    {
+//    //        settings.setArrayIndex(i);
+//    //        settings.setValue(TEXT_SETTING, fontFamilies.keys().at(i));
+//    //        settings.setValue(FONT_SETTING, fontFamilies.value(fontFamilies.keys().at(i)));
+//    //    }
+//    //    settings.endArray();
 
-    settings.endGroup();
-}
+//    settings.endGroup();
+//}
 
 void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocation)
 {
+    qDebug() << "BibleTextBrowser::display - set up chapterDisplayer";
     if(chapterDisplayer != 0)
     {        
         delete chapterDisplayer;
@@ -91,7 +93,9 @@ void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int norm
 
     //    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
 
+    qDebug() << "BibleTextBrowser::display - ready to display";
     chapterDisplayer->display(idLocation, normalisedChapterLocation);
+    qDebug() << "BibleTextBrowser::display - done";
 }
 
 void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseReference)
@@ -120,6 +124,21 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
     }
 }
 
+void BibleTextBrowser::wheelEvent(QWheelEvent *event)
+{
+    if((QApplication::keyboardModifiers() & Qt::ControlModifier) > 0)
+    {
+        int numDegrees = event->delta() / 8;
+        int numSteps = numDegrees / 15;
+        float zoom = numSteps/10.0f;
+        setTextSizeMultiplier(textSizeMultiplier() + zoom);
+        event->accept();
+    }
+    else
+    {
+        QWebView::wheelEvent(event);
+    }
+}
 
 
 //void BibleTextBrowser::resizeEvent(QResizeEvent* event)
