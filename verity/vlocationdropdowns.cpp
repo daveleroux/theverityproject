@@ -33,7 +33,13 @@ vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
     btnGo = new QToolButton();
     btnGo->setText("GO");
     mainLayout->addWidget(btnGo);
+    connect (btnGo, SIGNAL(clicked()), this, SLOT(goClicked()));
 
-    mainLayout->setContentsMargins(0,0,0,0);
     this->setLayout(mainLayout);
+}
+
+void vLocationDropDowns::goClicked()
+{
+    setProperty("destination", cmbBookSelector->currentText() + " " + cmbChapterSelector->currentText() + ":" + cmbVerseSelector->currentText());
+    emit goSignal();
 }
