@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QComboBox>
 #include <QHBoxLayout>
+#include <QToolButton>
 
 class vLocationDropDowns : public QWidget
 {
@@ -19,6 +20,7 @@ private:
     QComboBox *cmbBookSelector;
     QComboBox *cmbChapterSelector;
     QComboBox *cmbVerseSelector;
+    QToolButton *btnGo;
 
 };
 
