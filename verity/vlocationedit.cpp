@@ -25,7 +25,6 @@ vLocationEdit::vLocationEdit(QWidget *parent) :
     mainLayout.addWidget(stackedWidget);
     mainLayout.addWidget(&btnSwitchView);
 
-    mainLayout.setContentsMargins(0,0,0,0);
     this->setLayout(&mainLayout);
 
     connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchView(bool)));

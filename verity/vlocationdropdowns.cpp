@@ -1,3 +1,4 @@
+#include <QDebug>
 #include "vlocationdropdowns.h"
 
 vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
@@ -28,6 +29,10 @@ vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
     cmbVerseSelector = new QComboBox(this);
     cmbVerseSelector->addItem("1");
     mainLayout->addWidget(cmbVerseSelector);
+
+    btnGo = new QToolButton();
+    btnGo->setText("GO");
+    mainLayout->addWidget(btnGo);
 
     mainLayout->setContentsMargins(0,0,0,0);
     this->setLayout(mainLayout);

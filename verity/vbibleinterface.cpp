@@ -8,8 +8,21 @@ vBibleInterface::vBibleInterface(QWidget *parent) :
 
     locationEdit = new vLocationEdit(this);
     vbox->addWidget(locationEdit);
+    //this should be dynamic based on a variable passed to the constructor
+    QVector<QString> texts;
+    texts.append("net [fix this code!]");
+    texts.append("tisch [fix this code!]");
+    texts.append("wlc [fix this code!]");
+    qDebug() << "vBibleInterface - 1";
+    textSelect = new vTextSelect(texts);
+    qDebug() << "vBibleInterface - 1.5";
+    vbox->addWidget(textSelect);
+    qDebug() << "vBibleInterface - 2";
     bibleWebView = new BibleTextBrowser();
     vbox->addWidget(bibleWebView);
+
+    vbox->setStretch(1,1);//makes bibleWebview fill up the space
+
 
     this->setLayout(vbox);
     qDebug() << "vBibleInterface - success";
