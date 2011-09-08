@@ -51,6 +51,8 @@ SOURCES += main.cpp \
     netnotebrowser.cpp \
     netnoteevent.cpp \
     grid.cpp \
+    vwebview.cpp \
+    basicevent.cpp \
     vbibleinterface.cpp \
     vlocationedit.cpp \
     vlocationdropdowns.cpp \
@@ -84,6 +86,7 @@ HEADERS += mainwindow.h \
     referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
     searchbrowser.h \
+    locationlineedit.h \
     scrolllistener.h \
     paralleldto.h \
     eventmanager.h \
@@ -100,6 +103,8 @@ HEADERS += mainwindow.h \
     netnotebrowser.h \
     netnoteevent.h \
     grid.h \
+    vwebview.h \
+    basicevent.h\
     vbibleinterface.h \
     vlocationedit.h \
     vlocationdropdowns.h \

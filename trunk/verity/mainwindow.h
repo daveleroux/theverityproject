@@ -6,18 +6,23 @@
 #include "vbibleinterface.h"
 #include "searchbrowser.h"
 #include "qsnapscrollbar.h"
-#include "locationlineedit.h"
 #include <QLineEdit>
 #include <QLabel>
 #include <QComboBox>
 #include <QPushButton>
 
+#include "listener.h"
 
-class MainWindow : public QMainWindow
+class MainWindow : public QMainWindow, public Listener
 {
     Q_OBJECT
 
-    public:
+private:
+    static QString MAIN_WINDOW_SETTING_GROUP;
+    static QString GEOMETRY_SETTING;
+    static QString WINDOW_STATE_SETTING;
+
+public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -29,13 +34,14 @@ protected:
 
     vBibleInterface* bibleInterface;
     SearchBrowser* searchBrowser;
-    vLocationLineEdit* verseLineEdit;
+//    LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
     QList<int> texts;
 
     void closeEvent(QCloseEvent *event);
-    void writeOutSettings();
+
+    void handleEvent(Event* event);
 
 public slots:
 //    void performVerseLineEdit();
