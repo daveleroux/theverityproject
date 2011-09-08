@@ -3,7 +3,7 @@
 
 #include <QtGui/QMainWindow>
 #include <QList>
-#include "bibletextbrowser.h"
+#include "vbibleinterface.h"
 #include "searchbrowser.h"
 #include "qsnapscrollbar.h"
 #include "locationlineedit.h"
@@ -12,18 +12,12 @@
 #include <QComboBox>
 #include <QPushButton>
 
-#include "listener.h"
 
-class MainWindow : public QMainWindow, public Listener
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-private:
-    static QString MAIN_WINDOW_SETTING_GROUP;
-    static QString GEOMETRY_SETTING;
-    static QString WINDOW_STATE_SETTING;
-
-public:
+    public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
@@ -33,20 +27,19 @@ public:
 
 protected:
 
-    BibleTextBrowser* browser;
+    vBibleInterface* bibleInterface;
     SearchBrowser* searchBrowser;
-    LocationLineEdit* verseLineEdit;
+    vLocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
     QList<int> texts;
 
     void closeEvent(QCloseEvent *event);
-
-    void handleEvent(Event* event);
+    void writeOutSettings();
 
 public slots:
-    void performVerseLineEdit();
-    void verseLineEditChanged(QString string);
+//    void performVerseLineEdit();
+//    void verseLineEditChanged(QString string);
     void textToggled(bool);
 
 };

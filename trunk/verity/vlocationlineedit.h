@@ -2,6 +2,8 @@
 #define LOCATIONLINEEDIT_H
 
 #include <QLineEdit>
+#include <QListView>
+#include <QStringListModel>
 #include <QStringList>
 #include <QHash>
 
@@ -9,12 +11,13 @@ class QListView;
 class QStringListModel;
 class QModelIndex;
 
-class LocationLineEdit : public QLineEdit
+class vLocationLineEdit : public QLineEdit
 {
 
     Q_OBJECT
 public:
-    LocationLineEdit(QStringList *words, QHash<QString, int> *hash, QVector<int> *bookChapterRange, int maxVisibleRows = 15, QWidget *parent = 0);
+    vLocationLineEdit(QString activeText, QWidget *parent = 0);
+    void hideOptions();
 
 public slots:
     void setCompleter(const QString &text);
@@ -25,13 +28,13 @@ protected:
     virtual void focusOutEvent(QFocusEvent *e);
 
 private:
-    QStringList words;
+    QStringList *words;
     QListView *listView;
     QStringListModel *model;
     QStringList filteredModelFromText(const QString &text);
-    int *maxVisibleRows;
+    int maxVisibleRows;
     QHash<QString, int> hash;
-    QVector<int> *bookChapterRange;
+    QHash<QString, int> getBookHash();
 };
 
 #endif // LOCATIONLINEEDIT_H
