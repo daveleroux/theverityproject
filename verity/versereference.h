@@ -10,6 +10,7 @@ struct VerseReference
     int verse;
     QString stringRepresentation;
 
+    VerseReference();
     VerseReference(int book, int chapter, int verse, QString stringRepresentation);
 };
 

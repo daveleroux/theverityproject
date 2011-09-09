@@ -32,6 +32,7 @@ namespace EventType
         PARSING,
         NET_NOTE,
         CLOSING,
+        BIBLE_REFERENCE,
     };
 }
 

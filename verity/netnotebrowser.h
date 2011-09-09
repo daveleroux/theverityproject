@@ -19,6 +19,8 @@ public:
 
     QSize sizeHint() const;
 
+//    QSizePolicy sizePolicy();
+
 private:
     QString frameTop;
     QString frameBottom;

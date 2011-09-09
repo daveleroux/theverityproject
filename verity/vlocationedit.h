@@ -14,7 +14,7 @@ public:
     explicit vLocationEdit(QWidget *parent = 0);
 
 private:
-    QHBoxLayout mainLayout;
+    QHBoxLayout* mainLayout;
     QStackedWidget *stackedWidget;
 
     vLocationDropDowns *locationDropDowns;

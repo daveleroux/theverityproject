@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
     restoreGeometry(settings.value(GEOMETRY_SETTING).toByteArray());
 
-    restoreState(settings.value(WINDOW_STATE_SETTING).toByteArray());
+
 
 
     //        DATA_PATH = settings.value(DATA_PATH_SETTING, "/usr/share/verity").toString();
@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
-    bibleInterface = new vBibleInterface();
+    bibleInterface = new vBibleInterface(this);
     setCentralWidget(bibleInterface);
     qDebug() << "central widget:" << DATA_PATH;
 
@@ -81,7 +81,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     NetNoteBrowser* netNoteBrowser = new NetNoteBrowser(netNoteDock);
     netNoteDock->setWidget(netNoteBrowser);
     addDockWidget(Qt::BottomDockWidgetArea, netNoteDock);
-    //    netNoteDock->setSizePolicy(QSizePolicy::QRect(0,0, netNoteDock->width(), 100));;
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
     dictionaryDock->setObjectName(dictionaryDock->windowTitle());
@@ -135,14 +134,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     //    {
     //        activeTexts = "net#tisch#wlc";
     //    }
-    QString activeTexts = "net#tisch#wlc";
+//    QString activeTexts = "net#tisch#wlc";
 
-    QStringList activeTextList = activeTexts.split("#");
+//    QStringList activeTextList = activeTexts.split("#");
 
-    QList<QString> textsAvailable;
-    textsAvailable.append("net");
-    textsAvailable.append("tisch");
-    textsAvailable.append("wlc");
+//    QList<QString> textsAvailable;
+//    textsAvailable.append("net");
+//    textsAvailable.append("tisch");
+//    textsAvailable.append("wlc");
 
 
     QVector<int> *bookChapterRange = new QVector<int>;
@@ -279,49 +278,54 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
 //    addToolBar(toolbar);
     this->setWindowIcon(QIcon(DATA_PATH + "/verity.ico"));
+
+    restoreState(settings.value(WINDOW_STATE_SETTING).toByteArray());
+
     settings.endGroup();
+
+
 
     EventManager::addListener(EventType::WORD_CLICKED, new WordClickedListener());
 
     EventManager::addListener(EventType::CLOSING, this);
 }
 
-void MainWindow::textToggled(bool checked)
-{
-    QPushButton* sender = (QPushButton*)QObject::sender();
+//void MainWindow::textToggled(bool checked)
+//{
+//    QPushButton* sender = (QPushButton*)QObject::sender();
 
-    //when you clean your filthy code that uses the caption on the button you can clean this up too.
-    QString text = sender->text().mid(1);
+//    //when you clean your filthy code that uses the caption on the button you can clean this up too.
+//    QString text = sender->text().mid(1);
 
-    QMap<QString, int> textToBibletextIdMap;
-    textToBibletextIdMap.insert("net", 1);
-    textToBibletextIdMap.insert("tisch", 2);
-    textToBibletextIdMap.insert("wlc", 3);
+//    QMap<QString, int> textToBibletextIdMap;
+//    textToBibletextIdMap.insert("net", 1);
+//    textToBibletextIdMap.insert("tisch", 2);
+//    textToBibletextIdMap.insert("wlc", 3);
 
-    if(checked)
-    {
-        texts.append(textToBibletextIdMap.value(text));
-    }
-    else
-    {
-        texts.removeOne(textToBibletextIdMap.value(text));
-    }
-    searchBrowser->setTextsAvaiable(texts);
+//    if(checked)
+//    {
+//        texts.append(textToBibletextIdMap.value(text));
+//    }
+//    else
+//    {
+//        texts.removeOne(textToBibletextIdMap.value(text));
+//    }
+//    searchBrowser->setTextsAvaiable(texts);
 
-//    verseLineEdit->setFocus(Qt::OtherFocusReason);
-}
+////    verseLineEdit->setFocus(Qt::OtherFocusReason);
+//}
 
 void MainWindow::afterShown()
 {
 //    verseLineEdit->setFocus();
 
-    VerseReference verseReference = VerseReferenceParser::parse("Mt1");
-    texts.append(1);
-    texts.append(2);
-    texts.append(3);
-    qDebug() << "mainwindow::aftershown - " << verseReference.stringRepresentation << " :: texts() " << texts.count();
-    bibleInterface->bibleWebView->display(this->texts, verseReference);
-    qDebug() << "mainwindow::aftershown - bada bing bada boom baby";
+//    VerseReference verseReference = VerseReferenceParser::parse("Mt1");
+//    texts.append(1);
+//    texts.append(2);
+//    texts.append(3);
+//    qDebug() << "mainwindow::aftershown - " << verseReference.stringRepresentation << " :: texts() " << texts.count();
+//    bibleInterface->bibleWebView->display(this->texts, verseReference);
+//    qDebug() << "mainwindow::aftershown - bada bing bada boom baby";
 }
 
 void MainWindow::handleEvent(Event* event)

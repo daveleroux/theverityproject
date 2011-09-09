@@ -30,7 +30,7 @@ vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
     cmbVerseSelector->addItem("1");
     mainLayout->addWidget(cmbVerseSelector);
 
-    btnGo = new QToolButton();
+    btnGo = new QToolButton(this);
     btnGo->setText("GO");
     mainLayout->addWidget(btnGo);
     connect (btnGo, SIGNAL(clicked()), this, SLOT(goClicked()));

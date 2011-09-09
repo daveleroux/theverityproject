@@ -37,7 +37,7 @@ protected:
 //    LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
-    QList<int> texts;
+//    QList<int> texts;
 
     void closeEvent(QCloseEvent *event);
 
@@ -46,7 +46,7 @@ protected:
 public slots:
 //    void performVerseLineEdit();
 //    void verseLineEditChanged(QString string);
-    void textToggled(bool);
+//    void textToggled(bool);
 
 };
 
