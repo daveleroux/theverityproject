@@ -23,13 +23,15 @@ private:
     ChapterDisplayer* chapterDisplayer;
 
 public:
-    BibleTextBrowser();
+    BibleTextBrowser(QWidget *parent = 0);
 //    void writeOutSettings();
 
 protected:
 
     void display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocaction);
 //    QMimeData* createMimeDataFromSelection() const;
+
+    void handleEvent(Event* event);
 
 public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);

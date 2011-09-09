@@ -4,7 +4,7 @@
 vBibleInterface::vBibleInterface(QWidget *parent) :
     QWidget(parent)
 {
-    vbox = new QVBoxLayout();
+    vbox = new QVBoxLayout(this);
 
     locationEdit = new vLocationEdit(this);
     vbox->addWidget(locationEdit);
@@ -18,10 +18,11 @@ vBibleInterface::vBibleInterface(QWidget *parent) :
     qDebug() << "vBibleInterface - 1.5";
     vbox->addWidget(textSelect);
     qDebug() << "vBibleInterface - 2";
-    bibleWebView = new BibleTextBrowser();
-    vbox->addWidget(bibleWebView);
+    bibleWebView = new BibleTextBrowser(this);
+    vbox->addWidget(bibleWebView, 1);
 
-    vbox->setStretch(1,1);//makes bibleWebview fill up the space
+//    vbox->setStretch(0,0);//makes bibleWebview fill up the space
+//    vbox->setStretch(1,1);//makes bibleWebview fill up the space
 
 
     this->setLayout(vbox);

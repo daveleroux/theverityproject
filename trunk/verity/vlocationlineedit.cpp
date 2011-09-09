@@ -7,7 +7,7 @@
 vLocationLineEdit::vLocationLineEdit(QString activeText, QWidget *parent)
     : QLineEdit(parent)
 {
-    listView = new QListView();
+    listView = new QListView(this);
     listView->setWindowFlags(Qt::ToolTip);
 
     connect(this, SIGNAL(textChanged(const QString &)), this, SLOT(setCompleter(const QString &)));

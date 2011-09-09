@@ -4,6 +4,7 @@
 #include <QTextCursor>
 #include <QApplication>
 #include <QMessageBox>
+//#include <QList>
 
 #include "bibletextbrowser.h"
 #include "timer.h"
@@ -11,13 +12,17 @@
 #include "biblequerier.h"
 #include "paralleltextchapterdisplayer.h"
 #include "singletextchapterdisplayer.h"
+#include "biblereferenceevent.h"
+#include "eventmanager.h"
 
 #include <iostream>
 using namespace std;
 
-BibleTextBrowser::BibleTextBrowser() : VWebView()
+BibleTextBrowser::BibleTextBrowser(QWidget* parent) : VWebView(parent)
 {
     qDebug() << "BibleTextBrowser - constructing";
+
+    EventManager::addListener(EventType::BIBLE_REFERENCE, this);
 
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(BIBLE_TEXT_BROWSER_SETTING_GROUP);
@@ -96,6 +101,23 @@ void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int norm
     qDebug() << "BibleTextBrowser::display - ready to display";
     chapterDisplayer->display(idLocation, normalisedChapterLocation);
     qDebug() << "BibleTextBrowser::display - done";
+}
+
+void BibleTextBrowser::handleEvent(Event* event)
+{
+    if(event->getEventType() == EventType::BIBLE_REFERENCE)
+    {
+        BibleReferenceEvent* bibleReferenceEvent = static_cast<BibleReferenceEvent*>(event);
+        QList<int> texts;
+        texts.append(1);
+        texts.append(2);
+        texts.append(3);
+        display(texts, bibleReferenceEvent->verseReference);
+    }
+    else
+    {
+        VWebView::handleEvent(event);
+    }
 }
 
 void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseReference)

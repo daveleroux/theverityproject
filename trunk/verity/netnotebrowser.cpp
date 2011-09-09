@@ -35,6 +35,11 @@ NetNoteBrowser::NetNoteBrowser(QWidget *parent) : VWebView(parent)
 
 }
 
+//QSizePolicy NetNoteBrowser::sizePolicy()
+//{
+//    return QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+//}
+
 QSize NetNoteBrowser::sizeHint() const
 {
     return QSize(width(), 200);
