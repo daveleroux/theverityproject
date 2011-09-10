@@ -5,11 +5,11 @@
 #include <QPushButton>
 #include <QHBoxLayout>
 
-class vTextSelect : public QWidget
+class VTextSelect : public QWidget
 {
     Q_OBJECT
 public:
-    explicit vTextSelect(QVector<QString> availableActiveTexts, QWidget *parent = 0);
+    explicit VTextSelect(QVector<QString> availableActiveTexts, QWidget *parent = 0);
 
 signals:
 

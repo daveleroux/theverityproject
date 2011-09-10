@@ -6,11 +6,11 @@
 #include "bibletextbrowser.h"
 #include "vtextselect.h"
 
-class vBibleInterface : public QWidget
+class VBibleInterface : public QWidget
 {
     Q_OBJECT
 public:
-    explicit vBibleInterface(QWidget *parent = 0);
+    explicit VBibleInterface(QWidget *parent = 0);
     //TODO: make this private (I think only mainwindow::aftershown will be affected)
     BibleTextBrowser *bibleWebView;
 
@@ -20,8 +20,8 @@ public slots:
 
 private:
     QVBoxLayout *vbox;
-    vLocationEdit *locationEdit;
-    vTextSelect *textSelect;
+    VLocationEdit *locationEdit;
+    VTextSelect *textSelect;
 };
 
 #endif // VBIBLEINTERFACE_H

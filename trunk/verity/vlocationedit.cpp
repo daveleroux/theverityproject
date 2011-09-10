@@ -3,7 +3,7 @@
 #include "versereferenceparser.h"
 #include "biblereferenceevent.h"
 
-vLocationEdit::vLocationEdit(QWidget *parent) :
+VLocationEdit::VLocationEdit(QWidget *parent) :
     QWidget(parent)
 {
     QStringList availableBooks;
@@ -15,11 +15,10 @@ vLocationEdit::vLocationEdit(QWidget *parent) :
 
     QString act = "default";
 
-    locationDropDowns = new vLocationDropDowns(act, this);
+    locationDropDowns = new VLocationDropDowns(act, this);
     stackedWidget->addWidget(locationDropDowns);
 
-    locationLineEdit = new vLocationLineEdit(act, this);
-    locationLineEdit->setFixedHeight(locationDropDowns->height());
+    locationLineEdit = new VLocationLineEdit(act, this);
     stackedWidget->addWidget(locationLineEdit);
 
     btnSwitchView.setText("#");
@@ -29,6 +28,7 @@ vLocationEdit::vLocationEdit(QWidget *parent) :
     mainLayout->addWidget(&btnSwitchView);
 
     this->setLayout(mainLayout);
+    qDebug() << this->height();
 
     connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchView(bool)));
 
@@ -36,13 +36,13 @@ vLocationEdit::vLocationEdit(QWidget *parent) :
     connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
 }
 
-void vLocationEdit::switchView(bool toggle)
+void VLocationEdit::switchView(bool toggle)
 {
     stackedWidget->setCurrentIndex((stackedWidget->currentIndex() * (-1)) + 1);
     stackedWidget->currentWidget()->setFocus(Qt::OtherFocusReason);
 }
 
-void vLocationEdit::go()
+void VLocationEdit::go()
 {
 
     qDebug() << "HAMBA: " << stackedWidget->currentWidget()->property("destination");

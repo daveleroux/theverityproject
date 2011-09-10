@@ -32,7 +32,7 @@ public:
 
 protected:
 
-    vBibleInterface* bibleInterface;
+    VBibleInterface* bibleInterface;
     SearchBrowser* searchBrowser;
 //    LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;

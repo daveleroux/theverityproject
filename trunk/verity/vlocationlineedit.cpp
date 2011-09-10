@@ -4,7 +4,7 @@
 #include <QtGui/QStringListModel>
 #include <QDebug>
 
-vLocationLineEdit::vLocationLineEdit(QString activeText, QWidget *parent)
+VLocationLineEdit::VLocationLineEdit(QString activeText, QWidget *parent)
     : QLineEdit(parent)
 {
     listView = new QListView(this);
@@ -25,12 +25,12 @@ vLocationLineEdit::vLocationLineEdit(QString activeText, QWidget *parent)
     listView->setModel(model);
 }
 
-void vLocationLineEdit::focusOutEvent(QFocusEvent *e)
+void VLocationLineEdit::focusOutEvent(QFocusEvent *e)
 {
     listView->hide();
     QLineEdit::focusOutEvent(e);
 }
-void vLocationLineEdit::keyPressEvent(QKeyEvent *e)
+void VLocationLineEdit::keyPressEvent(QKeyEvent *e)
 {
     int key = e->key();
     if (!listView->isHidden())
@@ -121,7 +121,7 @@ void vLocationLineEdit::keyPressEvent(QKeyEvent *e)
     }
 }
 
-void vLocationLineEdit::setCompleter(const QString &text)
+void VLocationLineEdit::setCompleter(const QString &text)
 {
     if (text.isEmpty())
     {
@@ -209,14 +209,14 @@ void vLocationLineEdit::setCompleter(const QString &text)
 }
 
 //Basically just a slot to connect to the listView's click event
-void vLocationLineEdit::completeText(const QModelIndex &index)
+void VLocationLineEdit::completeText(const QModelIndex &index)
 {
     QString text = index.data().toString();
     setText(text);
     listView->hide();
 }
 
-QStringList vLocationLineEdit::filteredModelFromText(const QString &text)
+QStringList VLocationLineEdit::filteredModelFromText(const QString &text)
 {
     QStringList newFilteredModel;
 
@@ -286,12 +286,12 @@ QStringList vLocationLineEdit::filteredModelFromText(const QString &text)
     return newFilteredModel;
 }
 
-void vLocationLineEdit::hideOptions()
+void VLocationLineEdit::hideOptions()
 {
     listView->hide();
 }
 
-QHash<QString, int> vLocationLineEdit::getBookHash()
+QHash<QString, int> VLocationLineEdit::getBookHash()
 {
     QHash<QString, int> hash;
 

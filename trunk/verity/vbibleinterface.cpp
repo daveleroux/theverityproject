@@ -1,12 +1,12 @@
 #include "vbibleinterface.h"
 #include <QDebug>
 
-vBibleInterface::vBibleInterface(QWidget *parent) :
+VBibleInterface::VBibleInterface(QWidget *parent) :
     QWidget(parent)
 {
     vbox = new QVBoxLayout(this);
 
-    locationEdit = new vLocationEdit(this);
+    locationEdit = new VLocationEdit(this);
     vbox->addWidget(locationEdit);
     //this should be dynamic based on a variable passed to the constructor
     QVector<QString> texts;
@@ -14,7 +14,7 @@ vBibleInterface::vBibleInterface(QWidget *parent) :
     texts.append("tisch [fix this code!]");
     texts.append("wlc [fix this code!]");
     qDebug() << "vBibleInterface - 1";
-    textSelect = new vTextSelect(texts);
+    textSelect = new VTextSelect(texts);
     qDebug() << "vBibleInterface - 1.5";
     vbox->addWidget(textSelect);
     qDebug() << "vBibleInterface - 2";
