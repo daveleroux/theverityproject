@@ -1,7 +1,7 @@
 #include <QDebug>
 #include "vlocationdropdowns.h"
 
-vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
+VLocationDropDowns::VLocationDropDowns(QString activeText, QWidget *parent) :
     QWidget(parent)
 {
     availableBooks << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
@@ -38,7 +38,7 @@ vLocationDropDowns::vLocationDropDowns(QString activeText, QWidget *parent) :
     this->setLayout(mainLayout);
 }
 
-void vLocationDropDowns::goClicked()
+void VLocationDropDowns::goClicked()
 {
     setProperty("destination", cmbBookSelector->currentText() + " " + cmbChapterSelector->currentText() + ":" + cmbVerseSelector->currentText());
     emit goSignal();

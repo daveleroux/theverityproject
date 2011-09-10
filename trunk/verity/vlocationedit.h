@@ -7,18 +7,18 @@
 #include "vlocationlineedit.h"
 #include "vlocationdropdowns.h"
 
-class vLocationEdit : public QWidget
+class VLocationEdit : public QWidget
 {
     Q_OBJECT
 public:
-    explicit vLocationEdit(QWidget *parent = 0);
+    explicit VLocationEdit(QWidget *parent = 0);
 
 private:
     QHBoxLayout* mainLayout;
     QStackedWidget *stackedWidget;
 
-    vLocationDropDowns *locationDropDowns;
-    vLocationLineEdit *locationLineEdit;
+    VLocationDropDowns *locationDropDowns;
+    VLocationLineEdit *locationLineEdit;
 
     QPushButton btnSwitchView;
 
