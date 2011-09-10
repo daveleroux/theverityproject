@@ -6,11 +6,11 @@
 #include <QHBoxLayout>
 #include <QToolButton>
 
-class vLocationDropDowns : public QWidget
+class VLocationDropDowns : public QWidget
 {
     Q_OBJECT
 public:
-    explicit vLocationDropDowns(QString activeText, QWidget *parent = 0);
+    explicit VLocationDropDowns(QString activeText, QWidget *parent = 0);
 
 private slots:
     void goClicked();

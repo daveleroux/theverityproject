@@ -60,7 +60,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
     setWindowTitle(PROGRAM_NAME);
     setMinimumSize(1000, 700);
-    bibleInterface = new vBibleInterface(this);
+    bibleInterface = new VBibleInterface(this);
     setCentralWidget(bibleInterface);
     qDebug() << "central widget:" << DATA_PATH;
 

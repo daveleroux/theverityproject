@@ -1,7 +1,7 @@
 #include "vtextselect.h"
 #include <QDebug>
 
-vTextSelect::vTextSelect(QVector<QString> availableTexts, QWidget *parent) :
+VTextSelect::VTextSelect(QVector<QString> availableTexts, QWidget *parent) :
     QWidget(parent)
 {
     hbox = new QHBoxLayout();

@@ -11,12 +11,12 @@ class QListView;
 class QStringListModel;
 class QModelIndex;
 
-class vLocationLineEdit : public QLineEdit
+class VLocationLineEdit : public QLineEdit
 {
 
     Q_OBJECT
 public:
-    vLocationLineEdit(QString activeText, QWidget *parent = 0);
+    VLocationLineEdit(QString activeText, QWidget *parent = 0);
     void hideOptions();
 
 public slots:
