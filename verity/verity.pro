@@ -57,7 +57,6 @@ SOURCES += main.cpp \
     vlocationedit.cpp \
     vlocationdropdowns.cpp \
     vlocationlineedit.cpp \
-    vtextselect.cpp \
     biblereferenceevent.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
@@ -111,7 +110,6 @@ HEADERS += mainwindow.h \
     vlocationedit.h \
     vlocationdropdowns.h \
     vlocationlineedit.h \
-    vtextselect.h \
     biblereferenceevent.h
 INSTALLS += target \
     datatarget
