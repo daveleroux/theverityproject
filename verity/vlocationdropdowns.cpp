@@ -16,6 +16,7 @@ VLocationDropDowns::VLocationDropDowns(QString activeText, QWidget *parent) :
     bookChapterRange->append(5);// BibleQuerier::getChaptersAvailable(activeText, &availableBooks.value(0));
 
     mainLayout = new QHBoxLayout(this);
+    mainLayout->setMargin(0);
 
     cmbBookSelector = new QComboBox(this);
     cmbBookSelector->addItems(availableBooks);
