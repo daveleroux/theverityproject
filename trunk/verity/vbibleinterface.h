@@ -4,7 +4,6 @@
 #include <QWidget>
 #include "vlocationedit.h"
 #include "bibletextbrowser.h"
-#include "vtextselect.h"
 
 class VBibleInterface : public QWidget
 {
@@ -21,7 +20,6 @@ public slots:
 private:
     QVBoxLayout *vbox;
     VLocationEdit *locationEdit;
-    VTextSelect *textSelect;
 };
 
 #endif // VBIBLEINTERFACE_H

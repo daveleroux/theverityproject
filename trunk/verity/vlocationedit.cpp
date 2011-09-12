@@ -2,8 +2,9 @@
 #include <QDebug>
 #include "versereferenceparser.h"
 #include "biblereferenceevent.h"
+#include <QMenu>
 
-VLocationEdit::VLocationEdit(QWidget *parent) :
+VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     QWidget(parent)
 {
     QStringList availableBooks;
@@ -11,8 +12,24 @@ VLocationEdit::VLocationEdit(QWidget *parent) :
     availableBooks << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
 
     mainLayout = new QHBoxLayout(this);
+    btnTextAndViewSelect.setText("Parallel View");
+    btnTextAndViewSelect.setPopupMode(QToolButton::MenuButtonPopup);
+    QMenu *menu = new QMenu();
+    foreach (QString text, texts)
+    {
+        menu->addAction(text);
+    }
+    foreach (QAction *action, menu->actions())
+    {
+        action->setCheckable(true);
+        action->setChecked(true);
+    }
+    btnTextAndViewSelect.setMenu(menu);
+    mainLayout->addWidget(&btnTextAndViewSelect);
+
     stackedWidget = new QStackedWidget(this);
 
+    //TODO: Get actual active text to pass to the LocationEditors (they need to get available books somehow)
     QString act = "default";
 
     locationDropDowns = new VLocationDropDowns(act, this);
@@ -30,16 +47,31 @@ VLocationEdit::VLocationEdit(QWidget *parent) :
     this->setLayout(mainLayout);
     qDebug() << this->height();
 
-    connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchView(bool)));
+    connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchStackedWidget(bool)));
+    connect(&btnTextAndViewSelect, SIGNAL(clicked(bool)), this, SLOT(switchParallelView()));
 
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(go()));
     connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
 }
 
-void VLocationEdit::switchView(bool toggle)
+void VLocationEdit::switchStackedWidget(bool toggle)
 {
     stackedWidget->setCurrentIndex((stackedWidget->currentIndex() * (-1)) + 1);
     stackedWidget->currentWidget()->setFocus(Qt::OtherFocusReason);
+}
+
+void VLocationEdit::switchParallelView()
+{
+    switch (btnTextAndViewSelect.text() == "Parallel View")
+    {
+    case true:
+        btnTextAndViewSelect.setText("Single Text View");
+        break;
+    case false:
+        btnTextAndViewSelect.setText("Parallel View");
+        break;
+    }
+//    emit
 }
 
 void VLocationEdit::go()

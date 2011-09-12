@@ -11,9 +11,10 @@ class VLocationEdit : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VLocationEdit(QWidget *parent = 0);
+    explicit VLocationEdit(QVector<QString> texts, QWidget *parent = 0);
 
 private:
+    QToolButton btnTextAndViewSelect;
     QHBoxLayout* mainLayout;
     QStackedWidget *stackedWidget;
 
@@ -23,7 +24,8 @@ private:
     QPushButton btnSwitchView;
 
 public slots:
-    void switchView(bool toggle);
+    void switchStackedWidget(bool toggle);
+    void switchParallelView();
     void go();
 };
 
