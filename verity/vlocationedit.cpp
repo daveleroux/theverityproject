@@ -3,6 +3,7 @@
 #include "versereferenceparser.h"
 #include "biblereferenceevent.h"
 #include <QMenu>
+#include <QShortcut>
 
 VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     QWidget(parent)
@@ -39,8 +40,7 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     stackedWidget->addWidget(locationLineEdit);
 
     btnSwitchView.setText("#");
-    btnSwitchView.setShortcut(Qt::CTRL + Qt::Key_L);
-    btnSwitchView.setToolTip("Switch input method (Ctrl+l)");
+    btnSwitchView.setToolTip("Switch input method");
     mainLayout->addWidget(stackedWidget);
     mainLayout->addWidget(&btnSwitchView);
 
@@ -52,6 +52,9 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
 
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(go()));
     connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
+
+    QShortcut *shortcut = new QShortcut(Qt::CTRL + Qt::Key_L, this);
+    connect(shortcut, SIGNAL(activated()), this, SLOT(shortcutActivated()));
 }
 
 void VLocationEdit::switchStackedWidget(bool toggle)
@@ -76,11 +79,19 @@ void VLocationEdit::switchParallelView()
 
 void VLocationEdit::go()
 {
-
-    qDebug() << "HAMBA: " << stackedWidget->currentWidget()->property("destination");
-    locationLineEdit->setText(stackedWidget->currentWidget()->property("destination").toString());
+    VerseReference verseReference = VerseReferenceParser::parse(stackedWidget->currentWidget()->property("destination").toString());
+    locationLineEdit->setText(verseReference.stringRepresentation);
     locationLineEdit->hideOptions();
 
-    VerseReference verseReference = VerseReferenceParser::parse(stackedWidget->currentWidget()->property("destination").toString());
+    locationDropDowns->setLocation(verseReference);
+    stackedWidget->setCurrentWidget(locationDropDowns);
+
     (new BibleReferenceEvent(verseReference))->fire();
+}
+
+void VLocationEdit::shortcutActivated()
+{
+    stackedWidget->setCurrentWidget(locationLineEdit);
+    locationLineEdit->selectAll();
+    locationLineEdit->setFocus();
 }
