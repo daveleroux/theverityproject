@@ -396,6 +396,11 @@ VerseReference VerseReferenceParser::_parse(QString string)
     return VerseReference(book,chapter,verse, _calculateStringRepresentation(book, chapter, verse));
 }
 
+QString VerseReferenceParser::_booknameFromBookindex(int book)
+{
+    return normalisedBookNames.value(book);
+}
+
 VerseReferenceParser& VerseReferenceParser::instance()
 {
     static VerseReferenceParser singleton;
@@ -410,4 +415,9 @@ VerseReference VerseReferenceParser::parse(QString string)
 QString VerseReferenceParser::calculateStringRepresentation(int book, int chapter, int verse)
 {
     return instance()._calculateStringRepresentation(book, chapter, verse);
+}
+
+QString VerseReferenceParser::booknameFromBookindex(int book)
+{
+    return instance()._booknameFromBookindex(book);
 }

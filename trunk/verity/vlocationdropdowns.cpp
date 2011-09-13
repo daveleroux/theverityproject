@@ -1,5 +1,6 @@
 #include <QDebug>
 #include "vlocationdropdowns.h"
+#include "versereferenceparser.h"
 
 VLocationDropDowns::VLocationDropDowns(QString activeText, QWidget *parent) :
     QWidget(parent)
@@ -43,4 +44,10 @@ void VLocationDropDowns::goClicked()
 {
     setProperty("destination", cmbBookSelector->currentText() + " " + cmbChapterSelector->currentText() + ":" + cmbVerseSelector->currentText());
     emit goSignal();
+}
+
+void VLocationDropDowns::setLocation(VerseReference reference)
+{
+    cmbBookSelector->setCurrentIndex(cmbBookSelector->findText(VerseReferenceParser::booknameFromBookindex(reference.book)));
+    //TODO: Once we have actual numbers for chapter and verse selectors. Fill in those details
 }

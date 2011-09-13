@@ -24,6 +24,7 @@ private:
     QPushButton btnSwitchView;
 
 public slots:
+    void shortcutActivated();
     void switchStackedWidget(bool toggle);
     void switchParallelView();
     void go();

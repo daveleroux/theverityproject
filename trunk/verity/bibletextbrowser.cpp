@@ -113,6 +113,7 @@ void BibleTextBrowser::handleEvent(Event* event)
         texts.append(2);
         texts.append(3);
         display(texts, bibleReferenceEvent->verseReference);
+        setFocus();
     }
     else
     {
