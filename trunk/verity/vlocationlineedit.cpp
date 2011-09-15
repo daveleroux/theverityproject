@@ -125,7 +125,7 @@ void VLocationLineEdit::setCompleter(const QString &text)
 {
     if (text.isEmpty())
     {
-        this->setProperty("destination", "");
+        setProperty("destination", "");
         listView->hide();
         return;
     }
@@ -138,16 +138,12 @@ void VLocationLineEdit::setCompleter(const QString &text)
 //        return;
 //    }
 
-    QRegExp rx = QRegExp("^((\\d\\ )|(\\d))?[a-zA-Z]*\\b");
+    //it's a disgusting fix but I can't think of a better way to account for "Song of Songs"
+    QRegExp rx = QRegExp("^(((\\d\\ )|(\\d))?[a-zA-Z]*\\b|(Song of Songs\\b))");
     rx.exactMatch(text);
 
-    /*
-        IF the old model had only 1 row
-        OR the text matched a tag
-        OR there was a valid selectedIndex
-     */
-
     bool doSuggestions = true;
+
     if (!words->contains(rx.cap(0)) &&               //only if the starting text is not a recognised book already
         text.length() -1 == rx.cap(0).length() &&   //don't keep trying to complete when there's stuff after the book
         text.indexOf(QRegExp("[\\d\\s]$")) &&       //the last character must be a digit or whitespace
@@ -170,20 +166,25 @@ void VLocationLineEdit::setCompleter(const QString &text)
         QStringList possiblyPasted = filteredModelFromText(rx.cap(0));
         if (possiblyPasted.count() == 1)
         {
-            //so we set the text to have the abbreviation fixed and the
+            //so we fix the abbreviation
             setText(possiblyPasted.at(0) + " " + text.mid(rx.cap(0).length()).trimmed());
             doSuggestions = false;
         }
     }
 
-    if (doSuggestions)
+    model->setStringList(filteredModelFromText(this->text()));
+
+    if (!doSuggestions)
     {
-        model->setStringList(filteredModelFromText(text));
-        if (model->rowCount() > 0)
-            setProperty("destination", model->stringList().at(0));
+        listView->hide();
     }
 
-    if (model->rowCount() == 0)
+    if (model->rowCount() > 0)
+    {
+        setProperty("destination", model->stringList().at(0));
+    }
+
+    if (model->rowCount() == 0 || !doSuggestions)
     {
         return;
     }
@@ -236,7 +237,7 @@ QStringList VLocationLineEdit::filteredModelFromText(const QString &text)
 
         QString book = rx.cap(0);
         QString textWithoutBook = text.mid(book.length());
-        rx = QRegExp("^\\ (\\d+)\\D{0,3}(\\d+)?$");//at most 3 characters between chapter and verse "\\D{0,3}"
+        rx = QRegExp("^\\ ?(\\d+)\\D{0,3}(\\d+)?$");//at most 3 characters between chapter and verse "\\D{0,3}"
         rx.exactMatch(textWithoutBook);
         if (rx.cap(1).length() > 0 && rx.cap(2) > 0)
         {
