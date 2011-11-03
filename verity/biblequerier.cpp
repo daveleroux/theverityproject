@@ -740,7 +740,7 @@ QStringList BibleQuerier::_getChapterRange(int bibletextId, VerseReference verse
     QSqlQuery query;
 
     QString queryString;
-    QTextStream(&queryString) << "select distinct(chapter) from bibles where book_number=" << verseReference.book
+    QTextStream(&queryString) << "select chapter from bibles where book_number=" << verseReference.book
             << " and bibletext_id="+QString().setNum(bibletextId);
 
 
@@ -750,11 +750,13 @@ QStringList BibleQuerier::_getChapterRange(int bibletextId, VerseReference verse
         exit(1);
     }
     QStringList ret;
+    ret << 0;
     while(query.next())
     {
-        if (query.value(0).toInt() > 0)
+        if (query.value(0).toInt() > 0 && query.value(0).toInt() != ret.last().toInt())
             ret.append(query.value(0).toString());
     }
+    ret.removeFirst();
     return ret;
 }
 QStringList BibleQuerier::_getVerseRange(int bibletextId, VerseReference verseReference)
@@ -762,7 +764,7 @@ QStringList BibleQuerier::_getVerseRange(int bibletextId, VerseReference verseRe
     QSqlQuery query;
 
     QString queryString;
-    QTextStream(&queryString) << "select distinct(verse) from bibles where book_number=" << verseReference.book
+    QTextStream(&queryString) << "select verse from bibles where book_number=" << verseReference.book
             << " and chapter=" << verseReference.chapter
             << " and bibletext_id=" << QString().setNum(bibletextId);
 
@@ -772,11 +774,13 @@ QStringList BibleQuerier::_getVerseRange(int bibletextId, VerseReference verseRe
         exit(1);
     }
     QStringList ret;
+    ret << 0;
     while(query.next())
     {
-        if (query.value(0).toInt() > 0)
+        if (query.value(0).toInt() > 0 && query.value(0).toInt() != ret.last().toInt())//&& query.value(0).toString() != ret.last()
             ret.append(query.value(0).toString());
     }
+    ret.removeFirst();
     return ret;
 }
 
