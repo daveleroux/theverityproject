@@ -40,6 +40,9 @@ private:
 
     QString _constructXml(QList<int> bibletextIds, VerseNode* grid);
 
+    QStringList _getChapterRange(int bibletextId, VerseReference verseReference);
+    QStringList _getVerseRange(int bibletextId, VerseReference verseReference);
+
     QStringList _search(QString searchTerms);
 
     QString asString(QList<int> list);
@@ -55,6 +58,9 @@ public:
     static QString readInChapterData(int bibletextId, int normalisedChapter, int selectedId);
 
     static ParallelDTO readInChapterDataForParallel(QList<int> bibletextIds, QMap<int, int> idsToInclude, int normalisedChapter, int selectedId);
+
+    static QStringList getChapterRange(int bibletextId, VerseReference verseReference);
+    static QStringList getVerseRange(int bibletextId, VerseReference verseReference);
 
     static QStringList search(QString searchTerms);
 
