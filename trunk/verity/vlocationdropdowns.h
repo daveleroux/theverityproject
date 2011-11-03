@@ -16,13 +16,16 @@ public:
 
 private slots:
     void goClicked();
+    void bookSelected(QString text);
+    void chapterSelected(QString text);
 
 signals:
     void goSignal();
 
 private:
     QStringList availableBooks;
-    QVector<int> *bookChapterRange;
+    QStringList bookChapterRange;
+    QStringList bookChapterVerseRange;
 
     QHBoxLayout *mainLayout;
     QComboBox *cmbBookSelector;

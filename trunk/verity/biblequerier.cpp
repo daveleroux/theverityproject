@@ -625,7 +625,6 @@ QString BibleQuerier::readInBible(int bibletextId, int idFrom, int idTo, bool rt
     return result;
 }
 
-
 QString BibleQuerier::_readInChapterData(int bibletextId, int normalisedChapter, int selectedId)
 {
     TextSpecificData* textSpecificData = _getTextSpecificData(bibletextId);
@@ -736,12 +735,67 @@ QString BibleQuerier::_getNetNote(int id)
 }
 
 
+QStringList BibleQuerier::_getChapterRange(int bibletextId, VerseReference verseReference)
+{
+    QSqlQuery query;
+
+    QString queryString;
+    QTextStream(&queryString) << "select distinct(chapter) from bibles where book_number=" << verseReference.book
+            << " and bibletext_id="+QString().setNum(bibletextId);
+
+
+    if(!query.exec(queryString))
+    {
+        qDebug() << "failed[getChapterRange]: " << query.lastError() << endl;
+        exit(1);
+    }
+    QStringList ret;
+    while(query.next())
+    {
+        if (query.value(0).toInt() > 0)
+            ret.append(query.value(0).toString());
+    }
+    return ret;
+}
+QStringList BibleQuerier::_getVerseRange(int bibletextId, VerseReference verseReference)
+{
+    QSqlQuery query;
+
+    QString queryString;
+    QTextStream(&queryString) << "select distinct(verse) from bibles where book_number=" << verseReference.book
+            << " and chapter=" << verseReference.chapter
+            << " and bibletext_id=" << QString().setNum(bibletextId);
+
+    if(!query.exec(queryString))
+    {
+        qDebug() << "failed[getVerseRange]: " << query.lastError() << endl;
+        exit(1);
+    }
+    QStringList ret;
+    while(query.next())
+    {
+        if (query.value(0).toInt() > 0)
+            ret.append(query.value(0).toString());
+    }
+    return ret;
+}
+
+
+
 BibleQuerier& BibleQuerier::instance()
 {
     static BibleQuerier singleton;
     return singleton;
 }
 
+QStringList BibleQuerier::getChapterRange(int bibletextId, VerseReference verseReference)
+{
+    return instance()._getChapterRange(bibletextId, verseReference);
+}
+QStringList BibleQuerier::getVerseRange(int bibletextId, VerseReference verseReference)
+{
+    return instance()._getVerseRange(bibletextId, verseReference);
+}
 
 QString BibleQuerier::readInChapterData(int bibletextId, int normalisedChapter, int selectedId)
 {
