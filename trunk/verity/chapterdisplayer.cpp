@@ -318,7 +318,7 @@ void ChapterDisplayer::unloadLastChapter()
 
 bool ChapterDisplayer::canUnloadFirstChapter()
 {
-    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0 && chapters.size() > 1)
     {
         //fake remove it and see if 'mustPrepend', if so then don't remove it
 
@@ -339,7 +339,7 @@ bool ChapterDisplayer::canUnloadFirstChapter()
 
 bool ChapterDisplayer::canUnloadLastChapter()
 {
-    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0)
+    if(webView->page()->mainFrame()->scrollBarGeometry(Qt::Vertical).height() > 0 && chapters.size() > 1)
     {
         //fake remove it and see if 'mustAppend', if so then don't remove it
 
@@ -376,7 +376,7 @@ void ChapterDisplayer::checkCanScroll()
     {
         ignoreScrollEvents = true;
 
-        //        printOutHeights("start: ");
+
 
         while(mustPrepend())
         {
@@ -414,7 +414,6 @@ void ChapterDisplayer::checkCanScroll()
         while(canUnloadLastChapter())
             unloadLastChapter();
 
-        //        printOutHeights("end: ");
         ignoreScrollEvents = false;
     }
 }
