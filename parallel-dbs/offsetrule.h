@@ -12,7 +12,6 @@ private:
     QString targetText;
     VerseReference targetStartReference;
 
-    int targetStartIndex;
 public:
     OffsetRule(DbUpdater* dbUpdater,
                QString sourceText,
@@ -21,8 +20,8 @@ public:
                QString targetText,
                VerseReference targetStartReference);
 
-    bool applies(VerseReference verseReference);
-    int getSyncNumber(VerseReference sourceCurrentVerseReference);
+    bool applies(int id);
+    int getSyncNumber(int id);
 
 };
 

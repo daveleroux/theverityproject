@@ -12,9 +12,9 @@ int Rule::getHighestUnusedSyncNumber()
     return result;
 }
 
-int Rule::getIndexOf(QString text, VerseReference verseReference)
-{
-    QMap<VerseReference, int>* map = dbUpdater->syncNumberMaps.value(text);
-    QList<VerseReference> keys = map->keys();
-    return keys.indexOf(verseReference);
-}
+//int Rule::getIndexOf(QString text, VerseReference verseReference)
+//{
+//    QMap<VerseReference, int>* map = dbUpdater->syncNumberMaps.value(text);
+//    QList<VerseReference> keys = map->keys();
+//    return keys.indexOf(verseReference);
+//}

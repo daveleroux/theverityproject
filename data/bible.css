@@ -32,6 +32,8 @@ td
 	position: relative;
 	top: -0.4em;
 	cursor: pointer;
+	font-weight:normal;
+	font-style:normal;
 }
 
 .smallCaps

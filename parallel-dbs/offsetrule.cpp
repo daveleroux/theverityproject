@@ -13,29 +13,31 @@ OffsetRule::OffsetRule(DbUpdater* dbUpdater,
 
     this->targetText = targetText;
     this->targetStartReference = targetStartReference;
-
-
-    targetStartIndex = getIndexOf(targetText, targetStartReference);
 }
 
-bool OffsetRule::applies(VerseReference verseReference)
+bool OffsetRule::applies(int id)
 {
-    return verseReference >= sourceStartReference && verseReference <= sourceEndReference;
+    SyncNumberLookup* syncNumberLookup = dbUpdater->syncNumberMaps.value(sourceText);
+    if(syncNumberLookup->hasVerseReferenceForId(id))
+    {
+        VerseReference verseReference = syncNumberLookup->verseReferenceForId(id);
+        return verseReference >= sourceStartReference && verseReference <= sourceEndReference;
+    }
+    return false;
 }
 
-int OffsetRule::getSyncNumber(VerseReference sourceCurrentVerseReference)
+int OffsetRule::getSyncNumber(int id)
 {
-    int sourceStartIndex = getIndexOf(sourceText, sourceStartReference);
-    int sourceCurrentIndex = getIndexOf(sourceText, sourceCurrentVerseReference);
+    SyncNumberLookup* sourceSyncNumberLookup = dbUpdater->syncNumberMaps.value(sourceText);
 
-    int offset = sourceCurrentIndex - sourceStartIndex;
+    VerseReference sourceCurrentVerseReference = sourceSyncNumberLookup->verseReferenceForId(id);
 
-    int targetIndexToUse = targetStartIndex + offset;
+    int offset = sourceSyncNumberLookup->distanceBetween(sourceStartReference, sourceCurrentVerseReference);
 
-    QMap<VerseReference, int>* targetMap = dbUpdater->syncNumberMaps.value(targetText);
-    QList<VerseReference> targetKeys = targetMap->keys();
-    VerseReference targetVerseReferenceToUse = targetKeys.at(targetIndexToUse);
+    SyncNumberLookup* targetSyncNumberLookup = dbUpdater->syncNumberMaps.value(targetText);
 
-    return targetMap->value(targetVerseReferenceToUse);
+    VerseReference targetVerseReferenceToUse = targetSyncNumberLookup->addOffset(offset, targetStartReference);
+
+    return targetSyncNumberLookup->getParallel(targetVerseReferenceToUse);
 }
 

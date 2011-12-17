@@ -5,10 +5,13 @@
 
 class StandardRule : public Rule
 {
+private:
+    QString sourceText;
+
 public:
-    StandardRule(DbUpdater* dbUpdater);
-    virtual int getSyncNumber(VerseReference verseReference);
-    virtual bool applies(VerseReference verseReference);
+    StandardRule(DbUpdater* dbUpdater, QString sourceText);
+    virtual int getSyncNumber(int id);
+    virtual bool applies(int id);
 
 };
 

@@ -1,17 +1,24 @@
 #include "matchtonothingrule.h"
 
 
-MatchToNothingRule::MatchToNothingRule(DbUpdater* dbUpdater, VerseReference verseReference) : Rule(dbUpdater)
+MatchToNothingRule::MatchToNothingRule(DbUpdater* dbUpdater, QString sourceText, VerseReference verseReference) : Rule(dbUpdater)
 {
+    this->sourceText = sourceText;
     this->verseReference = verseReference;
 }
 
-bool MatchToNothingRule::applies(VerseReference currentVerseReference)
+bool MatchToNothingRule::applies(int id)
 {
-    return verseReference == currentVerseReference;
+    SyncNumberLookup* syncNumberLookup = dbUpdater->syncNumberMaps.value(sourceText);
+    if(syncNumberLookup->hasVerseReferenceForId(id))
+    {
+        VerseReference currentVerseReference = syncNumberLookup->verseReferenceForId(id);
+        return verseReference == currentVerseReference;
+    }
+    return false;
 }
 
-int MatchToNothingRule::getSyncNumber(VerseReference verseReference)
+int MatchToNothingRule::getSyncNumber(int id)
 {
     return Rule::getHighestUnusedSyncNumber();
 }

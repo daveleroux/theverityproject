@@ -137,15 +137,15 @@ struct GlobalsHelper
         return bookNames.at(bookNumber-1);
     }
 
-    void _insertNetBookNumberAndParallel(int bookNumber, int parallel)
-    {
-        netBookNamesToParallel.insert(bookNumber, parallel);
-    }
+//    void _insertNetBookNumberAndParallel(int bookNumber, int parallel)
+//    {
+//        netBookNamesToParallel.insert(bookNumber, parallel);
+//    }
 
-    int _getParallelForBookNumber(int bookNumber)
-    {
-        return netBookNamesToParallel.value(bookNumber);
-    }
+//    int _getParallelForBookNumber(int bookNumber)
+//    {
+//        return netBookNamesToParallel.value(bookNumber);
+//    }
 
     QString _standardNameForBookNumber(int bookNumber)
     {
@@ -163,15 +163,15 @@ struct GlobalsHelper
         return instance()._nameForBookNumber(bookNumber);
     }
 
-    static void insertNetBookNumberAndParallel(int bookNumber, int parallel)
-    {
-        instance()._insertNetBookNumberAndParallel(bookNumber, parallel);
-    }
+//    static void insertNetBookNumberAndParallel(int bookNumber, int parallel)
+//    {
+//        instance()._insertNetBookNumberAndParallel(bookNumber, parallel);
+//    }
 
-    static int getParallelForBookNumber(int bookNumber)
-    {
-        return instance()._getParallelForBookNumber(bookNumber);
-    }
+//    static int getParallelForBookNumber(int bookNumber)
+//    {
+//        return instance()._getParallelForBookNumber(bookNumber);
+//    }
 
     static QString standardNameForBookNumber(int bookNumber)
     {
