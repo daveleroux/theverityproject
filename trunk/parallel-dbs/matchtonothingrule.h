@@ -6,12 +6,13 @@
 class MatchToNothingRule : public Rule
 {
 private:
+    QString sourceText;
     VerseReference verseReference;
 
 public:
-    MatchToNothingRule(DbUpdater* dbUpdater, VerseReference verseReference);
-    virtual int getSyncNumber(VerseReference currentVerseReference);
-    virtual bool applies(VerseReference verseReference);
+    MatchToNothingRule(DbUpdater* dbUpdater, QString sourceText, VerseReference verseReference);
+    virtual int getSyncNumber(int id);
+    virtual bool applies(int id);
 };
 
 #endif // MATCHTONOTHINGRULE_H

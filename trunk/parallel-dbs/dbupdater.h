@@ -6,6 +6,7 @@
 #include "versereference.h"
 #include <QtSql>
 #include <QDebug>
+#include "syncnumberlookup.h"
 
 class Rule;
 
@@ -15,9 +16,10 @@ public:
     DbUpdater();
     void update();
 
-    QMap<QString, QMap<VerseReference, int>* > syncNumberMaps;
+//    QMap<QString, QMap<VerseReference, int>* > syncNumberMaps;
+    QMap<QString, SyncNumberLookup* > syncNumberMaps;
 
-    QMap<QString, QHash<VerseReference, int>* > originalSyncMaps;
+//    QMap<QString, QHash<VerseReference, int>* > originalSyncMaps;
 
     int highestUnusedSyncNumber;
 
