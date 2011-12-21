@@ -9,3 +9,8 @@ void ScrollListener::scrolled()
 {
     emit scrolledSignal();
 }
+
+void ScrollListener::moved()
+{
+    emit movedSignal();
+}

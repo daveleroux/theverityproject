@@ -131,9 +131,7 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
         {
             int idLocation = newVerseLocation->id;
             int normalisedChapterLocation = newVerseLocation->normalisedChapter;
-            delete newVerseLocation;
-
-            window()->setWindowTitle(PROGRAM_NAME + " - " + verseReference.stringRepresentation);
+            delete newVerseLocation;           
 
             display(bibletextIds, idLocation, normalisedChapterLocation);
         }
@@ -148,12 +146,23 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
 }
 
 
-//void BibleTextBrowser::resizeEvent(QResizeEvent* event)
-//{
-//    QWebView::resizeEvent(event);
-//    emit checkCanScrollSignal(0);
-//}
+void BibleTextBrowser::resizeEvent(QResizeEvent* event)
+{
+    if(chapterDisplayer != 0)
+    {
+        chapterDisplayer->moved();
+    }
+    QWebView::resizeEvent(event);
+}
 
+void BibleTextBrowser::zoomed()
+{
+    if(chapterDisplayer != 0)
+    {
+        chapterDisplayer->moved();
+    }
+    VWebView::zoomed();
+}
 
 //void BibleTextBrowser::scrollbarValueChanged(int v)
 //{

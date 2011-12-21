@@ -168,7 +168,7 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
     query.setForwardOnly(true);
 
 
-    if(!query.exec("select id, text, parallel from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
+    if(!query.exec("select id, book_number, chapter, verse, text, parallel from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
                    + QString().setNum(idFrom) +
                    " and id <= " + QString().setNum(idTo) +
                    " order by id asc"))
@@ -187,26 +187,32 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
     while(query.next())
     {
         int id = query.value(0).toInt();
-        QString xml = query.value(1).toString();
+        int bookNumber = query.value(1).toInt();
+        int chapter = query.value(2).toInt();
+        int verse = query.value(3).toInt();
+        QString xml = query.value(4).toString();
+
+        xml = "<chunkDetails id=\"" + QString().setNum(id) + "\" " +
+              "bibletextId=\"" + QString().setNum(bibletextId) + "\" " +
+              "bookNumber=\"" + QString().setNum(bookNumber) + "\" " +
+              "chapter=\"" + QString().setNum(chapter) + "\" " +
+              "verse=\"" + QString().setNum(verse) + "\">" +
+              xml +
+              "</chunkDetails>";
+
         if(id == selectedId)
             xml = "<selectedId>" + xml + "</selectedId>";
-        int parallel = query.value(2).toInt();
 
+        int parallel = query.value(5).toInt();
 
         parallelIds.insert(parallel);
 
-
         VerseNode* verseNode = new VerseNode(parallel, xml);
-
 
         previousVerseNode->insertBelowMe(verseNode);
 
-
         previousVerseNode = verseNode;
-
-
     }
-
 
     return result;
 }
@@ -342,7 +348,6 @@ QString BibleQuerier::_constructXml(QList<int> bibletextIds, VerseNode* grid)
     }
     wholeChapter += "</table>";
     wholeChapter += "</normalisedChapter>";
-
 
     return wholeChapter;
 }

@@ -9,6 +9,7 @@
 #include "scrolllistener.h"
 #include "globalvariables.h"
 #include <QFile>
+#include "versereferenceparser.h"
 
 ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
 {
@@ -44,6 +45,7 @@ ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
     javascriptClickListener = new JavascriptClickListener();
 
     connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
+    connect(scrollListener, SIGNAL(movedSignal()), this, SLOT(moved()));
 
     webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
     webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
@@ -86,6 +88,7 @@ QString ChapterDisplayer::transformToHtml(QString xml)
     replaceMap.insert("normalisedChapter", "normalisedChapter");
     replaceMap.insert("rtl", "rtl");
     replaceMap.insert("greek", "greek");
+    replaceMap.insert("chunk", "chunk");
 
 
     for(int i=0; i<replaceMap.keys().size(); i++)
@@ -100,10 +103,16 @@ QString ChapterDisplayer::transformToHtml(QString xml)
     xml.replace("<selectedId>", "<a id=\"selectedId\">");
     xml.replace("</selectedId>", "</a>");
 
+    xml.replace("<chunkDetails", "<span class=\"chunkDetails\"");
+    xml.replace("</chunkDetails>", "</span>");
+
     xml.replace(QRegExp("<word bibleTextId=\"([0-9]*)\" wordId=\"([0-9]*)\">([^<]*)</word>"), "<span class=\"word\" onclick=\"javascriptClickListener.wordClicked(\\1,\\2)\">\\3</span>");
 
     xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
 
+//    qDebug() << "*********************************";
+//    qDebug() << xml;
+//    qDebug() << "*********************************";
     return xml;
 }
 
@@ -585,11 +594,101 @@ void ChapterDisplayer::scrolled()
     checkCanScroll();
 }
 
+
+void ChapterDisplayer::moved()
+{
+    QWebElementCollection collection = webView->page()->mainFrame()->findAllElements("span[class=\"chunkDetails\"][bibletextId=\"" + QString().setNum(bibletextIds.at(0)) +"\"]");
+
+    int scroll = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+
+    QList<QWebElement> visibleElements;
+
+    foreach(QWebElement chunkDetailsElement, collection)
+    {
+        int top = chunkDetailsElement.geometry().top();
+        int height = chunkDetailsElement.geometry().height();
+
+        if(top+8 >= scroll && top+15 <= scroll+webView->height()) //numbers are a bit magicy, should maybe use the height of the verse numbers instead
+        {
+            if(chunkDetailsElement.attribute("verse").toInt() > 0)
+                visibleElements.append(chunkDetailsElement);
+        }
+    }
+
+    int minId;
+    int maxId;
+    QString from = "";
+    QString to = "";
+
+    int minBook;
+    int minChapter;
+    int minVerse;
+
+    int maxBook;
+    int maxChapter;
+    int maxVerse;
+
+    if(visibleElements.size() > 0)
+    {
+        minId = visibleElements.at(0).attribute("id").toInt();
+
+        minBook = visibleElements.at(0).attribute("bookNumber").toInt();
+        minChapter = visibleElements.at(0).attribute("chapter").toInt();
+        minVerse = visibleElements.at(0).attribute("verse").toInt();
+
+        maxId = minId;
+
+        maxBook = minBook;
+        maxChapter = minChapter;
+        maxVerse = minVerse;
+
+        foreach(QWebElement element, visibleElements)
+        {
+            int id = element.attribute("id").toInt();
+            if(id < minId)
+            {
+                minId = id;
+                minBook = element.attribute("bookNumber").toInt();
+                minChapter = element.attribute("chapter").toInt();
+                minVerse = element.attribute("verse").toInt();
+            }
+
+            if(id > maxId)
+            {
+                maxId = id;
+                maxBook = element.attribute("bookNumber").toInt();
+                maxChapter = element.attribute("chapter").toInt();
+                maxVerse = element.attribute("verse").toInt();
+            }
+        }
+
+        from = VerseReferenceParser::calculateStringRepresentation(minBook, minChapter, minVerse);
+        to = VerseReferenceParser::calculateStringRepresentation(maxBook, maxChapter, maxVerse);
+    }
+
+    QString title = PROGRAM_NAME;
+    if(from.length() > 0)
+    {
+        title.append(" - ");
+        title.append(from);
+        if(to.length() > 0)
+        {
+            title.append(" - ");
+            title.append(to);
+        }
+    }
+    webView->window()->setWindowTitle(title);
+}
+
 void ChapterDisplayer::javaScriptWindowObjectClearedSlot()
 {
     webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+
     webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
     webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
+
+    webView->page()->mainFrame()->evaluateJavaScript("document.onscroll = function(){ scrollListener.moved(); }");
+//    webView->page()->mainFrame()->evaluateJavaScript("document.onresize = function(){ scrollListener.moved(); }");
 
     webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
 }

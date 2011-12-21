@@ -11,8 +11,10 @@ public:
     ScrollListener();
 signals:
     void scrolledSignal();
+    void movedSignal();
 public slots:
     void scrolled();
+    void moved();
 
 };
 
