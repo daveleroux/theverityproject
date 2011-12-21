@@ -16,6 +16,8 @@ private:
 protected:
     void wheelEvent(QWheelEvent *event);
     void handleEvent(Event* event);
+    virtual void zoomed();
+
 
 public:
     VWebView(QWidget *parent = 0);

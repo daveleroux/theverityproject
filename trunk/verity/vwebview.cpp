@@ -39,11 +39,16 @@ void VWebView::wheelEvent(QWheelEvent *event)
         float zoom = numSteps/10.0f;
         setTextSizeMultiplier(textSizeMultiplier() + zoom);
         event->accept();
+        zoomed();
     }
     else
     {
         QWebView::wheelEvent(event);
     }
+}
+
+void VWebView::zoomed()
+{
 }
 
 VWebView::~VWebView()

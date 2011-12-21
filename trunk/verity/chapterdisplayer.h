@@ -64,6 +64,7 @@ public:
 
 public slots:
     void scrolled();
+    void moved();
     void loadFinished(bool b);
     void javaScriptWindowObjectClearedSlot();
 

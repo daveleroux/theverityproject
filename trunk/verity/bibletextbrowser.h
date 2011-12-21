@@ -32,6 +32,8 @@ protected:
 //    QMimeData* createMimeDataFromSelection() const;
 
     void handleEvent(Event* event);
+    void resizeEvent(QResizeEvent* event);
+    void zoomed();
 
 public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);
