@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += sql xml
+QT       += sql xml xmlpatterns
 
 QT       -= gui
 
