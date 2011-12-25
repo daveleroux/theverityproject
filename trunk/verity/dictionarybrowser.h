@@ -2,25 +2,35 @@
 #define DICTIONARYBROWSER_H
 
 #include <QTextBrowser>
-#include "textinfo.h"
-#include "textinfo.h"
 #include "listener.h"
+#include "vwebview.h"
+#include "javascriptclicklistener.h"
 
-class DictionaryBrowser : public QTextBrowser, public Listener
+class DictionaryBrowser : public VWebView
 {
     Q_OBJECT
 
+private:
+    QString frameTop;
+    QString frameBottom;
+
+    JavascriptClickListener* javascriptClickListener;
+
 public:    
     DictionaryBrowser(QWidget* parent=0);
+    ~DictionaryBrowser();
 
 protected:
-    QString convertDefinitionToHTML(QString stylesheet, QString input);
-    QVariant loadResource(int type, const QUrl& name);
+//    QString convertDefinitionToHTML(QString stylesheet, QString input);
+//    QVariant loadResource(int type, const QUrl& name);
 
+    void setNewContent(int strongsNum);
     void handleEvent(Event* event);
+    QString transformToHtml(QString xml);
 
 public slots:
-    void display(TextInfo*);
+    void javaScriptWindowObjectClearedSlot();
+//    void display(TextInfo*);
 };
 
 #endif // DICTIONARYBROWSER_H

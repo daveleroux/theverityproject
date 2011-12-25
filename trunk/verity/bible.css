@@ -1,4 +1,7 @@
-
+a
+{
+	background-color: #d0d0d0;
+}
 table.evenstart tr, table.oddstart tr:nth-of-type(odd) 
 {
 	background-color:#f8fffa;
@@ -17,6 +20,10 @@ table
 td
 {
 	padding: 5px;
+}
+.parsing td
+{
+	padding: 2px;
 }
 .word
 {
@@ -179,3 +186,30 @@ td
 	padding-left: 3px;
 }
 
+.link
+{
+	cursor: pointer;
+	color: rgb(0,0,255);
+}
+
+.morphology
+{
+	display: block;
+	font-weight: bold;
+}
+
+.exegesis, .explanation, .translation, .kjvDefinition, .see
+{
+	display: block;
+}
+
+.entry .heading
+{
+	text-decoration: underline;
+	padding-bottom: 5px;
+}
+
+.entry
+{
+	line-height: 130%;
+}

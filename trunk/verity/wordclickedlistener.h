@@ -13,6 +13,7 @@ private:
     {
         STRONGS,
         PARSING,
+        EMPTY_PARSING,
     };
 
     QHash<int, QList<WordHandler*>* > hash;

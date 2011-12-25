@@ -32,15 +32,14 @@
             </xsl:template>
 
             <xsl:template  match="*[name()='see']">
-				<compare>
-				Compare:
+				<see>				
 					<xsl:element name="{@language}">
 						<xsl:element  name="link" >
 							<xsl:attribute name="id"><xsl:value-of select="@strongs_number"/></xsl:attribute>  
 							<xsl:value-of select="@lemma"/>                     
 						</xsl:element>
 					</xsl:element>
-				</compare>
+				</see>
             </xsl:template>
 
 
@@ -57,8 +56,9 @@
             </xsl:template>
 
             <xsl:template  match="*[name()='kjv_definition']">
-				<heading>KJV Definition</heading>
+				<kjvDefinition>
                         <xsl:apply-templates/> 		  
+                 </kjvDefinition>
             </xsl:template>
 
       </xsl:stylesheet> 

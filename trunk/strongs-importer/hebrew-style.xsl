@@ -102,8 +102,7 @@
 	</xsl:template>
 
 	<xsl:template match="foreign">
-		<compare>
-		Compare:
+		<compare>		
 			<xsl:for-each select="w">
 			<compareItem>
 			<greek>

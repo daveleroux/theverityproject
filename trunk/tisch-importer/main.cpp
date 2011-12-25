@@ -11,6 +11,8 @@
 #include "verse.h"
 #include "word.h"
 
+int HEBREW_COUNT = 8674;
+
 QList<Book*> books;
 Word* lastWordAdded;
 
@@ -359,7 +361,7 @@ void writeOutStrongsWord(QSqlQuery query, int wordId, int strongsNumber, QString
 
     query.bindValue(":bibletext_id", 2);
     query.bindValue(":word_id", wordId);
-    query.bindValue(":strongsNumber", strongsNumber);
+    query.bindValue(":strongsNumber", strongsNumber + HEBREW_COUNT);
     query.bindValue(":strongsLemma", strongsLemma);
     query.bindValue(":fribergLemma", fribergLemma);
 

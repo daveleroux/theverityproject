@@ -1,9 +1,8 @@
 #include "strongsevent.h"
 #include "globalvariables.h"
 
-StrongsEvent::StrongsEvent(int bibletextId, int strongsNum) : Event()
-{
-    this->bibletextId = bibletextId;
+StrongsEvent::StrongsEvent(int strongsNum) : Event()
+{    
     this->strongsNum = strongsNum;
 }
 
