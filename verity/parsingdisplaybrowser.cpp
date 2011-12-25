@@ -9,7 +9,6 @@
 ParsingDisplayBrowser::ParsingDisplayBrowser(QWidget* parent) : VWebView(parent)
 {
     EventManager::addListener(EventType::PARSING, this);
-//    zoomIn(2);
 
     //should share this with bibletextbrowser?
 

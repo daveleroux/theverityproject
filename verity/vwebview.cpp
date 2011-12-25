@@ -33,11 +33,11 @@ void VWebView::handleEvent(Event* event)
 void VWebView::wheelEvent(QWheelEvent *event)
 {
     if((QApplication::keyboardModifiers() & Qt::ControlModifier) > 0)
-    {
-        int numDegrees = event->delta() / 8;
-        int numSteps = numDegrees / 15;
-        float zoom = numSteps/10.0f;
-        setTextSizeMultiplier(textSizeMultiplier() + zoom);
+    {        
+//        float zoom = event->delta() / 4000.0f;
+        float zoom = event->delta() / qAbs(event->delta());
+
+        setTextSizeMultiplier(textSizeMultiplier() + 0.05f*zoom);
         event->accept();
         zoomed();
     }

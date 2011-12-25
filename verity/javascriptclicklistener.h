@@ -11,6 +11,7 @@ public:
 public slots:
     void wordClicked(int bibletextId, int wordId);
     void netNoteClicked(int id);
+    void strongsClicked(int id);
 };
 
 #endif // JAVASCRIPTCLICKLISTENER_H

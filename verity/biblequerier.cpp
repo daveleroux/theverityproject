@@ -739,6 +739,22 @@ QString BibleQuerier::_getNetNote(int id)
     return query.value(0).toString();
 }
 
+QString BibleQuerier::_getStrongsData(int strongsNumber)
+{
+    QSqlQuery query;
+
+
+    if(!query.exec("select definition from strongs where strongs_number = " + QString().setNum(strongsNumber) ))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+
+    query.next();
+    return query.value(0).toString();
+}
+
 
 QStringList BibleQuerier::_getChapterRange(int bibletextId, VerseReference verseReference)
 {
@@ -859,6 +875,12 @@ QStringList BibleQuerier::search(QString searchTerms)
 QString BibleQuerier::getNetNote(int id)
 {
     return instance()._getNetNote(id);
+}
+
+
+QString BibleQuerier::getStrongsData(int strongsNum)
+{
+    return instance()._getStrongsData(strongsNum);
 }
 
 

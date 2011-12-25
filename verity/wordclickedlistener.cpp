@@ -5,6 +5,7 @@
 #include "biblequerier.h"
 #include "strongswordhandler.h"
 #include "parsingwordhandler.h"
+#include "emptyparsingwordhandler.h"
 
 WordClickedListener::WordClickedListener() : Listener()
 {
@@ -30,6 +31,9 @@ QList<WordHandler*> WordClickedListener::getWordHandlers(int bibletextId)
                 break;
             case PARSING:
                 list->append(new ParsingWordHandler());
+                break;
+            case EMPTY_PARSING:
+                list->append(new EmptyParsingWordHandler());
                 break;
             }
         }
