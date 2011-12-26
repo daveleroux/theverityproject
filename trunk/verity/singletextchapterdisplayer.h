@@ -11,7 +11,7 @@ protected:
     ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1);
 
 public:
-    SingleTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds);
+    SingleTextChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter);
 };
 
 #endif // SINGLETEXTCHAPTERDISPLAYER_H

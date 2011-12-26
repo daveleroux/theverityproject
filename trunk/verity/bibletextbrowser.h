@@ -9,21 +9,29 @@
 #include "versereference.h"
 #include "chapterdisplayer.h"
 #include "javascriptclicklistener.h"
+#include "vwebhistory.h"
 
 #include <QtWebKit/QWebView>
 #include <QtWebKit/QWebFrame>
 #include <QWebElement>
 #include "vwebview.h"
+#include "scrolllistener.h"
+#include "javascriptclicklistener.h"
 
 class BibleTextBrowser : public VWebView
 {
     Q_OBJECT
 
 private:
-    ChapterDisplayer* chapterDisplayer;
+    VWebHistory* webHistory;
+
+    ScrollListener* scrollListener;
+    JavascriptClickListener* javascriptClickListener;
+
 
 public:
     BibleTextBrowser(QWidget *parent = 0);
+    ~BibleTextBrowser();
 //    void writeOutSettings();
 
 protected:
@@ -37,10 +45,16 @@ protected:
 
 public slots:
     void display(QList<int> bibletextIds, VerseReference verseReference);
+    void backward();
+    void forward();
+
+    void scrolled();
+    void moved();
+    void javaScriptWindowObjectClearedSlot();
 
 signals:
-//    void wordClicked(TextInfo*);
-//    void checkCanScrollSignal(int v);
+    void backwardAvailable(bool);
+    void forwardAvailable(bool);
 };
 
 #endif // BIBLETEXTBROWSER_H

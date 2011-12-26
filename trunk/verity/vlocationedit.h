@@ -13,10 +13,14 @@ class VLocationEdit : public QWidget
 public:
     explicit VLocationEdit(QVector<QString> texts, QWidget *parent = 0);
 
+    QToolButton* backButton;
+    QToolButton* forwardButton;
+
 private:
     QToolButton btnTextAndViewSelect;
     QHBoxLayout* mainLayout;
     QStackedWidget *stackedWidget;
+
 
     VLocationDropDowns *locationDropDowns;
     VLocationLineEdit *locationLineEdit;

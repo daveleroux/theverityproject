@@ -7,15 +7,14 @@
 #include <QtWebKit/QWebView>
 #include <QtWebKit/QWebFrame>
 #include <QWebElement>
-#include "scrolllistener.h"
-#include "javascriptclicklistener.h"
+#include "vwebhistoryitem.h"
 
-class ChapterDisplayer : public QObject
+class ChapterDisplayer : public QObject, public VWebHistoryItem
 {
     Q_OBJECT
 
 protected:
-    QWebView* webView;
+    VWebView* webView;
     QList<int> bibletextIds;
 
     QString frameTop;
@@ -23,8 +22,11 @@ protected:
 
     QMap<int, ChapterRepresentation*> chapters;
 
-    ScrollListener* scrollListener;
-    JavascriptClickListener* javascriptClickListener;
+
+    int id;
+    int normalisedChapter;
+
+    int savedScrollValue;
 
     virtual ChapterRepresentation* constructChapterRepresentation(int normalisedChapter, int idLocation=-1) = 0;
 
@@ -44,7 +46,6 @@ protected:
     void unloadLastChapter();
     bool canUnloadFirstChapter();
     bool canUnloadLastChapter();
-    void highlight();
     void insertFirstChapter(int normalisedChapter, int idLocation);
     void scrollTo(int value);
 
@@ -55,21 +56,21 @@ protected:
 
     bool ignoreScrollEvents;
 
+    void saveState();
+    void restore();
+
 
 public:
-    ChapterDisplayer(QWebView* webView, QList<int> bibleTextIds);
-    void display(int id, int normalisedChapter);
+    ChapterDisplayer(VWebView* webView, QList<int> bibleTextIds, int id, int normalisedChapter);
+    void display();
     void checkCanScroll();
-    ~ChapterDisplayer();
 
-public slots:
     void scrolled();
     void moved();
-    void loadFinished(bool b);
-    void javaScriptWindowObjectClearedSlot();
 
-signals:
-            //    void wordClicked(TextInfo*);
-        };
+    ~ChapterDisplayer();
+
+
+};
 
 #endif // CHAPTERDISPLAYER_H

@@ -11,10 +11,13 @@
 #include <QFile>
 #include "versereferenceparser.h"
 
-ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
+ChapterDisplayer::ChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter) : VWebHistoryItem(webView)
 {
+
     this->webView = webView;
     this->bibletextIds = bibletextIds;
+    this->id = id;
+    this->normalisedChapter = normalisedChapter;
 
     ignoreScrollEvents = false;
 
@@ -41,24 +44,14 @@ ChapterDisplayer::ChapterDisplayer(QWebView* webView, QList<int> bibletextIds)
                    "</body>"
                    "</html>";
 
-    scrollListener = new ScrollListener();
-    javascriptClickListener = new JavascriptClickListener();
-
-    connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
-    connect(scrollListener, SIGNAL(movedSignal()), this, SLOT(moved()));
-
-    webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
-    webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
-
-
-    connect(webView, SIGNAL(loadFinished(bool)), this, SLOT(loadFinished(bool)));
-    connect(webView->page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this , SLOT(javaScriptWindowObjectClearedSlot()));
 }
 
 ChapterDisplayer::~ChapterDisplayer()
 {
-    delete scrollListener;
-    delete javascriptClickListener;
+    for(int i=0; i<chapters.values().size(); i++)
+    {
+        delete chapters.values().at(i);
+    }
 }
 
 QString ChapterDisplayer::transformToHtml(QString xml)
@@ -110,25 +103,14 @@ QString ChapterDisplayer::transformToHtml(QString xml)
 
     xml.replace(QRegExp("<netNote id=\"([0-9]*)\">([^<]*)</netNote>"), "<span class=\"netNote\" onclick=\"javascriptClickListener.netNoteClicked(\\1)\">\\2</span>");
 
-//    qDebug() << "*********************************";
-//    qDebug() << xml;
-//    qDebug() << "*********************************";
     return xml;
 }
 
-void ChapterDisplayer::display(int id, int normalisedChapter)
+void ChapterDisplayer::display()
 {
-    for(int i=0; i<chapters.values().size(); i++)
-    {
-        delete chapters.values().at(i);
-    }
-    chapters.clear();
-
-    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom); //just clears the view so the heights are right
 
     insertFirstChapter(normalisedChapter, id);
-
-    //    checkCanScroll();
 
     ignoreScrollEvents = true;
 
@@ -163,33 +145,6 @@ void ChapterDisplayer::display(int id, int normalisedChapter)
     ignoreScrollEvents = false;
 }
 
-//bool ChapterDisplayer::mustAppend(int min, int max, int value, int pageStep)
-//{
-//    return value >= (max - pageStep);
-//}
-
-//bool ChapterDisplayer::mustAppend()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    return mustAppend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-//}
-
-
-//bool ChapterDisplayer::mustPrepend(int min, int max, int value, int pageStep)
-//{
-//    return value <= (min + pageStep);
-//}
-
-//bool ChapterDisplayer::mustPrepend()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    return mustPrepend(scrollBar->minimum(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-//}
-
-//void ChapterDisplayer::addChapter(ChapterRepresentation* chapterRepresentation)
-//{
-//    chapters.insert(chapterRepresentation->getNormalisedChapter(), chapterRepresentation);
-//}
 
 bool ChapterDisplayer::validChapter(int proposedChapter)
 {
@@ -244,16 +199,24 @@ void ChapterDisplayer::add(ChapterRepresentation* chapterRepresentation)
     chapterRepresentation->setHeight(newHeight - originalHeight);
 }
 
+void ChapterDisplayer::saveState()
+{
+    savedScrollValue = webView->page()->mainFrame()->scrollBarValue(Qt::Vertical);
+}
+
+void ChapterDisplayer::restore()
+{
+    webView->setHtml(frameTop + getHtmlFromChapterRepresentations() + frameBottom);
+    scrollTo(savedScrollValue);
+}
 
 void ChapterDisplayer::prependChapter()
 {
-    //    qDebug() << "prepending";
     add(constructChapterRepresentation(getFirstNormChapter()-1));
 }
 
 void ChapterDisplayer::appendChapter()
 {
-    //    qDebug() << "appending";
     add(constructChapterRepresentation(getLastNormChapter()+1));
 }
 
@@ -298,7 +261,6 @@ void ChapterDisplayer::scrollTo(int value)
 
 void ChapterDisplayer::unloadFirstChapter()
 {
-    //    qDebug() << "unloading first";
     ChapterRepresentation* chRep = chapters.values().at(0);
     int unloadingHeight = chRep->getHeight();
 
@@ -314,8 +276,6 @@ void ChapterDisplayer::unloadFirstChapter()
 
 void ChapterDisplayer::unloadLastChapter()
 {
-    //    qDebug() << "unloading last";
-
     ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
     chapters.remove(chRep->getNormalisedChapter());
     delete chRep;
@@ -385,8 +345,6 @@ void ChapterDisplayer::checkCanScroll()
     {
         ignoreScrollEvents = true;
 
-
-
         while(mustPrepend())
         {
             if(validChapter(getFirstNormChapter()-1))
@@ -427,167 +385,12 @@ void ChapterDisplayer::checkCanScroll()
     }
 }
 
-//void ChapterDisplayer::scrollDown(int pixels)
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    if(scrollBar->isVisible())
-//    {
-//        scrollBar->setValue(scrollBar->value() + pixels);
-//    }
-//}
-
-//void ChapterDisplayer::scrollUp(int pixels)
-//{
-//    scrollDown(-pixels);
-//}
-
-
-//bool ChapterDisplayer::canUnloadLastChapter()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    if(scrollBar->isVisible())
-//    {
-//        int chContainingCentralPos = getCurrentChapter();
-
-//        ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
-
-
-//        if( chRep->getNormalisedChapter() > chContainingCentralPos + 1 )
-//        {
-//            //fake remove it and see if 'mustAppend', if so then don't remove it
-
-//            int firstGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->firstPosInFragment());
-
-//            QTextCursor textCursor(textBrowser->document());
-//            textCursor.setPosition(firstGlobalPos);
-
-
-//            QRect rect = textBrowser->cursorRect(textCursor);//viewport co-ords
-
-//            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-//            return !mustAppend(scrollBar->minimum(), scrollBar->value()+ rect.top()-scrollBar->pageStep(), scrollBar->value(), scrollBar->pageStep());
-//        }
-//    }
-//    return false;
-//}
-
-
-//bool ChapterDisplayer::canUnloadFirstChapter()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-//    if(scrollBar->isVisible())
-//    {
-//        int chContainingCentralPos = getCurrentChapter();
-
-//        ChapterRepresentation* chRep = chapters.values().at(0);
-
-//        if(chRep->getNormalisedChapter() < chContainingCentralPos-1)
-//        {
-//            //fake remove it and see if 'mustPrepend', if so then don't remove it
-
-//            int endGlobalPos = convertPosToGlobal(chRep->getNormalisedChapter(), chRep->lastPosInFragment()+2);
-
-//            QTextCursor textCursor(textBrowser->document());
-//            textCursor.setPosition(endGlobalPos);
-
-//            QRect rect = textBrowser->cursorRect(textCursor); //viewport co-ords
-
-//            QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-//            return !mustPrepend(scrollBar->value() + rect.bottom(), scrollBar->maximum(), scrollBar->value(), scrollBar->pageStep());
-//        }
-//    }
-//    return false;
-//}
-
-//void ChapterDisplayer::unloadLastChapter()
-//{
-
-//    ChapterRepresentation* chRep = chapters.values().at(chapters.values().size()-1);
-
-//    QTextCursor textCursor(textBrowser->document());
-
-//    textCursor.beginEditBlock();
-
-//    textCursor.movePosition(QTextCursor::End);
-
-//    //    int startPos = convertPosToGlobal(chRep.getNormalisedChapter(), chRep.firstPosInFragment());
-//    int startPos = convertPosToGlobal(chRep->getNormalisedChapter(), 3);
-
-//    while(textCursor.position() >  startPos)
-//    {
-//        textCursor.movePosition(QTextCursor::PreviousBlock, QTextCursor::KeepAnchor);
-//    }
-
-//    textCursor.deletePreviousChar();
-
-//    textCursor.endEditBlock();
-
-//    chapters.remove(chRep->getNormalisedChapter());
-//    delete chRep;
-
-//    calculateAndSendChapterStarts();
-//}
-
-//void ChapterDisplayer::unloadFirstChapter()
-//{
-//    QScrollBar* scrollBar = textBrowser->verticalScrollBar();
-
-//    int originalHeight = textBrowser->document()->size().height();
-//    int originalValue = scrollBar->value();
-
-//    ChapterRepresentation* chRep = chapters.values().at(0);
-
-//    int endPos = chRep->lastPosInFragment()+2;
-
-//    QTextCursor textCursor(textBrowser->document());
-
-//    textCursor.beginEditBlock();
-
-//    textCursor.setPosition(0);
-
-//    while(textCursor.position() < endPos )
-//    {
-//        textCursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor);
-//    }
-//    textCursor.deletePreviousChar();
-
-//    textCursor.endEditBlock();
-
-//    int newHeight = textBrowser->document()->size().height();
-
-//    textBrowser->verticalScrollBar()->setValue(originalValue - (originalHeight-newHeight));
-
-//    chapters.remove(chRep->getNormalisedChapter());
-//    delete chRep;
-
-//    calculateAndSendChapterStarts();
-//}
-
-
-void ChapterDisplayer::highlight()
-{
-}
 
 void ChapterDisplayer::insertFirstChapter(int normalisedChapter, int idLocation)
 {
     add(constructChapterRepresentation(normalisedChapter, idLocation));
 }
 
-//ChapterRepresentation* ChapterDisplayer::appendChapter()
-//{
-//    ChapterRepresentation* chapter =  constructChapterRepresentation(getLastNormChapter()+1);
-//    addChapter(chapter, true);
-//    return chapter;
-//}
-
-//ChapterRepresentation* ChapterDisplayer::prependChapter()
-//{
-//    ChapterRepresentation* chapter =  constructChapterRepresentation(getFirstNormChapter()-1);
-//    addChapter(chapter, false);
-//    return chapter;
-//}
 
 void ChapterDisplayer::scrolled()
 {
@@ -678,23 +481,6 @@ void ChapterDisplayer::moved()
         }
     }
     webView->window()->setWindowTitle(title);
-}
-
-void ChapterDisplayer::javaScriptWindowObjectClearedSlot()
-{
-    webView->page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
-
-    webView->page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
-    webView->page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
-
-    webView->page()->mainFrame()->evaluateJavaScript("document.onscroll = function(){ scrollListener.moved(); }");
-//    webView->page()->mainFrame()->evaluateJavaScript("document.onresize = function(){ scrollListener.moved(); }");
-
-    webView->page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
-}
-
-void ChapterDisplayer::loadFinished(bool b)
-{
 }
 
 

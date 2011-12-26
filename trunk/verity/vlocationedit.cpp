@@ -43,6 +43,18 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
 
     btnSwitchView.setText("#");
     btnSwitchView.setToolTip("Switch input method");
+
+    backButton = new QToolButton();
+    backButton->setArrowType(Qt::LeftArrow);
+    backButton->setEnabled(false);
+
+    forwardButton = new QToolButton();
+    forwardButton->setArrowType(Qt::RightArrow);
+    forwardButton->setEnabled(false);
+
+    mainLayout->addWidget(backButton);
+    mainLayout->addWidget(forwardButton);
+
     mainLayout->addWidget(stackedWidget);
     mainLayout->addWidget(&btnSwitchView);
 

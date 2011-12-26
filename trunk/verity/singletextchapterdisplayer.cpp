@@ -1,8 +1,8 @@
 #include "singletextchapterdisplayer.h"
 #include "biblequerier.h"
 
-SingleTextChapterDisplayer::SingleTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds) :
-        ChapterDisplayer(webView, bibletextIds)
+SingleTextChapterDisplayer::SingleTextChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter) :
+        ChapterDisplayer(webView, bibletextIds, id, normalisedChapter)
 {
 }
 
