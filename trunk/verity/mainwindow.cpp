@@ -27,6 +27,8 @@
 #include <QStringList>
 #include <QComboBox>
 #include <QCompleter>
+#include <QMenuBar>
+#include <QMessageBox>
 
 #include <iostream>
 using namespace std;
@@ -41,11 +43,11 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     settings.beginGroup(MAIN_WINDOW_SETTING_GROUP);
 
 
-//    resize(settings.value(SIZE_SETTING, QSize(1000, 700)).toSize());
-//    move(settings.value(POS_SETTING, QPoint(QApplication::desktop()->width()/2-500, QApplication::desktop()->height()/2-350)).toPoint());
+    //    resize(settings.value(SIZE_SETTING, QSize(1000, 700)).toSize());
+    //    move(settings.value(POS_SETTING, QPoint(QApplication::desktop()->width()/2-500, QApplication::desktop()->height()/2-350)).toPoint());
 
-//    if(settings.value(WINDOW_STATE_SETTING, true).toBool())
-//        setWindowState(Qt::WindowMaximized);
+    //    if(settings.value(WINDOW_STATE_SETTING, true).toBool())
+    //        setWindowState(Qt::WindowMaximized);
 
 
     restoreGeometry(settings.value(GEOMETRY_SETTING).toByteArray());
@@ -124,86 +126,43 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     //    connect(browser, SIGNAL(wordClicked(TextInfo*)), dictionaryBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, dictionaryDock);
 
+    QMenu* viewMenu = menuBar()->addMenu(tr("&View"));
+    viewMenu->addAction(selectedDock->toggleViewAction());
+    viewMenu->addAction(netNoteDock->toggleViewAction());
+    viewMenu->addAction(dictionaryDock->toggleViewAction());
 
-//    QToolBar* toolbar = new QToolBar();
-//    toolbar->setObjectName("toolbar");
-//    toolbar->layout()->setSpacing(3);
+    QMenu* copyrightMenu = menuBar()->addMenu(tr("&Copyright")); //this should perhaps be done some other way so texts can be added without a recompile e.g. in the db
 
-    //    QString activeTexts = settings.value(ACTIVE_TEXTS).toString();
-    //    if (activeTexts.isNull())
-    //    {
-    //        activeTexts = "net#tisch#wlc";
-    //    }
-//    QString activeTexts = "net#tisch#wlc";
+    QAction* netAction = new QAction("NET Bible", this);
+    connect(netAction, SIGNAL(triggered()), this, SLOT(netCopyright()));
+    copyrightMenu->addAction(netAction);
 
-//    QStringList activeTextList = activeTexts.split("#");
+    QAction* wlcAction = new QAction(tr("Westminster Leningrad Codex (Hebrew Old Testament)"), this);
+    connect(wlcAction, SIGNAL(triggered()), this, SLOT(wlcCopyright()));
+    copyrightMenu->addAction(wlcAction);
 
-//    QList<QString> textsAvailable;
-//    textsAvailable.append("net");
-//    textsAvailable.append("tisch");
-//    textsAvailable.append("wlc");
+    QAction* tischAction = new QAction("Tischendorf (Greek New Testament)", this);
+    connect(tischAction, SIGNAL(triggered()), this, SLOT(tischCopyright()));
+    copyrightMenu->addAction(tischAction);
 
-    //must be initialised before the toggleButtons get toggled since it receives focus whenever they're toggled
-//    verseLineEdit = new LocationLineEdit(books, hash, bookChapterRange, 15, this);
-//    verseLineEdit->setMaximumWidth(300);
+    QAction* strongsHebrewAction = new QAction("Strong's Hebrew Dictionary", this);
+    connect(strongsHebrewAction, SIGNAL(triggered()), this, SLOT(strongsHebrewCopyright()));
+    copyrightMenu->addAction(strongsHebrewAction);
 
-//    for(int i=0; i< textsAvailable.size(); i++)
-//    {
-//        QPushButton* toggleButton = new QPushButton("&" + textsAvailable.at(i));
-//        toggleButton->setCheckable(true);
-//        connect(toggleButton, SIGNAL(toggled(bool)), this, SLOT(textToggled(bool)));
-//        toolbar->addWidget(toggleButton);
-//        toggleButton->setStyleSheet(
-//                "QPushButton:hover {"
-//                "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #f3f0ef, stop: 1 #9f9fa8);"
-//                "}"
-//                "QPushButton:pressed {"
-//                "padding-left: 5px;"
-//                "padding-top: 5px;"
-//                "border-top: 1px solid #6f6f71;"
-//                "border-left: 1px solid #6f6f71;"
-//                "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #dadbde, stop: 1 #f6f7fa);"
-//                "}"
-//                "QPushButton:checked {"
-//                "padding-left: 3px;"
-//                "padding-top: 4px;"
-//                "border-top: 1px solid #6f6f71;"
-//                "border-left: 1px solid #6f6f71;"
-//                "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #d8d2c2, stop: 1 #62528d);"
-//                "}"
-//                "QPushButton:flat {"
-//                "border: none;"
-//                "}"
-//                "QPushButton {"
-//                "border-width: 1px;"
-//                "border-color: #8f8f91;"
-//                "border-top: 1px solid #afafb1;"
-//                "border-left: 1px solid #afafb1;"
-//                "border-style: solid;"
-//                "margin: 2px;"
-//                "border-radius: 5px; padding: 3px; left: -3px;"
-//                "width: 90px;"
-//                "background-color: qlineargradient(x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #e3e0cd, stop: 1 #9797a0);"
-//                "}"
-//                );
-//        if (activeTextList.contains(textsAvailable.at(i)))
-//            toggleButton->setChecked(true);
+    QAction* strongsGreekAction = new QAction("Strong's Greek Dictionary", this);
+    connect(strongsGreekAction, SIGNAL(triggered()), this, SLOT(strongsGreekCopyright()));
+    copyrightMenu->addAction(strongsGreekAction);
 
-//    }
+    QMenu* aboutMenu = menuBar()->addMenu(tr("&About"));
 
-        this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
-
-//    verseLineOutput = new QLabel();
+    QAction* verityAction = new QAction("The Verity Project", this);
+    connect(verityAction, SIGNAL(triggered()), this, SLOT(verityAbout()));
+    aboutMenu->addAction(verityAction);
 
 
-//    connect(verseLineEdit, SIGNAL(textEdited(QString)), this, SLOT(verseLineEditChanged(QString)));
-//    connect(verseLineEdit, SIGNAL(returnPressed()), this, SLOT(performVerseLineEdit()));
 
-//    toolbar->addWidget(verseLineEdit);
-//    toolbar->addWidget(verseLineOutput);
+    this->setStyleSheet("QMainWindow {background-color: qlineargradient(x1: 0.25, y1: 0, x2: 0.55, y2: 1, stop: 0 #f0ebe2, stop: 1 #ccc8c0);}");
 
-
-//    addToolBar(toolbar);
     this->setWindowIcon(QIcon(DATA_PATH + "/verity.ico"));
 
     restoreState(settings.value(WINDOW_STATE_SETTING).toByteArray());
@@ -215,6 +174,85 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     EventManager::addListener(EventType::WORD_CLICKED, new WordClickedListener());
 
     EventManager::addListener(EventType::CLOSING, this);
+}
+
+void MainWindow::netCopyright()
+{
+    QMessageBox::information(this, "NET Bible", "<html>"
+"<h4>NET Bible&reg;</h4>"
+"copyright &copy;1996-2006 by Biblical Studies Press, L.L.C. "
+"<a href=\"http://bible.org\">http://bible.org</a><br/>All rights reserved.<br/><br/>"
+"The NET Bible is available in its entirety as a free download or online web use at <a href=\"http://bible.org\">http://bible.org</a>"
+"</html>");
+}
+
+void MainWindow::wlcCopyright()
+{
+    QMessageBox::information(this, "Westminster Leningrad Codex",
+"<html>"
+"<h4>Westminster Leningrad Codex</h4>"
+"Contributing Editors: Daniel Owens, David Troidl, Christopher V. Kimball"
+"<br/><a href=\"http://www.tanach.us/Tanach.xml\">http://www.tanach.us/Tanach.xml</a>"
+"<br/>Public Domain"
+
+"<h4>BHS unaccented with Strongs</h4>"
+"Unaccented Biblia Hebraica Stuttgartensia Hebrew with Strong's numbers by Rev. Graham."
+"<br/>Contributing Editors: Joseph Planeta, Rev. Graham Nind"
+"<br/><a href=\"http://www.faithofgod.net/\">http://www.faithofgod.net/</a>"
+"<br/><a href=\"http://www.grahamnind.dsl.pipex.com/files\">http://www.grahamnind.dsl.pipex.com/files</a>"
+"<br/>Public Domain"
+"</html>");
+}
+
+void MainWindow::tischCopyright()
+{
+    QMessageBox::information(this, "Tischendorf's 8th edition",
+"<html>"
+"<h4>Tischendorf's 8th edition</h4>"
+"Greek New Testament with morphological tags"
+"<br/>Based on G. Clint Yale's Tischendorf text and on Dr. Maurice A. Robinson's Westcott-Hort text"
+"<br/>Edited by Ulrik Sandborg-Petersen"
+"<br/>Public Domain"
+"</html>");
+}
+
+void MainWindow::strongsHebrewCopyright()
+{
+    QMessageBox::information(this, "Strong's Hebrew Dictionary",
+"<html>"
+"<h4>A Concise Dictionary of the Words in the Hebrew Bible</h4>"
+"with their Renderings in the King James Version"
+"<br/><br/>Contributing Editors: David Troidl, David Instone-Brewer"
+"<br/>Author: James Strong, LL.D., S.T.D. 1894"
+"<br/><a href=\"www.2LetterLookup.com\">www.2LetterLookup.com</a>"
+"<br/>Public Domain"
+"</html>");
+}
+
+void MainWindow::strongsGreekCopyright()
+{
+    QMessageBox::information(this, "Strong's Greek Dictionary",
+"<html>"
+"<h4>Dictionary of Greek Words</h4>"
+"Taken from Strong's Exhaustive Concordance"
+"<br/>Author: James Strong, S.T.D., LL.D. 1890"
+"<br/>Contributing Editor: Ulrik Petersen 2006"
+"<br/><a href=\"http://ulrikp.org\">http://ulrikp.org</a>"
+"<br/>based on work by Michael Grier"
+"<br/><a href=\"http://www.bf.org/\">http://www.bf.org/</a>"
+"<br/>Public Domain"
+"</html>");
+}
+
+void MainWindow::verityAbout()
+{
+    QMessageBox::information(this, "The Verity Project",
+"<html>"
+"<h4>The Verity Project</h4>"
+"Written by David le Roux and James Cu&eacute;nod"
+"<br/><br/><a href=\"http://www.theverityproject.com/\">http://www.theverityproject.com/</a>"
+"<br/><br/>GNU General Public License Version 3"
+"</html>");
 }
 
 //void MainWindow::textToggled(bool checked)

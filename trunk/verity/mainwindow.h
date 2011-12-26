@@ -34,19 +34,21 @@ protected:
 
     VBibleInterface* bibleInterface;
     SearchBrowser* searchBrowser;
-//    LocationLineEdit* verseLineEdit;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
-//    QList<int> texts;
 
     void closeEvent(QCloseEvent *event);
 
     void handleEvent(Event* event);
 
 public slots:
-//    void performVerseLineEdit();
-//    void verseLineEditChanged(QString string);
-//    void textToggled(bool);
+    void netCopyright();
+    void wlcCopyright();
+    void tischCopyright();
+    void strongsHebrewCopyright();
+    void strongsGreekCopyright();
+
+    void verityAbout();
 
 };
 
