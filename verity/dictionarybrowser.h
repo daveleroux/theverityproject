@@ -5,6 +5,7 @@
 #include "listener.h"
 #include "vwebview.h"
 #include "javascriptclicklistener.h"
+#include "vwebhistory.h"
 
 class DictionaryBrowser : public VWebView
 {
@@ -15,22 +16,25 @@ private:
     QString frameBottom;
 
     JavascriptClickListener* javascriptClickListener;
+    VWebHistory* vWebHistory;
 
 public:    
     DictionaryBrowser(QWidget* parent=0);
     ~DictionaryBrowser();
 
 protected:
-//    QString convertDefinitionToHTML(QString stylesheet, QString input);
-//    QVariant loadResource(int type, const QUrl& name);
-
     void setNewContent(int strongsNum);
     void handleEvent(Event* event);
     QString transformToHtml(QString xml);
 
+signals:
+    void backwardAvailable(bool);
+    void forwardAvailable(bool);
+
 public slots:
     void javaScriptWindowObjectClearedSlot();
-//    void display(TextInfo*);
+    void backward();
+    void forward();
 };
 
 #endif // DICTIONARYBROWSER_H
