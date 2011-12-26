@@ -4,7 +4,6 @@
 #include <QTextCursor>
 #include <QApplication>
 #include <QMessageBox>
-//#include <QList>
 
 #include "bibletextbrowser.h"
 #include "timer.h"
@@ -15,12 +14,16 @@
 #include "biblereferenceevent.h"
 #include "eventmanager.h"
 
+
 #include <iostream>
 using namespace std;
 
 BibleTextBrowser::BibleTextBrowser(QWidget* parent) : VWebView(parent)
 {
-    qDebug() << "BibleTextBrowser - constructing";
+    webHistory = new VWebHistory();
+    connect(webHistory, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+    connect(webHistory, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+
 
     EventManager::addListener(EventType::BIBLE_REFERENCE, this);
 
@@ -55,11 +58,29 @@ BibleTextBrowser::BibleTextBrowser(QWidget* parent) : VWebView(parent)
     //    settings.endGroup();
 
 
-    chapterDisplayer = 0;
 
     page()->mainFrame()->setScrollBarPolicy(Qt::Horizontal, Qt::ScrollBarAlwaysOff);
+
+
+    scrollListener = new ScrollListener();
+    javascriptClickListener = new JavascriptClickListener();
+
+    connect(scrollListener, SIGNAL(scrolledSignal()), this, SLOT(scrolled()));
+    connect(scrollListener, SIGNAL(movedSignal()), this, SLOT(moved()));
+
+    page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+    page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
+
+
+    connect(page()->mainFrame(), SIGNAL(javaScriptWindowObjectCleared()), this , SLOT(javaScriptWindowObjectClearedSlot()));
+
 }
 
+BibleTextBrowser::~BibleTextBrowser()
+{
+    delete scrollListener;
+    delete javascriptClickListener;
+}
 
 //void BibleTextBrowser::writeOutSettings()
 //{
@@ -81,26 +102,18 @@ BibleTextBrowser::BibleTextBrowser(QWidget* parent) : VWebView(parent)
 
 void BibleTextBrowser::display(QList<int> bibletextIds, int idLocation, int normalisedChapterLocation)
 {
-    qDebug() << "BibleTextBrowser::display - set up chapterDisplayer";
-    if(chapterDisplayer != 0)
-    {        
-        delete chapterDisplayer;
-    }
+    ChapterDisplayer* item;
 
     if(bibletextIds.size() > 1)
     {
-        chapterDisplayer = new ParallelTextChapterDisplayer(this, bibletextIds);
+        item = new ParallelTextChapterDisplayer(this, bibletextIds, idLocation, normalisedChapterLocation);
     }
     else
     {
-        chapterDisplayer = new SingleTextChapterDisplayer(this, bibletextIds);
+        item = new SingleTextChapterDisplayer(this, bibletextIds, idLocation, normalisedChapterLocation);
     }
 
-    //    connect(chapterDisplayer, SIGNAL(wordClicked(TextInfo*)), this, SIGNAL(wordClicked(TextInfo*)));
-
-    qDebug() << "BibleTextBrowser::display - ready to display";
-    chapterDisplayer->display(idLocation, normalisedChapterLocation);
-    qDebug() << "BibleTextBrowser::display - done";
+    webHistory->display(item);
 }
 
 void BibleTextBrowser::handleEvent(Event* event)
@@ -148,26 +161,63 @@ void BibleTextBrowser::display(QList<int> bibletextIds, VerseReference verseRefe
 
 void BibleTextBrowser::resizeEvent(QResizeEvent* event)
 {
-    if(chapterDisplayer != 0)
+    ChapterDisplayer* currentItem = (ChapterDisplayer*)webHistory->getCurrentOrNull();
+    if(currentItem != 0)
     {
-        chapterDisplayer->moved();
+        currentItem->moved();
     }
     QWebView::resizeEvent(event);
 }
 
+void BibleTextBrowser::scrolled()
+{
+    ChapterDisplayer* currentItem = (ChapterDisplayer*)webHistory->getCurrentOrNull();
+    if(currentItem != 0)
+    {
+        currentItem->scrolled();
+    }
+}
+
+void BibleTextBrowser::moved()
+{
+    ChapterDisplayer* currentItem = (ChapterDisplayer*)webHistory->getCurrentOrNull();
+    if(currentItem != 0)
+    {
+        currentItem->moved();
+    }
+}
+
 void BibleTextBrowser::zoomed()
 {
-    if(chapterDisplayer != 0)
+    ChapterDisplayer* currentItem = (ChapterDisplayer*)webHistory->getCurrentOrNull();
+    if(currentItem != 0)
     {
-        chapterDisplayer->moved();
+        currentItem->moved();
     }
     VWebView::zoomed();
 }
 
-//void BibleTextBrowser::scrollbarValueChanged(int v)
-//{
-//    chapterDisplayer->checkCanScroll();
-//}
+void BibleTextBrowser::backward()
+{
+    webHistory->backward();
+}
+
+void BibleTextBrowser::forward()
+{
+    webHistory->forward();
+}
+
+void BibleTextBrowser::javaScriptWindowObjectClearedSlot()
+{
+    page()->mainFrame()->addToJavaScriptWindowObject("scrollListener", scrollListener);
+
+    page()->mainFrame()->evaluateJavaScript("document.onmousewheel = function(){ scrollListener.scrolled(); }");
+    page()->mainFrame()->evaluateJavaScript("document.onkeydown = function(evt){ if(evt.keyCode==38 || evt.keyCode==40) { scrollListener.scrolled();} }");
+
+    page()->mainFrame()->evaluateJavaScript("document.onscroll = function(){ scrollListener.moved(); }");
+
+    page()->mainFrame()->addToJavaScriptWindowObject("javascriptClickListener", javascriptClickListener);
+}
 
 
 

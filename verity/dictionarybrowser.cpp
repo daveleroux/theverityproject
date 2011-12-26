@@ -47,10 +47,10 @@ DictionaryBrowser::DictionaryBrowser(QWidget* parent) : VWebView(parent)
                    "</body>"
                    "</html>";
 
-    vWebHistory = new VWebHistory();
+    webHistory = new VWebHistory();
 
-    connect(vWebHistory, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
-    connect(vWebHistory, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
+    connect(webHistory, SIGNAL(backwardAvailable(bool)), this, SIGNAL(backwardAvailable(bool)));
+    connect(webHistory, SIGNAL(forwardAvailable(bool)), this, SIGNAL(forwardAvailable(bool)));
 
 }
 
@@ -62,7 +62,7 @@ void DictionaryBrowser::javaScriptWindowObjectClearedSlot()
 DictionaryBrowser::~DictionaryBrowser()
 {
     delete javascriptClickListener;
-    delete vWebHistory;
+    delete webHistory;
 }
 
 void DictionaryBrowser::handleEvent(Event* event)
@@ -133,15 +133,15 @@ void DictionaryBrowser::setNewContent(int strongsNum)
     QString xml = BibleQuerier::getStrongsData(strongsNum);
 
     BasicWebHistoryItem* item = new BasicWebHistoryItem(this, frameTop + transformToHtml(xml) + frameBottom);
-    vWebHistory->display(item);
+    webHistory->display(item);
 }
 
 void DictionaryBrowser::backward()
 {
-    vWebHistory->backward();
+    webHistory->backward();
 }
 void DictionaryBrowser::forward()
 {
-    vWebHistory->forward();
+    webHistory->forward();
 }
 

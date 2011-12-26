@@ -21,5 +21,10 @@ VBibleInterface::VBibleInterface(QWidget *parent) :
     bibleWebView = new BibleTextBrowser(this);
     vbox->addWidget(bibleWebView, 1);
 
+    connect(bibleWebView, SIGNAL(backwardAvailable(bool)), locationEdit->backButton, SLOT(setEnabled(bool)));
+    connect(bibleWebView, SIGNAL(forwardAvailable(bool)), locationEdit->forwardButton, SLOT(setEnabled(bool)));
+    connect(locationEdit->backButton, SIGNAL(clicked()), bibleWebView, SLOT(backward()));
+    connect(locationEdit->forwardButton, SIGNAL(clicked()), bibleWebView, SLOT(forward()));
+
     this->setLayout(vbox);
 }

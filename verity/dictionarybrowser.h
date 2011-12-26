@@ -16,7 +16,7 @@ private:
     QString frameBottom;
 
     JavascriptClickListener* javascriptClickListener;
-    VWebHistory* vWebHistory;
+    VWebHistory* webHistory;
 
 public:    
     DictionaryBrowser(QWidget* parent=0);

@@ -10,8 +10,8 @@
 #include "parallelgridconstructor.h"
 #include "paralleldto.h"
 
-ParallelTextChapterDisplayer::ParallelTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds) :
-        ChapterDisplayer(webView, bibletextIds)
+ParallelTextChapterDisplayer::ParallelTextChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter) :
+        ChapterDisplayer(webView, bibletextIds, id, normalisedChapter)
 {
 }
 

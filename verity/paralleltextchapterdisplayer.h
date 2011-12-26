@@ -15,7 +15,7 @@ protected:
     QString transformToHtml(QString xml, bool evenStart);
 
 public:
-    ParallelTextChapterDisplayer(QWebView* webView, QList<int> bibletextIds);
+    ParallelTextChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter);
 };
 
 #endif // PARALLELTEXTCHAPTERDISPLAYER_H
