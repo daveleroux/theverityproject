@@ -868,7 +868,7 @@ void importNoteChapter(QString chapterFilenameWithoutFiletype)
 
     QByteArray byteArray = file.readAll();
 
-    QString wholeFile = QString::fromUtf8(byteArray.data());
+    QString wholeFile = QString::fromLatin1(byteArray.data());
 
     wholeFile.replace("<LINK REL=StyleSheet HREF=\"style.css\" TYPE=\"text/css\" MEDIA=screen>", "");
 
@@ -1025,7 +1025,7 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
 
     QByteArray byteArray = file.readAll();
 
-    QString wholeFile = QString::fromUtf8(byteArray.data());
+    QString wholeFile = QString::fromLatin1(byteArray.data());
 
     wholeFile.replace("<b><i> </i></b>", " ");
 
@@ -1230,7 +1230,7 @@ QList<QString> getChapterFilenames(QString fileName)
         exit(1);
 
     QByteArray tocByteArray = tocFile.readAll();
-    QString toc = QString::fromUtf8(tocByteArray.data());
+    QString toc = QString::fromLatin1(tocByteArray.data());
 
     int start = toc.indexOf("<a href=\"");
     while(start >=0)

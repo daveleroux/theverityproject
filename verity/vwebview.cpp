@@ -34,7 +34,6 @@ void VWebView::wheelEvent(QWheelEvent *event)
 {
     if((QApplication::keyboardModifiers() & Qt::ControlModifier) > 0)
     {        
-//        float zoom = event->delta() / 4000.0f;
         float zoom = event->delta() / qAbs(event->delta());
 
         setTextSizeMultiplier(textSizeMultiplier() + 0.05f*zoom);
@@ -54,4 +53,9 @@ void VWebView::zoomed()
 VWebView::~VWebView()
 {
 }
+
+void VWebView::dropEvent (QDropEvent * ev) //prevents the drop of an html file that then loads
+{
+}
+
 

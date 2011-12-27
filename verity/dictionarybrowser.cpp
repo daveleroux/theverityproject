@@ -26,6 +26,7 @@ DictionaryBrowser::DictionaryBrowser(QWidget* parent) : VWebView(parent)
 
     frameTop = "<html>"
                "<head>"
+               "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
                "<style type=\"text/css\">\n";
 
     QFile tmp(DATA_PATH + "/bible.css"); //should get the css from a global resource (and get it each time) so when user changes settings changes everywhere
