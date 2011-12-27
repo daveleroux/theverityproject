@@ -23,6 +23,7 @@ ChapterDisplayer::ChapterDisplayer(VWebView* webView, QList<int> bibletextIds, i
 
     frameTop = "<html>"
                "<head>"
+               "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">"
                "<style type=\"text/css\">\n";
 
     QFile tmp(DATA_PATH + "/bible.css");
