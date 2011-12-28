@@ -632,6 +632,22 @@ void putNoteInDB(Note* note)
     QSqlQuery query;
     query.prepare("insert into net_notes values(:id, :note)");
 
+
+    assert(note->xmlDoc.firstChild().nodeName(), "note");
+    QDomNodeList childNodes = note->xmlDoc.firstChild().childNodes();
+    for(int i=0; i<childNodes.size(); i++)
+    {
+        QDomNode node = childNodes.at(i);
+
+        if(!(node.nodeName() == "translatorsNote" ||
+             node.nodeName() == "studyNote" ||
+             node.nodeName() == "textCriticalNote" ||
+             node.nodeName() == "mapNote"))
+        {
+            qDebug() << note->noteId << ": not a valid note: " << node.nodeName();
+        }
+    }
+
     query.bindValue(":id", note->noteId);
     query.bindValue(":text", note->xmlDoc.toString(-1));
 
@@ -891,6 +907,11 @@ void importNoteChapter(QString chapterFilenameWithoutFiletype)
 
     QString wholeFile = QString::fromLatin1(byteArray.data());
 
+    if(noteChapterFilename == "gal6_notes.htm")
+    {
+        wholeFile.replace("<note=301>tn","<note=301><b>tn</b>");
+    }
+
     wholeFile.replace("<LINK REL=StyleSheet HREF=\"style.css\" TYPE=\"text/css\" MEDIA=screen>", "");
 
     wholeFile.replace(QRegExp("<note=[0-9]*>"), "");
@@ -917,6 +938,73 @@ void importNoteChapter(QString chapterFilenameWithoutFiletype)
     if(wholeFile.indexOf("</body>") == -1)
     {
         wholeFile.append("</body></html>");
+    }
+
+    if(noteChapterFilename == "gen3_notes.htm")
+    {
+        wholeFile.replace("</p><p class=\"footnote\">leadership", "leadership");
+    }
+
+    if(noteChapterFilename == "num23_notes.htm")
+    {
+        wholeFile.replace("tn tn","tn");
+    }
+
+    if(noteChapterFilename == "rut4_notes.htm")
+    {
+        wholeFile.replace("<sup>","");
+        wholeFile.replace("</sup>","");
+    }
+
+    if(noteChapterFilename == "1sa21_notes.htm")
+    {
+        wholeFile.replace("sn","<b>sn</b>");
+    }
+
+    if(noteChapterFilename == "1sa23_notes.htm")
+    {
+        wholeFile.replace("sn ","<b>sn</b> ");
+    }
+
+    if(noteChapterFilename == "job36_notes.htm")
+    {
+        wholeFile.replace("<i><b>tn</b> Heb </i>","<b>tn</b> <i>Heb</i> ");
+    }
+
+    if(noteChapterFilename == "pro3_notes.htm")
+    {
+        wholeFile.replace("</p><p class=\"footnote\">NIV"," NIV");
+    }
+
+    if(noteChapterFilename == "sos5_notes.htm")
+    {
+        wholeFile.replace("construction. </p><p class=\"footnote\">","construction. ");
+    }
+
+    if(noteChapterFilename == "jer37_notes.htm")
+    {
+        wholeFile.replace("style.</p><p class=\"footnote\">","style. ");
+    }
+
+    if(noteChapterFilename == "jer46_notes.htm")
+    {
+        wholeFile.replace("</p><p class=\"footnote\">The"," The");
+    }
+
+    if(noteChapterFilename == "amo1_notes.htm")
+    {
+        wholeFile.replace("Ammonites, even because of four.&#8221;</p><p class=\"footnote\">",
+                          "Ammonites, even because of four.&#8221;</p><p class=\"footnote\"><b>sn</b>");
+    }
+
+    if(noteChapterFilename == "luk8_notes.htm")
+    {
+        wholeFile.replace("</p><p class=\"footnote\">are","are");
+    }
+
+    if(noteChapterFilename == "rev12_notes.htm")
+    {
+        wholeFile.replace("<b>sn A</b>","<b>sn</b> A");
     }
 
     if(noteChapterFilename == "pro1_notes.htm"
