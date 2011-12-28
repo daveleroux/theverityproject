@@ -127,9 +127,6 @@ void DbUpdater::updateWlc()
     HeadingsRule headingsRule(this, WLC);
     rules.append(&headingsRule);
 
-//    Gen32WlcRule gen32WlcRule(this);
-//    rules.append(&gen32WlcRule);
-
     rules.append(&OffsetRule(this, WLC, VerseReference(GENESIS, 32, 1), VerseReference(GENESIS, 32, 33), NET, VerseReference(GENESIS, 31, 55)));
 
     rules.append(&OffsetRule(this, WLC, VerseReference(EXODUS, 7, 26), VerseReference(EXODUS, 8, 28), NET, VerseReference(EXODUS, 8, 1)));
@@ -164,6 +161,7 @@ void DbUpdater::updateWlc()
     rules.append(&OffsetRule(this, WLC, VerseReference(TWO_CHRON, 13, 23), VerseReference(TWO_CHRON, 14, 14), NET, VerseReference(TWO_CHRON, 14, 1)));
 
     rules.append(&OffsetRule(this, WLC, VerseReference(NEH, 3, 33), VerseReference(NEH, 4, 17), NET, VerseReference(NEH, 4, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(NEH, 7, 68), VerseReference(NEH, 7, 72), NET, VerseReference(NEH, 7, 69)));
     rules.append(&OffsetRule(this, WLC, VerseReference(NEH, 10, 1), VerseReference(NEH, 10, 40), NET, VerseReference(NEH, 9, 38)));
 
     rules.append(&OffsetRule(this, WLC, VerseReference(JOB, 40, 25), VerseReference(JOB, 41, 26), NET, VerseReference(JOB, 41, 1)));
@@ -363,6 +361,7 @@ void DbUpdater::updateWlc()
     rules.append(&OffsetRule(this, WLC, VerseReference(SONG, 7, 1), VerseReference(SONG, 7, 14 ), NET, VerseReference(SONG, 6, 13)));
 
     rules.append(&OffsetRule(this, WLC, VerseReference(IS, 8, 23), VerseReference(IS, 9, 20 ), NET, VerseReference(IS, 9, 1)));
+    rules.append(&OffsetRule(this, WLC, VerseReference(IS, 64, 1), VerseReference(IS, 64, 11 ), NET, VerseReference(IS, 64, 2)));
 
     rules.append(&OffsetRule(this, WLC, VerseReference(JER, 8, 23), VerseReference(JER, 9, 25 ), NET, VerseReference(JER, 9, 1)));
 
