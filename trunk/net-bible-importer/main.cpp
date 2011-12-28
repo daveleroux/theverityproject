@@ -27,7 +27,7 @@ QMap<QString, QString> map;
 
 QStringList books;
 
-
+bool SHOULD_NOT_START_NEW_CHUNK;
 
 void assert(bool b)
 {
@@ -351,6 +351,14 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
 
         if(oldChild.isText())
         {
+            //            QString data = oldChild.toText().data();
+            //            if(data.contains(QRegExp("\\(\\d+:\\d+\\)")))
+            //            {
+            //                qDebug() << data;
+            //                if(currentChunk != 0)
+            //                    qDebug() << currentChunk->bookNumber << " " << currentChunk->chapter << ":" << currentChunk->verse;
+            //            }
+
             QDomText newChildText = createTextNode(oldChild.toText().data());
             placeToAdd->appendChild(newChildText);
             assert(oldChild.childNodes().size(), 0);
@@ -396,6 +404,11 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
             {
                 if(oldChildElement.attribute("class") == "versenum")
                 {
+                    if(SHOULD_NOT_START_NEW_CHUNK)
+                    {
+                        qDebug() << "violation of new chunk boundary";
+                        qDebug() << currentChunk->bookNumber << " " <<currentChunk->chapter << ":" << currentChunk->verse;
+                    }
                     appendCurrentChunk();
                     assert(oldChildElement.childNodes().size(), 1);
                     assert(oldChildElement.firstChild().isText());
@@ -415,7 +428,9 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     placeToAdd->appendChild(newChild);
                     QDomNode* temp = placeToAdd;
                     placeToAdd = &newChild;
+                    SHOULD_NOT_START_NEW_CHUNK = true;
                     buildVerseChunk(paragraphClass, oldChild);
+                    SHOULD_NOT_START_NEW_CHUNK = false;
                     placeToAdd = temp;
                 }
             }
@@ -425,7 +440,9 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
+                SHOULD_NOT_START_NEW_CHUNK = true;
                 buildVerseChunk(paragraphClass, oldChild);
+                SHOULD_NOT_START_NEW_CHUNK = false;
                 placeToAdd = temp;
             }
             else if(oldChildElement.tagName() == "br")
@@ -434,7 +451,9 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
+                SHOULD_NOT_START_NEW_CHUNK = true;
                 buildVerseChunk(paragraphClass, oldChild);
+                SHOULD_NOT_START_NEW_CHUNK = false;
                 placeToAdd = temp;
             }
             else if (oldChildElement.tagName() == "i")
@@ -443,7 +462,9 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                 placeToAdd->appendChild(newChild);
                 QDomNode* temp = placeToAdd;
                 placeToAdd = &newChild;
+                SHOULD_NOT_START_NEW_CHUNK = true;
                 buildVerseChunk(paragraphClass, oldChild);
+                SHOULD_NOT_START_NEW_CHUNK = false;
                 placeToAdd = temp;
             }
             else
@@ -784,8 +805,8 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
             }
             else if (oldChildElement.tagName() == "sup")
             {
-//                assert(oldChildElement.childNodes().size(), 1);
-//                assert(oldChildElement.firstChild().isText());
+                //                assert(oldChildElement.childNodes().size(), 1);
+                //                assert(oldChildElement.firstChild().isText());
 
                 QDomElement newChild = createNoteElement(getDatabaseTagName("sup"));
                 newTreeParent.appendChild(newChild);
@@ -795,7 +816,7 @@ void buildNote(QDomNode newTreeParent, QDomNode oldTreeParent)
             {
                 if(oldChildElement.attribute("face") == "Greek Uncials")
                 {
-                   buildNote(newTreeParent, oldChildElement);
+                    buildNote(newTreeParent, oldChildElement);
                 }
                 else
                 {
@@ -879,15 +900,15 @@ void importNoteChapter(QString chapterFilenameWithoutFiletype)
     int index = 0;
     while((index = wholeFile.indexOf(QRegExp("<a name=\"note[0-9]*\"></a>"), index)) > 0)
     {
-       int closeQuoteIndex = wholeFile.indexOf("\"", index + 9);
-       QString noteName = wholeFile.mid(index + 9, closeQuoteIndex - index - 9);
+        int closeQuoteIndex = wholeFile.indexOf("\"", index + 9);
+        QString noteName = wholeFile.mid(index + 9, closeQuoteIndex - index - 9);
 
-       int spanIndex = wholeFile.indexOf("<span class=\"fnreference\">", index);
-       int spanCloseIndex = wholeFile.indexOf("<", spanIndex+1);
-       int lengthToReplace = spanCloseIndex - spanIndex - 26;
-       wholeFile.replace(spanIndex+26, lengthToReplace, noteName);
+        int spanIndex = wholeFile.indexOf("<span class=\"fnreference\">", index);
+        int spanCloseIndex = wholeFile.indexOf("<", spanIndex+1);
+        int lengthToReplace = spanCloseIndex - spanIndex - 26;
+        wholeFile.replace(spanIndex+26, lengthToReplace, noteName);
 
-       index++;
+        index++;
     }
 
     wholeFile.replace("<BODY BGCOLOR=\"#ddddc5\"><p>", "<body>");
@@ -1034,6 +1055,51 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
         wholeFile.replace("<i> </i>", " ");
     }
 
+    if(chapterFilename == "exo20.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("20:8</span> &#8220;</b>","20:8</span> &#8220;");
+    }
+
+    if(chapterFilename == "exo21.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("21:22</span> &#8220;</b>","21:22</span> &#8220;");
+    }
+
+    if(chapterFilename == "exo22.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("22:5</span> &#8220;</b>","22:5</span> &#8220;");
+        wholeFile.replace("22:7</span> &#8220;</b>","22:7</span> &#8220;");
+        wholeFile.replace("22:18</span> &#8220;</b>","22:18</span> &#8220;");
+        wholeFile.replace("22:21</span> &#8220;Y</b>","22:21</span> &#8220;Y");
+    }
+
+    if(chapterFilename == "exo25.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("25:17</span> &#8220;</b>","25:17</span> &#8220;");
+    }
+
+    if(chapterFilename == "exo26.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("26:36</span> &#8220;</b>","26:36</span> &#8220;");
+    }
+
+    if(chapterFilename == "exo29.htm")
+    {
+        wholeFile.replace("<p class=\"bodytext\"><b>","<p class=\"bodytext\">");
+        wholeFile.replace("29:15</span> &#8220;</b>","29:15</span> &#8220;");
+    }
+
+    if(chapterFilename == "num7.htm")
+    {
+        wholeFile.replace("<b>;",";");
+        wholeFile.replace("7:65</span></b>","7:65</span>");
+        wholeFile.replace("7:71</span></b>","7:71</span>");
+    }
 
     if(chapterFilename == "psa119.htm")
     {
@@ -1107,6 +1173,12 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
         wholeFile.replace("<i> </i>", "");
     }
 
+    if(chapterFilename == "act7.htm")
+    {
+        wholeFile.replace("</b> <b>","</b> ");
+        wholeFile.replace("7:43</span> ","7:43</span> <b>");
+    }
+
     if(chapterFilename == "2sa3.htm"
        || chapterFilename == "psa7.htm"
        || chapterFilename == "mar14.htm"
@@ -1118,6 +1190,12 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
        || chapterFilename == "1jo2.htm")
     {
         wholeFile.replace("<i> </i>", " ");
+    }
+
+    if(chapterFilename == "luk22.htm")
+    {
+        wholeFile.replace("<b>[","");
+        wholeFile.replace("22:43</span></b>","22:43</span>[");
     }
 
     if(chapterFilename == "jer32.htm")
@@ -1147,6 +1225,15 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
 
         wholeFile.replace(" And each",
                           "[[ And each");
+    }
+
+    if(chapterFilename == "joh9.htm") //this should probably be better done, this is not a fault of the NET text
+    {
+        wholeFile.replace("[",
+                          "");
+
+        wholeFile.replace("He said, &#8220;",
+                          "[ He said, &#8220;");
     }
 
     wholeFile.replace("<HTML>", "<html>");
@@ -1252,6 +1339,8 @@ QList<QString> getChapterFilenames(QString fileName)
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
+
+    SHOULD_NOT_START_NEW_CHUNK = false;
 
     currentChunk = 0;    
     currentNote = 0;
@@ -1403,8 +1492,8 @@ int main(int argc, char *argv[])
     db.commit();
     db.transaction();
 
-//    db.close();
-//    return 0;
+    //    db.close();
+    //    return 0;
 
     query.exec("drop table bibles");
 

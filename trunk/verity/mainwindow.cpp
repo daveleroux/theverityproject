@@ -249,7 +249,8 @@ void MainWindow::verityAbout()
     QMessageBox::information(this, "The Verity Project",
 "<html>"
 "<h4>The Verity Project</h4>"
-"Written by David le Roux and James Cu&eacute;nod"
+"Soli Deo Gloria"
+"<br/><br/>Written by David le Roux and James Cu&eacute;nod"
 "<br/><br/><a href=\"http://www.theverityproject.com/\">http://www.theverityproject.com/</a>"
 "<br/><br/>GNU General Public License Version 3"
 "</html>");

@@ -17,7 +17,6 @@ protected:
     void wheelEvent(QWheelEvent *event);
     void handleEvent(Event* event);
     virtual void zoomed();
-//    bool event ( QEvent * e );
     void dropEvent ( QDropEvent * ev );
 
 
