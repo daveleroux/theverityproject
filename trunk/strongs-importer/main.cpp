@@ -179,7 +179,7 @@ void convertToXmlStringRecursively(QDomNode node, QString* result)
 QDomDocument getGreekDocument()
 {
     QDomDocument doc("mydocument");
-    QFile file("strongsgreek.xml");
+    QFile file("StrongsGreekDictionaryXML_1.4/strongsgreek.xml");
     if (!file.open(QIODevice::ReadOnly))
         exit(1);
 
@@ -252,7 +252,7 @@ void importGreek()
 void importHebrew()
 {
     QDomDocument doc("mydocument");
-    QFile file("StrongHebrewG.xml");
+    QFile file("StrongHebrew.1.1/StrongHebrewG.xml");
     if (!file.open(QIODevice::ReadOnly))
         exit(1);
 
