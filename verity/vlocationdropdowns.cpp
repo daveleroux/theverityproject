@@ -51,7 +51,8 @@ void VLocationDropDowns::goClicked()
 void VLocationDropDowns::setLocation(VerseReference reference)
 {
     cmbBookSelector->setCurrentIndex(cmbBookSelector->findText(VerseReferenceParser::booknameFromBookindex(reference.book)));
-    //TODO: Once we have actual numbers for chapter and verse selectors. Fill in those details
+    cmbChapterSelector->setCurrentIndex(cmbChapterSelector->findText(QString::number(reference.chapter)));
+    cmbVerseSelector->setCurrentIndex(cmbVerseSelector->findText(QString::number(reference.verse)));
 }
 
 void VLocationDropDowns::bookSelected(QString text)
