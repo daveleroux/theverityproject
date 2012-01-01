@@ -228,7 +228,7 @@ QStringList VLocationLineEdit::filteredModelFromText(const QString &text)
         Else show destination
       If the text can be parsed as a book in some way then show options
      */
-    QRegExp rx = QRegExp("^(\\d\\ )?[a-zA-Z]*\\b");
+    QRegExp rx = QRegExp("^(((\\d\\ )|(\\d))?[a-zA-Z]*\\b|(Song of Songs\\b))");
     rx.exactMatch(text);
     if (words->contains(rx.cap(0)))
     {
