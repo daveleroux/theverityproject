@@ -3,7 +3,6 @@
 #include "versereferenceparser.h"
 #include "biblereferenceevent.h"
 #include <QMenu>
-#include <QShortcut>
 
 VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     QWidget(parent)
@@ -67,8 +66,18 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(go()));
     connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
 
-    QShortcut *shortcut = new QShortcut(Qt::CTRL + Qt::Key_L, this);
+    shortcut = new QShortcut(Qt::CTRL + Qt::Key_L, this);
     connect(shortcut, SIGNAL(activated()), this, SLOT(shortcutActivated()));
+}
+VLocationEdit::~VLocationEdit()
+{
+    delete mainLayout;
+    delete stackedWidget;
+    delete locationDropDowns;
+    delete locationLineEdit;
+    delete backButton;
+    delete forwardButton;
+    delete shortcut;
 }
 
 void VLocationEdit::switchStackedWidget(bool toggle)

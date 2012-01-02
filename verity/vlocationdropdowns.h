@@ -12,6 +12,7 @@ class VLocationDropDowns : public QWidget
     Q_OBJECT
 public:
     explicit VLocationDropDowns(QString activeText, QWidget *parent = 0);
+    ~VLocationDropDowns();
     void setLocation(VerseReference reference);
 
 private slots:

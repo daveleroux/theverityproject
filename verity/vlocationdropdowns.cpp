@@ -41,6 +41,14 @@ VLocationDropDowns::VLocationDropDowns(QString activeText, QWidget *parent) :
 
     this->setLayout(mainLayout);
 }
+VLocationDropDowns::~VLocationDropDowns()
+{
+    delete mainLayout;
+    delete cmbBookSelector;
+    delete cmbChapterSelector;
+    delete cmbVerseSelector;
+    delete btnGo;
+}
 
 void VLocationDropDowns::goClicked()
 {

@@ -25,6 +25,14 @@ VLocationLineEdit::VLocationLineEdit(QString activeText, QWidget *parent)
     listView->setModel(model);
 }
 
+VLocationLineEdit::~VLocationLineEdit()
+{
+    delete listView;
+    delete words;
+    delete model;
+}
+
+
 void VLocationLineEdit::focusOutEvent(QFocusEvent *e)
 {
     listView->hide();
