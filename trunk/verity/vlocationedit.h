@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPushButton>
 #include <QStackedWidget>
+#include <QShortcut>
 #include "vlocationlineedit.h"
 #include "vlocationdropdowns.h"
 
@@ -12,6 +13,7 @@ class VLocationEdit : public QWidget
     Q_OBJECT
 public:
     explicit VLocationEdit(QVector<QString> texts, QWidget *parent = 0);
+    ~VLocationEdit();
 
     QToolButton* backButton;
     QToolButton* forwardButton;
@@ -26,6 +28,7 @@ private:
     VLocationLineEdit *locationLineEdit;
 
     QPushButton btnSwitchView;
+    QShortcut *shortcut;
 
 public slots:
     void shortcutActivated();
