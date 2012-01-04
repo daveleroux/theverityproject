@@ -419,7 +419,8 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     currentChunk = new Chunk(bookNumber, ((QString)verseList.at(0)).toInt(), ((QString)verseList.at(1)).toInt());
                     QDomElement newChildElement = createElement(getDatabaseTagName(paragraphClass));
                     currentChunk->xmlDoc.firstChild().appendChild(newChildElement);
-                    placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+                    QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
+                    placeToAdd = &tempPlaceToAdd;
                 }
                 else
                 {
@@ -556,7 +557,8 @@ void doParagraph(QDomElement paragraphElement)
         {
             QDomElement newElement = createElement(getDatabaseTagName(paragraphClass));
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
-            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+            QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
+            placeToAdd = &tempPlaceToAdd;
         }
         else
             placeToAdd = 0;
