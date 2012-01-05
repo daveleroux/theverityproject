@@ -88,15 +88,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     dictionaryDock->setObjectName(dictionaryDock->windowTitle());
     dictionaryDock->setAllowedAreas(Qt::AllDockWidgetAreas);
 
-    /*QDockWidget* searchResultsDock = new QDockWidget("Search Results", this);
-    searchResultsDock->setObjectName(searchResultsDock->windowTitle());
-    searchResultsDock->setAllowedAreas(Qt::AllDockWidgetAreas);
-    searchBrowser = new SearchBrowser();
-    searchResultsDock->setWidget(searchBrowser);
-    addDockWidget(Qt::LeftDockWidgetArea, searchResultsDock);
-    connect(searchBrowser, SIGNAL(goToResult(QList<int>, VerseReference)), browser, SLOT(display(QList<int>, VerseReference)));
-    //    searchResultsDock->setFloating(true);*/
-
     QWidget* layoutWidget = new QWidget(dictionaryDock);
     QToolBar* dictionaryToolBar = new QToolBar();
     QToolButton* backButton = new QToolButton();
@@ -256,44 +247,6 @@ void MainWindow::verityAbout()
 "</html>");
 }
 
-//void MainWindow::textToggled(bool checked)
-//{
-//    QPushButton* sender = (QPushButton*)QObject::sender();
-
-//    //when you clean your filthy code that uses the caption on the button you can clean this up too.
-//    QString text = sender->text().mid(1);
-
-//    QMap<QString, int> textToBibletextIdMap;
-//    textToBibletextIdMap.insert("net", 1);
-//    textToBibletextIdMap.insert("tisch", 2);
-//    textToBibletextIdMap.insert("wlc", 3);
-
-//    if(checked)
-//    {
-//        texts.append(textToBibletextIdMap.value(text));
-//    }
-//    else
-//    {
-//        texts.removeOne(textToBibletextIdMap.value(text));
-//    }
-//    searchBrowser->setTextsAvaiable(texts);
-
-////    verseLineEdit->setFocus(Qt::OtherFocusReason);
-//}
-
-void MainWindow::afterShown()
-{
-//    verseLineEdit->setFocus();
-
-//    VerseReference verseReference = VerseReferenceParser::parse("Mt1");
-//    texts.append(1);
-//    texts.append(2);
-//    texts.append(3);
-//    qDebug() << "mainwindow::aftershown - " << verseReference.stringRepresentation << " :: texts() " << texts.count();
-//    bibleInterface->bibleWebView->display(this->texts, verseReference);
-//    qDebug() << "mainwindow::aftershown - bada bing bada boom baby";
-}
-
 void MainWindow::handleEvent(Event* event)
 {
     if(event->getEventType() == EventType::CLOSING)
@@ -332,34 +285,6 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-//void MainWindow::performVerseLineEdit()
-//{
-//    QString term = verseLineEdit->text();
-//    if (term.left(2) == "s.")
-//    {
-//        searchBrowser->performSearch(term);
-//    }
-//    else if(term.length() > 0)
-//    {
-//        VerseReference verseReference = VerseReferenceParser::parse(term);
-
-//        //        QMap<QString, int> textToBibletextIdMap;
-//        //        textToBibletextIdMap.insert("net", 1);
-//        //        textToBibletextIdMap.insert("tisch", 2);
-//        //        textToBibletextIdMap.insert("wlc", 3);
-
-//        //        QList<int> bibletextIds;
-//        //        QString text;
-//        //        foreach(text, texts)
-//        //        {
-//        //            bibletextIds.append(textToBibletextIdMap.value(text));
-//        //        }
-
-//        browser->display(texts, verseReference);
-//    }
-//}
-
-
 MainWindow::~MainWindow()
 {
 
@@ -381,48 +306,3 @@ void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
         QWidget::keyPressEvent(keyEvent);
     }
 }
-
-//void MainWindow::verseLineEditChanged(QString string)
-//{
-//    if(string.length() > 0)
-//    {
-//        if (string.left(2) == "s.")
-//        {
-//            if (verseLineOutput->text() != "will search...")
-//            {
-//                verseLineOutput->setText("will search...");
-//            }
-//        }
-//        else
-//        {
-//            //this is what used to be here:
-//            //           verseLineOutput->setText(VerseReferenceParser::parse(string).stringRepresentation);
-
-//            /*
-//    //this code is ripped from the CompleteLineEdit but it could be useful here
-
-//    QStringList words = QStringList()  << "Genesis" << "Exodus" << "Leviticus" << "Numbers" << "Deuteronomy" << "Joshua" << "Judges" << "Ruth" << "1 Samuel" << "2 Samuel" << "1 Kings" << "2 Kings" << "1 Chronicles" << "2 Chronicles" << "Ezra" << "Nehemiah" << "Esther" << "Job" << "Psalms" << "Proverbs" << "Ecclesiastes" << "Song of Songs" << "Isaiah" << "Jeremiah" << "Lamentations" << "Ezekiel" << "Daniel" << "Hosea" << "Joel" << "Amos" << "Obadiah" << "Jonah" << "Micah" << "Nahum" << "Habakkuk" << "Zephaniah" << "Haggai" << "Zechariah" << "Malachi";
-//    words << "Matthew" << "Mark" << "Luke" << "John" << "Acts" << "Romans" << "1 Corinthians" << "2 Corinthians" << "Galatians" << "Ephesians" << "Philippians" << "Colossians" << "1 Thessalonians" << "2 Thessalonians" << "1 Timothy" << "2 Timothy" << "Titus" << "Philemon" << "Hebrews" << "James" << "1 Peter" << "2 Peter" << "1 John" << "2 John" << "3 John" << "Jude" << "Revelation";
-
-//    QRegExp rx = QRegExp("^(\\d\\ )?[a-zA-Z]*\\b");
-//    rx.exactMatch(string);
-//    if (words.contains(rx.cap(0)))
-//    {
-//        QString book = rx.cap(0);
-//        QString textWithoutBook = string.mid(book.length());
-//        rx = QRegExp("^\\ ?(\\d{1,3})\\D(\\d{1,3})$");
-//        rx.exactMatch(textWithoutBook);
-//        qDebug() << (rx.cap(1).length() > 0 && rx.cap(2) > 0);
-//        if (rx.cap(1).length() > 0 && rx.cap(2) > 0)
-//        {
-//            verseLineOutput->setText("Destination: " + book + " " + rx.cap(1) + ":" + rx.cap(2));
-//        }
-//    }
-//*/
-//        }
-//    }
-//    else
-//    {
-//        verseLineOutput->setText("");
-//    }
-//}
