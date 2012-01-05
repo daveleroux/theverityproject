@@ -26,7 +26,6 @@ public:
 
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
-    void afterShown();
 
     void display(int wordNumber);
 
