@@ -3,6 +3,9 @@
 #include "CLucene/CLConfig.h"
 #include "CLucene/analysis/Analyzers.h"
 #include <QDebug>
+#include <QtSql>
+#include "netanalyzer.h"
+
 
 using namespace lucene::index;
 using namespace lucene::analysis;
@@ -12,64 +15,109 @@ using namespace lucene::document;
 using namespace lucene::queryParser;
 using namespace lucene::search;
 
+wchar_t* convert(QString input)
+{
+    wchar_t* arr = new wchar_t[input.length()+1];
+    int size = input.toWCharArray(arr);
+    arr[size] = '\0';
+    return arr;
+}
+
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
 
 
+    QString INDEX_NAME = "netLuceneIndex";
 
 
-    WhitespaceAnalyzer* whitespaceAnalyzer = new WhitespaceAnalyzer();
-    IndexWriter* writer = new IndexWriter("luceneIndex", whitespaceAnalyzer, true);
-
-
+    NetAnalyzer* netAnalyzer = new NetAnalyzer();
     Document doc;
-    doc.add(*new Field(_T("book"), _T("1"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("chapter"), _T("1"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("verse"), _T("1"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("contents"), _T("In the beginning, God created the heavens and the earth"), Field::STORE_YES | Field::INDEX_TOKENIZED));
-    writer->addDocument( &doc );
 
 
-    doc.clear();
-    doc.add(*new Field(_T("book"), _T("1"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("chapter"), _T("1"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("verse"), _T("2"), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-    doc.add(*new Field(_T("contents"), _T("The earth was without form and void, and darkness was over the face of the deep."
-                                          " And the Spirit of God was hovering over the face of the waters."), Field::STORE_YES | Field::INDEX_TOKENIZED));
-    writer->addDocument( &doc );
+//    try
+//    {
+//        Query* query = QueryParser::parse(convert(QString("grieve rest")), _T("contents"),netAnalyzer);
+//        IndexSearcher searcher(INDEX_NAME.toLatin1().data());
+//        Hits* hits = searcher.search(query);
+
+//        int max = hits->length() > 100? 100 : hits->length();
+
+//        qDebug() << max;
+
+//        for(int i=0; i<max; i++)
+//        {
+//            doc = hits->doc(i);
+//            qDebug() << QString::fromWCharArray(doc.get(_T("book"))) << " "
+//                    << QString::fromWCharArray(doc.get(_T("chapter"))) << ":"
+//                    << QString::fromWCharArray(doc.get(_T("verse")));
+//            qDebug() << QString::fromWCharArray(doc.get(_T("contents")));
+//        }
+//    }
+//    catch (CLuceneError e)
+//    {
+//        qDebug() << e.what();
+//    }
+//    return 0;
 
 
-    writer->close();
 
-
-
-
-
-    try
-    {
-        Query* query = QueryParser::parse(_T("hovering"), _T("contents"),whitespaceAnalyzer);
-        IndexSearcher searcher("luceneIndex");
-        Hits* hits = searcher.search(query);
-
-        int max = hits->length() > 100? 100 : hits->length();
-
-        qDebug() << max;
-
-        for(int i=0; i<max; i++)
+        IndexWriter* writer = new IndexWriter(INDEX_NAME.toLatin1().data(), netAnalyzer, true);
+        QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
+        db.setDatabaseName("verity.sqlite");
+        if (!db.open())
         {
-            doc = hits->doc(i);
-            qDebug() << QString::fromWCharArray(doc.get(_T("book"))) << " "
-                    << QString::fromWCharArray(doc.get(_T("chapter"))) << ":"
-                    << QString::fromWCharArray(doc.get(_T("verse")));
-            qDebug() << QString::fromWCharArray(doc.get(_T("contents")));
+            qDebug() << "couldn't open db" << endl;
+            return 1;
         }
-    }
-    catch (CLuceneError e)
-    {
-        qDebug() << e.what();
-    }
 
+        QSqlQuery query;
+        query.exec("select book_number, chapter, verse, text from bibles where bibletext_id=1 and verse>0");
 
-    return 0;
+        int count = 0;
+        while(query.next())
+        {
+            int book_number = query.value(0).toInt();
+            int chapter = query.value(1).toInt();
+            int verse = query.value(2).toInt();
+            QString text = query.value(3).toString();
+
+            QList<QString> regsToWhack;
+
+            regsToWhack.append("<chapter>.*</chapter>");
+            regsToWhack.append("<verse>.*</verse>");
+            regsToWhack.append("<netNote.*</netNote>");
+            regsToWhack.append("&.*;");
+            regsToWhack.append("<paragraphTitle>.*</paragraphTitle>");
+            regsToWhack.append("<speakerHeading>.*</speakerHeading>");
+
+            foreach(QString regToWhack, regsToWhack)
+            {
+                QRegExp regEx(regToWhack);
+                regEx.setMinimal(true);
+                text.replace(regEx,"");
+            }
+
+            text.replace(QRegExp("<[^>]*>"),"");
+
+            text.replace(QRegExp(QString::fromUtf8("[,.“”!?–();‘’]")), " ");
+            text = text.trimmed();
+
+            doc.clear();
+            doc.add(*new Field(_T("book"), convert(QString().setNum(book_number)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
+            doc.add(*new Field(_T("chapter"), convert(QString().setNum(chapter)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
+            doc.add(*new Field(_T("verse"), convert(QString().setNum(verse)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
+            doc.add(*new Field(_T("contents"), convert(text), Field::STORE_YES | Field::INDEX_TOKENIZED));
+            writer->addDocument( &doc );
+
+            count++;
+            if(count % 1000 == 0)
+                   qDebug() << count;
+        }
+
+        writer->optimize();
+
+        writer->close();
+        db.close();
+        return 0;
 }
