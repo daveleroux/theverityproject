@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core
+QT       += core sql
 
 QT       -= gui
 
@@ -18,4 +18,8 @@ INCLUDEPATH += /usr/include
 
 LIBS += -L/usr/lib -lclucene
 
-SOURCES += main.cpp
+SOURCES += main.cpp \
+    netanalyzer.cpp
+
+HEADERS += \
+    netanalyzer.h
