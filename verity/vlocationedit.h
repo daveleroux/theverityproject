@@ -19,7 +19,6 @@ public:
     QToolButton* forwardButton;
 
 private:
-    QToolButton btnTextAndViewSelect;
     QHBoxLayout* mainLayout;
     QStackedWidget *stackedWidget;
 
@@ -33,7 +32,6 @@ private:
 public slots:
     void shortcutActivated();
     void switchStackedWidget(bool toggle);
-    void switchParallelView();
     void go();
 };
 
