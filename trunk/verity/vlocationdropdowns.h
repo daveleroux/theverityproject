@@ -11,7 +11,7 @@ class VLocationDropDowns : public QWidget
 {
     Q_OBJECT
 public:
-    explicit VLocationDropDowns(QString activeText, QWidget *parent = 0);
+    VLocationDropDowns(QString activeText, QWidget *parent = 0);
     ~VLocationDropDowns();
     void setLocation(VerseReference reference);
 
@@ -25,8 +25,6 @@ signals:
 
 private:
     QStringList availableBooks;
-    QStringList bookChapterRange;
-    QStringList bookChapterVerseRange;
 
     QHBoxLayout *mainLayout;
     QComboBox *cmbBookSelector;

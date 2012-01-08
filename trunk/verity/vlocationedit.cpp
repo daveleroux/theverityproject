@@ -14,20 +14,6 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
 //    QVector<int> *bookChapterRange = new QVector<int>;
 
     mainLayout = new QHBoxLayout(this);
-    /*btnTextAndViewSelect.setText("Parallel View");
-    btnTextAndViewSelect.setPopupMode(QToolButton::MenuButtonPopup);
-    QMenu *menu = new QMenu();
-    foreach (QString text, texts)
-    {
-        menu->addAction(text);
-    }
-    foreach (QAction *action, menu->actions())
-    {
-        action->setCheckable(true);
-        action->setChecked(true);
-    }
-    btnTextAndViewSelect.setMenu(menu);
-    mainLayout->addWidget(&btnTextAndViewSelect);*/
 
     stackedWidget = new QStackedWidget(this);
 
@@ -61,7 +47,6 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     qDebug() << this->height();
 
     connect(&btnSwitchView, SIGNAL(clicked(bool)), this, SLOT(switchStackedWidget(bool)));
-    connect(&btnTextAndViewSelect, SIGNAL(clicked(bool)), this, SLOT(switchParallelView()));
 
     connect(locationLineEdit, SIGNAL(returnPressed()), this, SLOT(go()));
     connect(locationDropDowns, SIGNAL(goSignal()), this, SLOT(go()));
@@ -71,10 +56,12 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
 }
 VLocationEdit::~VLocationEdit()
 {
-    delete mainLayout;
-    delete stackedWidget;
+    //get rid of these two first or segfault as mainlayout deletes them - only deleted here for the sake of being pedantic
     delete locationDropDowns;
     delete locationLineEdit;
+
+    delete mainLayout;
+    delete stackedWidget;
     delete backButton;
     delete forwardButton;
     delete shortcut;
@@ -84,20 +71,6 @@ void VLocationEdit::switchStackedWidget(bool toggle)
 {
     stackedWidget->setCurrentIndex((stackedWidget->currentIndex() * (-1)) + 1);
     stackedWidget->currentWidget()->setFocus(Qt::OtherFocusReason);
-}
-
-void VLocationEdit::switchParallelView()
-{
-    switch (btnTextAndViewSelect.text() == "Parallel View")
-    {
-    case true:
-        btnTextAndViewSelect.setText("Single Text View");
-        break;
-    case false:
-        btnTextAndViewSelect.setText("Parallel View");
-        break;
-    }
-//    emit
 }
 
 void VLocationEdit::go()

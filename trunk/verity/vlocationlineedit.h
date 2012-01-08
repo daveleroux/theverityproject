@@ -13,7 +13,6 @@ class QModelIndex;
 
 class VLocationLineEdit : public QLineEdit
 {
-
     Q_OBJECT
 public:
     VLocationLineEdit(QString activeText, QWidget *parent = 0);
