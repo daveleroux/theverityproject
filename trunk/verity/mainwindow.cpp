@@ -14,6 +14,7 @@
 #include "strongsevent.h"
 #include "netnotebrowser.h"
 #include "basicevent.h"
+#include "searchdisplaybrowser.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -77,12 +78,22 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     //    connect(browser, SIGNAL(wordClicked(TextInfo*)), selectedBrowser, SLOT(display(TextInfo*)));
     addDockWidget(Qt::RightDockWidgetArea, selectedDock);
 
+    QDockWidget* searchResultsDock = new QDockWidget("Search Results", this);
+    searchResultsDock->setObjectName(searchResultsDock->windowTitle());
+    searchResultsDock->setAllowedAreas(Qt::AllDockWidgetAreas);
+    SearchDisplayBrowser* searchDisplayBrowser = new SearchDisplayBrowser(searchResultsDock);
+    searchResultsDock->setWidget(searchDisplayBrowser);
+    addDockWidget(Qt::BottomDockWidgetArea, searchResultsDock);
+
     QDockWidget* netNoteDock = new QDockWidget("Net Notes", this);
     netNoteDock->setObjectName(netNoteDock->windowTitle());
     netNoteDock->setAllowedAreas(Qt::AllDockWidgetAreas);
     NetNoteBrowser* netNoteBrowser = new NetNoteBrowser(netNoteDock);
     netNoteDock->setWidget(netNoteBrowser);
     addDockWidget(Qt::BottomDockWidgetArea, netNoteDock);
+
+    tabifyDockWidget(netNoteDock, searchResultsDock);
+    netNoteDock->raise();
 
     QDockWidget* dictionaryDock = new QDockWidget("Dictionary", this);
     dictionaryDock->setObjectName(dictionaryDock->windowTitle());
@@ -121,6 +132,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     viewMenu->addAction(selectedDock->toggleViewAction());
     viewMenu->addAction(netNoteDock->toggleViewAction());
     viewMenu->addAction(dictionaryDock->toggleViewAction());
+    viewMenu->addAction(searchResultsDock->toggleViewAction());
 
     QMenu* copyrightMenu = menuBar()->addMenu(tr("&Copyright")); //this should perhaps be done some other way so texts can be added without a recompile e.g. in the db
 

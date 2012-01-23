@@ -15,4 +15,7 @@ QString FONT_FAMILY_SETTINGS = "fontFamilySettings";
 QString ACTIVE_TEXTS= "activeTexts";
 QString TEXT_SETTING = "textSetting";
 QString FONT_SETTING = "fontSetting";
+QString SEARCH_INDICATOR = ".";
+QString INDEX_NAME = "netLuceneIndex";
+
 

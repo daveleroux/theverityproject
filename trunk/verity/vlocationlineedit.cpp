@@ -137,6 +137,14 @@ void VLocationLineEdit::setCompleter(const QString &text)
         listView->hide();
         return;
     }
+
+    if (text.left(1) == ".")
+    {
+        setProperty("destination", text);
+        listView->hide();
+        return;
+    }
+
     /*
       This is there in the original but it seems to be bad for performance
       (keeping listview hidden unnecessarily - havn't thought about it properly though)

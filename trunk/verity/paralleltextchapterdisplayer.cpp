@@ -30,7 +30,7 @@ QString ParallelTextChapterDisplayer::transformToHtml(QString xml, bool evenStar
 {
     QString result = ChapterDisplayer::transformToHtml(xml);
     QString classType = evenStart? "evenStart" : "oddStart";
-    result.replace("<table>", "<table class=\"" + classType + "\">");
+    result.replace("<table>", "<table class=\"" + classType + " parallel\">");
     return result;
 }
 

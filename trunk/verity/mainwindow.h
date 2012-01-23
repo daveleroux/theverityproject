@@ -4,7 +4,6 @@
 #include <QtGui/QMainWindow>
 #include <QList>
 #include "vbibleinterface.h"
-#include "searchbrowser.h"
 #include "qsnapscrollbar.h"
 #include <QLineEdit>
 #include <QLabel>
@@ -32,7 +31,6 @@ public:
 protected:
 
     VBibleInterface* bibleInterface;
-    SearchBrowser* searchBrowser;
     QLabel* verseLineOutput;
     void keyPressEvent(QKeyEvent* keyEvent);
 

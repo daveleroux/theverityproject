@@ -1,5 +1,4 @@
 #include "netnoteevent.h"
-#include "globalvariables.h"
 
 NetNoteEvent::NetNoteEvent(int id)
 {

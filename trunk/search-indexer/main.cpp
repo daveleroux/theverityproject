@@ -9,18 +9,18 @@
 
 using namespace lucene::index;
 using namespace lucene::analysis;
+using namespace lucene::queryParser;
+using namespace lucene::search;
 using namespace lucene::util;
 using namespace lucene::store;
 using namespace lucene::document;
-using namespace lucene::queryParser;
-using namespace lucene::search;
 
 wchar_t* convert(QString input)
 {
     wchar_t* arr = new wchar_t[input.length()+1];
     int size = input.toWCharArray(arr);
     arr[size] = '\0';
-    return arr;
+    return arr;        
 }
 
 int main(int argc, char *argv[])
@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
 
 //    try
 //    {
-//        Query* query = QueryParser::parse(convert(QString("grieve rest")), _T("contents"),netAnalyzer);
+//        Query* query = QueryParser::parse(convert(QString("rest years")), _T("contentsToSearch"),netAnalyzer);
 //        IndexSearcher searcher(INDEX_NAME.toLatin1().data());
 //        Hits* hits = searcher.search(query);
 
@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 //            qDebug() << QString::fromWCharArray(doc.get(_T("book"))) << " "
 //                    << QString::fromWCharArray(doc.get(_T("chapter"))) << ":"
 //                    << QString::fromWCharArray(doc.get(_T("verse")));
-//            qDebug() << QString::fromWCharArray(doc.get(_T("contents")));
+//            qDebug() << QString::fromWCharArray(doc.get(_T("contentsToDisplay")));
 //        }
 //    }
 //    catch (CLuceneError e)
@@ -100,6 +100,8 @@ int main(int argc, char *argv[])
 
             text.replace(QRegExp("<[^>]*>"),"");
 
+            QString textToDisplay = text;
+
             text.replace(QRegExp(QString::fromUtf8("[,.“”!?–();‘’]")), " ");
             text = text.trimmed();
 
@@ -107,7 +109,8 @@ int main(int argc, char *argv[])
             doc.add(*new Field(_T("book"), convert(QString().setNum(book_number)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
             doc.add(*new Field(_T("chapter"), convert(QString().setNum(chapter)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
             doc.add(*new Field(_T("verse"), convert(QString().setNum(verse)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
-            doc.add(*new Field(_T("contents"), convert(text), Field::STORE_YES | Field::INDEX_TOKENIZED));
+            doc.add(*new Field(_T("contentsToSearch"), convert(text), Field::STORE_NO | Field::INDEX_TOKENIZED));
+            doc.add(*new Field(_T("contentsToDisplay"), convert(textToDisplay), Field::STORE_YES | Field::INDEX_UNTOKENIZED));
             writer->addDocument( &doc );
 
             count++;
