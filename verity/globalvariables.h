@@ -18,7 +18,8 @@ extern QString FONT_FAMILY_SETTINGS;
 extern QString ACTIVE_TEXTS;
 extern QString TEXT_SETTING;
 extern QString FONT_SETTING;
-
+extern QString SEARCH_INDICATOR;
+extern QString INDEX_NAME;
 
 extern QString DATA_PATH;
 
@@ -33,6 +34,7 @@ namespace EventType
         NET_NOTE,
         CLOSING,
         BIBLE_REFERENCE,
+        SEARCH,
     };
 }
 

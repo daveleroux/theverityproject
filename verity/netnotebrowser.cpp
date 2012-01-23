@@ -87,6 +87,7 @@ void NetNoteBrowser::handleEvent(Event* event)
         NetNoteEvent* netNoteEvent = static_cast<NetNoteEvent*>(event);
         QString xml = BibleQuerier::getNetNote(netNoteEvent->id);
         setHtml(transformToHtml(xml));
+        parentWidget()->raise();
     }
     else
     {

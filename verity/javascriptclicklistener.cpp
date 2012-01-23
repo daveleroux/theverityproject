@@ -4,6 +4,8 @@
 #include "wordclickedevent.h"
 #include "netnoteevent.h"
 #include "strongsevent.h"
+#include "biblereferenceevent.h"
+#include "versereference.h"
 
 JavascriptClickListener::JavascriptClickListener()
 {
@@ -22,4 +24,9 @@ void JavascriptClickListener::netNoteClicked(int id)
 void JavascriptClickListener::strongsClicked(int id)
 {
     (new StrongsEvent(id))->fire();
+}
+
+void JavascriptClickListener::bibleReferenceClicked(int book, int chapter, int verse)
+{
+    (new BibleReferenceEvent(VerseReference(book, chapter, verse, "")))->fire();
 }

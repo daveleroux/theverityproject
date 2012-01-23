@@ -6,6 +6,11 @@ QT += sql \
     webkit
 TARGET = verity
 TEMPLATE = app
+
+INCLUDEPATH += /usr/include
+
+LIBS += -L/usr/lib -lclucene
+
 SOURCES += main.cpp \
     mainwindow.cpp \
     basetextunit.cpp \
@@ -34,7 +39,6 @@ SOURCES += main.cpp \
     parallelgridconstructor.cpp \
     referencefilterproxymodel.cpp \
     minandmaxidsforchapter.cpp \
-    searchbrowser.cpp \
     scrolllistener.cpp \
     paralleldto.cpp \
     eventmanager.cpp \
@@ -61,7 +65,10 @@ SOURCES += main.cpp \
     emptyparsingwordhandler.cpp \
     vwebhistory.cpp \
     vwebhistoryitem.cpp \
-    basicwebhistoryitem.cpp
+    basicwebhistoryitem.cpp \
+    searchdisplaybrowser.cpp \
+    searchevent.cpp \
+    netanalyzer.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -90,7 +97,6 @@ HEADERS += mainwindow.h \
     parallelgridconstructor.h \
     referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
-    searchbrowser.h \
     locationlineedit.h \
     scrolllistener.h \
     paralleldto.h \
@@ -118,7 +124,10 @@ HEADERS += mainwindow.h \
     emptyparsingwordhandler.h \
     vwebhistory.h \
     vwebhistoryitem.h \
-    basicwebhistoryitem.h
+    basicwebhistoryitem.h \
+    searchdisplaybrowser.h \
+    searchevent.h \
+    netanalyzer.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

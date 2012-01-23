@@ -1,7 +1,6 @@
 #ifndef PARSINGDISPLAYBROWSER_H
 #define PARSINGDISPLAYBROWSER_H
 
-#include <QTextBrowser>
 #include "textinfo.h"
 #include "textinfo.h"
 #include "listener.h"
