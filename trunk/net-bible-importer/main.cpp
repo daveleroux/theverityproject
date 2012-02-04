@@ -420,7 +420,8 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     currentChunk->xmlDoc.firstChild().appendChild(newChildElement);
 //                    QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
 //                    placeToAdd = &tempPlaceToAdd;
-                    placeToAdd = &(currentChunk->xmlDoc.firstChild().lastChild());
+//                    placeToAdd = &(currentChunk->xmlDoc.firstChild().lastChild());
+                    placeToAdd = &newChildElement;
 //                    const QDomNode& tempRef = currentChunk->xmlDoc.firstChild().lastChild();
 
                 }
@@ -561,7 +562,8 @@ void doParagraph(QDomElement paragraphElement)
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
 //            QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
 //            placeToAdd = &tempPlaceToAdd;
-            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+//            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+            placeToAdd = &newElement;
         }
         else
             placeToAdd = 0;
