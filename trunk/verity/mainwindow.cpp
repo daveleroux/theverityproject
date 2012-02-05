@@ -156,6 +156,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
     connect(strongsGreekAction, SIGNAL(triggered()), this, SLOT(strongsGreekCopyright()));
     copyrightMenu->addAction(strongsGreekAction);
 
+    QMenu* helpMenu = menuBar()->addMenu(tr("&Help"));
+
+    QAction* helpAction = new QAction("Help", this);
+    connect(helpAction, SIGNAL(triggered()), this, SLOT(help()));
+    helpMenu->addAction(helpAction);
+
     QMenu* aboutMenu = menuBar()->addMenu(tr("&About"));
 
     QAction* verityAction = new QAction("The Verity Project", this);
@@ -174,10 +180,17 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
 
 
-    EventManager::addListener(EventType::WORD_CLICKED, new WordClickedListener());
+    wordClickedListener = new WordClickedListener();
+    EventManager::addListener(EventType::WORD_CLICKED, wordClickedListener);
 
     EventManager::addListener(EventType::CLOSING, this);
 }
+
+MainWindow::~MainWindow()
+{
+    delete wordClickedListener;
+}
+
 
 void MainWindow::netCopyright()
 {
@@ -254,9 +267,25 @@ void MainWindow::verityAbout()
 "<h4>The Verity Project</h4>"
 "Soli Deo Gloria"
 "<br/><br/>Written by David le Roux and James Cu&eacute;nod"
+"<br/><br/>Version: 0.2"
 "<br/><br/><a href=\"http://www.theverityproject.com/\">http://www.theverityproject.com/</a>"
 "<br/><br/>GNU General Public License Version 3"
 "</html>");
+}
+
+void MainWindow::help()
+{
+    QMessageBox::information(this, "Help",
+                             "<html>"
+                             "Press Ctrl+L to go to the advanced navigation bar. "
+                             "You can then:"
+                             "<ul>"
+                             "<li>type verse references e.g. Mk 2</li>"
+                             "<li>search by starting with a full stop e.g. .God loved</li>"
+                             "</ul>"
+                             "To zoom, hold down Ctrl and scroll"
+                             "</html>"
+                             );
 }
 
 void MainWindow::handleEvent(Event* event)
@@ -297,24 +326,20 @@ void MainWindow::closeEvent(QCloseEvent *event)
     event->accept();
 }
 
-MainWindow::~MainWindow()
-{
 
-}
-
-void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
-{
-    if(keyEvent->modifiers() & Qt::ControlModifier && keyEvent->key() == Qt::Key_L)
-    {
-//        verseLineEdit->setFocus();
-//        verseLineEdit->selectAll();
-    }
-    else if(keyEvent->key() == Qt::Key_Q)
-    {
-        window()->close();
-    }
-    else
-    {
-        QWidget::keyPressEvent(keyEvent);
-    }
-}
+//void MainWindow::keyPressEvent(QKeyEvent* keyEvent)
+//{
+//    if(keyEvent->modifiers() & Qt::ControlModifier && keyEvent->key() == Qt::Key_L)
+//    {
+////        verseLineEdit->setFocus();
+////        verseLineEdit->selectAll();
+//    }
+//    else if(keyEvent->key() == Qt::Key_Q)
+//    {
+//        window()->close();
+//    }
+//    else
+//    {
+//        QWidget::keyPressEvent(keyEvent);
+//    }
+//}

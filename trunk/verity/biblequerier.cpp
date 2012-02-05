@@ -167,7 +167,6 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
     QSqlQuery query;
     query.setForwardOnly(true);
 
-
     if(!query.exec("select id, book_number, chapter, verse, text, parallel from bibles where bibletext_id="+ QString().setNum(bibletextId) +" and id >= "
                    + QString().setNum(idFrom) +
                    " and id <= " + QString().setNum(idTo) +
@@ -177,12 +176,8 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
         exit(1);
     }
 
-
-
-
     VerseNode* result = new VerseNode();
     VerseNode* previousVerseNode = result;
-
 
     while(query.next())
     {
@@ -221,28 +216,7 @@ VerseNode* BibleQuerier::_readInFromMinToMax(int bibletextId, int idFrom, int id
 VerseNode* BibleQuerier::_readInChapterDataForParallelText(int bibletextId, QSet<int>& parallelIds, int idToInclude, QMap<int, int>& firstIdsMap, QMap<int, int>& lastIdsMap)
 {
     QSqlQuery query;
-    //    query.setForwardOnly(true);
-
-
-    //    query.prepare("select min(id), max(id) from bibles where bibletext_id=" + QString().setNum(bibletextId) + " and parallel in ("+asString(parallelIds.toList())+") ");
-
-
-    //    if(!query.exec())
-    //    {
-    //        qDebug() << "failed: " << query.lastError();
-    //        exit(1);
-    //    }
-    //    query.next();
-
-
-    //    int min  = query.value(0).toInt();
-    //    int max =  query.value(1).toInt();
-
-
     query.prepare("select id from bibles where bibletext_id=" + QString().setNum(bibletextId) + " and parallel in ("+asString(parallelIds.toList())+") order by id asc");
-
-
-
 
     if(!query.exec())
     {
@@ -250,26 +224,16 @@ VerseNode* BibleQuerier::_readInChapterDataForParallelText(int bibletextId, QSet
         exit(1);
     }
 
-
     int min = 0;
     int max = 0;
-
 
     query.first();
     if(query.isValid())
         min = query.value(0).toInt();
 
-
     query.last();
     if(query.isValid())
         max = query.value(0).toInt();
-
-
-
-
-
-
-
 
     if(min > 0 && max > 0)
     {
@@ -281,14 +245,10 @@ VerseNode* BibleQuerier::_readInChapterDataForParallelText(int bibletextId, QSet
                 max = idToInclude;
         }
 
-
         firstIdsMap.insert(bibletextId, min);
         lastIdsMap.insert(bibletextId, max);
 
-
         return _readInFromMinToMax(bibletextId, min, max, parallelIds);
-
-
     }
     return new VerseNode();
 }
@@ -866,10 +826,10 @@ QBitArray BibleQuerier::getNormalisedMorphTag(int bibletextId, int wordId)
 
 
 
-QStringList BibleQuerier::search(QString searchTerms)
-{
-    return instance()._search(searchTerms);
-}
+//QStringList BibleQuerier::search(QString searchTerms)
+//{
+//    return instance()._search(searchTerms);
+//}
 
 
 QString BibleQuerier::getNetNote(int id)
@@ -884,125 +844,125 @@ QString BibleQuerier::getStrongsData(int strongsNum)
 }
 
 
-QStringList BibleQuerier::_search(QString searchTerms)
-{
-    /*
-        searchTerms is in the format:
-        ---
-        "s" (to distinguish from a normal reference)
-        [(not to be implemented yet - assume filled) "<>" (an optional book to search within - otherwise will search all of them - we should only search appropriate languages though)]
-        "<words>"
+//QStringList BibleQuerier::_search(QString searchTerms)
+//{
+//    /*
+//        searchTerms is in the format:
+//        ---
+//        "s" (to distinguish from a normal reference)
+//        [(not to be implemented yet - assume filled) "<>" (an optional book to search within - otherwise will search all of them - we should only search appropriate languages though)]
+//        "<words>"
 
 
-        each element separated by a fullstop
-        words with parsing information will be "θεος@MAS" or "ἀκουω@IAP3S" (or something like that for parsing - there can be a gui to generate stuff for people unfamiliar with the syntax)
+//        each element separated by a fullstop
+//        words with parsing information will be "θεος@MAS" or "ἀκουω@IAP3S" (or something like that for parsing - there can be a gui to generate stuff for people unfamiliar with the syntax)
 
 
-        e.g. "s.esv.the first and the last"
-        (the second "the" is redundant though in our "database")
-    */
-    QStringList *searchResultList = new QStringList();
-    QStringList searchTermList = searchTerms.split(".");
-    QStringList eachWord = ((QString) searchTermList.at(2)).split(" ");
+//        e.g. "s.esv.the first and the last"
+//        (the second "the" is redundant though in our "database")
+//    */
+//    QStringList *searchResultList = new QStringList();
+//    QStringList searchTermList = searchTerms.split(".");
+//    QStringList eachWord = ((QString) searchTermList.at(2)).split(" ");
 
 
-    //    QString sqlQuery = "select t0.id, t0.book, t0.chapter, t0.verse, t0.text";
-    //    QString fromTables;
-    //    QString whereCondition;
-    //
-    //    for (int i = 0; i < eachWord.count(); i++)
-    //    {
-    //        fromTables.append(", " + searchTermList.at(1) + " as t" + QString().setNum(i));
-    //        whereCondition.append(" and t" + QString().setNum(i) + ".text like(\"%" + eachWord.at(i) + "%\") and t" + QString().setNum(i) + ".book = t0.book and t" + QString().setNum(i) + ".chapter = t0.chapter and t" + QString().setNum(i) + ".verse = t0.verse");
-    //    }
-    //    fromTables = " from" + fromTables.mid(1);
-    //    whereCondition = " where" + whereCondition.mid(4);
-    //    qDebug() << sqlQuery;
-    //    qDebug() << "from: " << fromTables;
-    //    qDebug() << "where: " << whereCondition << endl;
-    //
-    //    sqlQuery = sqlQuery.append(fromTables).append(whereCondition);
-    //
-    //    qDebug() << sqlQuery;
+//    //    QString sqlQuery = "select t0.id, t0.book, t0.chapter, t0.verse, t0.text";
+//    //    QString fromTables;
+//    //    QString whereCondition;
+//    //
+//    //    for (int i = 0; i < eachWord.count(); i++)
+//    //    {
+//    //        fromTables.append(", " + searchTermList.at(1) + " as t" + QString().setNum(i));
+//    //        whereCondition.append(" and t" + QString().setNum(i) + ".text like(\"%" + eachWord.at(i) + "%\") and t" + QString().setNum(i) + ".book = t0.book and t" + QString().setNum(i) + ".chapter = t0.chapter and t" + QString().setNum(i) + ".verse = t0.verse");
+//    //    }
+//    //    fromTables = " from" + fromTables.mid(1);
+//    //    whereCondition = " where" + whereCondition.mid(4);
+//    //    qDebug() << sqlQuery;
+//    //    qDebug() << "from: " << fromTables;
+//    //    qDebug() << "where: " << whereCondition << endl;
+//    //
+//    //    sqlQuery = sqlQuery.append(fromTables).append(whereCondition);
+//    //
+//    //    qDebug() << sqlQuery;
 
 
-    QString sqlQuery;
-    /*QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
-    QString whereCondition;
-    for (int i = 0; i < eachWord.count(); i++)
-    {
-        whereCondition.append(" or text like(\"" + eachWord.at(i) + "\")");
-    }
-    whereCondition = " where" + whereCondition.mid(3);
-    sqlQuery = sqlQuery.append(whereCondition).append(" group by book, chapter, verse");
+//    QString sqlQuery;
+//    /*QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
+//    QString whereCondition;
+//    for (int i = 0; i < eachWord.count(); i++)
+//    {
+//        whereCondition.append(" or text like(\"" + eachWord.at(i) + "\")");
+//    }
+//    whereCondition = " where" + whereCondition.mid(3);
+//    sqlQuery = sqlQuery.append(whereCondition).append(" group by book, chapter, verse");
 
 
-    qDebug() << sqlQuery;*/
+//    qDebug() << sqlQuery;*/
 
 
-    QSqlQuery query;
-    query.setForwardOnly(true);
+//    QSqlQuery query;
+//    query.setForwardOnly(true);
 
 
-    //    if (!query.exec(sqlQuery.append(" order by t0.id asc")))
-    if (((QString)searchTermList.at(2)).contains(" ", Qt::CaseSensitive))
-    {
-        sqlQuery = "select id, book_number, chapter, verse, count(id) as hits, text, (book_number || chapter || verse) as fish "
-                   "from " + ((QString) searchTermList.at(1)) + " where";
+//    //    if (!query.exec(sqlQuery.append(" order by t0.id asc")))
+//    if (((QString)searchTermList.at(2)).contains(" ", Qt::CaseSensitive))
+//    {
+//        sqlQuery = "select id, book_number, chapter, verse, count(id) as hits, text, (book_number || chapter || verse) as fish "
+//                   "from " + ((QString) searchTermList.at(1)) + " where";
 
 
-        for (int i = 0; i < eachWord.count(); i++)
-        {
-            if (i != 0)
-            {
-                sqlQuery.append(" or");
-            }
-            QString thisWord = eachWord.at(i);
-            QString parsing = eachWord.at(i);
-            QString column = "text";
-            if (thisWord.indexOf("@") != -1)
-            {
-                thisWord = thisWord.left(thisWord.indexOf("@"));
-                parsing = parsing.right(parsing.indexOf("@") + 1);
-                column = "strongs_lemma";
-            }
-            sqlQuery.append(" " + column + " like(\"%" + thisWord + "%\")");
-        }
-        sqlQuery.append(" group by fish order by hits desc");
-    }
-    else
-    {
-        QString thisWord = searchTermList.at(2);
-        QString parsing = searchTermList.at(2);
-        QString column = "text";
-        if (thisWord.indexOf("@") != -1)
-        {
-            thisWord = thisWord.left(thisWord.indexOf("@"));
-            parsing = parsing.right(parsing.indexOf("@") + 1);
-            column = "strongs_lemma";
-        }
-        sqlQuery = "select id, book_number, chapter, verse, text "
-                   "from " + ((QString) searchTermList.at(1)) +
-                   " where " + column + " like (\"%" + thisWord + "%\")"
-                   " order by id asc";
-    }
-    qDebug() << sqlQuery;
-    if(!query.exec(sqlQuery))
-    {
-        qDebug() << "failed: " << query.lastError() << endl;
-        exit(1);
-    }
+//        for (int i = 0; i < eachWord.count(); i++)
+//        {
+//            if (i != 0)
+//            {
+//                sqlQuery.append(" or");
+//            }
+//            QString thisWord = eachWord.at(i);
+//            QString parsing = eachWord.at(i);
+//            QString column = "text";
+//            if (thisWord.indexOf("@") != -1)
+//            {
+//                thisWord = thisWord.left(thisWord.indexOf("@"));
+//                parsing = parsing.right(parsing.indexOf("@") + 1);
+//                column = "strongs_lemma";
+//            }
+//            sqlQuery.append(" " + column + " like(\"%" + thisWord + "%\")");
+//        }
+//        sqlQuery.append(" group by fish order by hits desc");
+//    }
+//    else
+//    {
+//        QString thisWord = searchTermList.at(2);
+//        QString parsing = searchTermList.at(2);
+//        QString column = "text";
+//        if (thisWord.indexOf("@") != -1)
+//        {
+//            thisWord = thisWord.left(thisWord.indexOf("@"));
+//            parsing = parsing.right(parsing.indexOf("@") + 1);
+//            column = "strongs_lemma";
+//        }
+//        sqlQuery = "select id, book_number, chapter, verse, text "
+//                   "from " + ((QString) searchTermList.at(1)) +
+//                   " where " + column + " like (\"%" + thisWord + "%\")"
+//                   " order by id asc";
+//    }
+//    qDebug() << sqlQuery;
+//    if(!query.exec(sqlQuery))
+//    {
+//        qDebug() << "failed: " << query.lastError() << endl;
+//        exit(1);
+//    }
 
 
-    while(query.next())
-    {
-        QString bookNumber = query.value(1).toString();
-        QString chapter = query.value(2).toString();
-        QString verse = query.value(3).toString();
-        QString text = query.value(4).toString();
+//    while(query.next())
+//    {
+//        QString bookNumber = query.value(1).toString();
+//        QString chapter = query.value(2).toString();
+//        QString verse = query.value(3).toString();
+//        QString text = query.value(4).toString();
 
 
-        searchResultList->append("<a href=\"search://" + bookNumber +"." + chapter + "." + verse + "\">" + VerseReferenceParser::calculateStringRepresentation(bookNumber.toInt(), chapter.toInt(), verse.toInt()) + "</a> \"" + text + "\"");
-    }
-    return *searchResultList;
-}
+//        searchResultList->append("<a href=\"search://" + bookNumber +"." + chapter + "." + verse + "\">" + VerseReferenceParser::calculateStringRepresentation(bookNumber.toInt(), chapter.toInt(), verse.toInt()) + "</a> \"" + text + "\"");
+//    }
+//    return *searchResultList;
+//}

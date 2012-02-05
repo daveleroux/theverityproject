@@ -11,6 +11,7 @@
 #include <QPushButton>
 
 #include "listener.h"
+#include "wordclickedlistener.h"
 
 class MainWindow : public QMainWindow, public Listener
 {
@@ -30,9 +31,11 @@ public:
 
 protected:
 
+    WordClickedListener* wordClickedListener;
+
     VBibleInterface* bibleInterface;
     QLabel* verseLineOutput;
-    void keyPressEvent(QKeyEvent* keyEvent);
+//    void keyPressEvent(QKeyEvent* keyEvent);
 
     void closeEvent(QCloseEvent *event);
 
@@ -46,6 +49,7 @@ public slots:
     void strongsGreekCopyright();
 
     void verityAbout();
+    void help();
 
 };
 
