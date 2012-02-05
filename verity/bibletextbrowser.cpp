@@ -78,6 +78,7 @@ BibleTextBrowser::BibleTextBrowser(QWidget* parent) : VWebView(parent)
 
 BibleTextBrowser::~BibleTextBrowser()
 {
+    delete webHistory;
     delete scrollListener;
     delete javascriptClickListener;
 }

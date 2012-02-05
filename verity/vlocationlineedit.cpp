@@ -27,7 +27,7 @@ VLocationLineEdit::VLocationLineEdit(QString activeText, QWidget *parent)
 
 VLocationLineEdit::~VLocationLineEdit()
 {
-    delete listView;
+//    delete listView; // should be unnecessary
     delete words;
     delete model;
 }

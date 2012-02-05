@@ -9,8 +9,8 @@ TokenStream* NetAnalyzer::tokenStream(const TCHAR* fieldName, CL_NS(util)::Reade
   {
     TokenStream* tokenStream = WhitespaceAnalyzer::tokenStream(fieldName,reader);
 
-    return new LowerCaseFilter(tokenStream, true);
-//    return tokenStream;
+//    return new LowerCaseFilter(tokenStream, true);
+    return tokenStream;
 
 //    StandardFilter();
   }

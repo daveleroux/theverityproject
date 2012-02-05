@@ -17,6 +17,7 @@ private:
     QHash<EventType::EventType, QList<Listener*>* > hash;
 
     EventManager();
+    ~EventManager();
 
     static EventManager& instance();
 

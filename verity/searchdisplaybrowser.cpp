@@ -111,6 +111,8 @@ QList<SearchResult> SearchDisplayBrowser::doActualSearch(QString searchTerm)
 {
     QList<SearchResult> result;
 
+    searchTerm = searchTerm.toLower();
+
     NetAnalyzer* netAnalyzer = new NetAnalyzer();
 
     Document doc;
@@ -142,5 +144,6 @@ QList<SearchResult> SearchDisplayBrowser::doActualSearch(QString searchTerm)
     {
         qDebug() << e.what();
     }
+    delete netAnalyzer;
     return result;
 }

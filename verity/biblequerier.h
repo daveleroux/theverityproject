@@ -43,7 +43,7 @@ private:
     QStringList _getChapterRange(int bibletextId, VerseReference verseReference);
     QStringList _getVerseRange(int bibletextId, VerseReference verseReference);
 
-    QStringList _search(QString searchTerms);
+//    QStringList _search(QString searchTerms);
 
     QString asString(QList<int> list);
 
@@ -64,7 +64,7 @@ public:
     static QStringList getChapterRange(int bibletextId, VerseReference verseReference);
     static QStringList getVerseRange(int bibletextId, VerseReference verseReference);
 
-    static QStringList search(QString searchTerms);
+//    static QStringList search(QString searchTerms);
 
     static QList<int> getWordHandlerIds(int bibletextId);
     static int getStrongsNum(int bibletextId, int wordId);

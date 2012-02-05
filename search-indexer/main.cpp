@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
 
             text.replace(QRegExp(QString::fromUtf8("[,.“”!?–();‘’]")), " ");
             text = text.trimmed();
+            text = text.toLower(); //todo - must remove and use proper filters and stuff
 
             doc.clear();
             doc.add(*new Field(_T("book"), convert(QString().setNum(book_number)), Field::STORE_YES | Field::INDEX_UNTOKENIZED));

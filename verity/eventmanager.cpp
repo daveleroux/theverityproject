@@ -4,6 +4,14 @@ EventManager::EventManager()
 {
 }
 
+EventManager::~EventManager()
+{
+    foreach(QList<Listener*>* list, hash.values())
+    {
+        delete list;
+    }
+}
+
 void EventManager::_handleEvent(Event* eventToHandle)
 {
     QList<Listener*>* list = hash.value(eventToHandle->getEventType());
