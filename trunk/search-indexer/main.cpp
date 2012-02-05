@@ -98,11 +98,12 @@ int main(int argc, char *argv[])
                 text.replace(regEx,"");
             }
 
+            text.replace("<br/>", " ");
             text.replace(QRegExp("<[^>]*>"),"");
 
             QString textToDisplay = text;
 
-            text.replace(QRegExp(QString::fromUtf8("[,.“”!?–();‘’]")), " ");
+            text.replace(QRegExp(QString::fromUtf8("[,.“”!?–();:‘’]")), " ");
             text = text.trimmed();
             text = text.toLower(); //todo - must remove and use proper filters and stuff
 
