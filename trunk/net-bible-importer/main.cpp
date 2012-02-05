@@ -15,6 +15,8 @@ QMap<QString, int> noteIdMap;
 //QDomNode* notePlaceToAdd = 0;
 int netNoteChapterCount;
 
+bool LIMIT_NET_NOTES = true;
+
 Chunk* currentChunk;
 QList<Chunk*> allChunks;
 
@@ -270,32 +272,36 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
             QDomElement oldChildElement = oldChild.toElement();
             if(oldChildElement.tagName() == "a")
             {
-                assert(oldChildElement.attribute("TARGET"), "note_pane");
-                assert(oldChildElement.childNodes().size(), 1);
-                assert(oldChildElement.firstChildElement().tagName(), "SUP");
-                assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-
-                QDomElement newChild = createElement(getDatabaseTagName("netNote"));
-
-                newTreeParent.appendChild(newChild);
-
-                QString stringId = oldChildElement.attribute("href");
-
-                if(!stringId.contains("#note"))
+                if(!(LIMIT_NET_NOTES && currentChunk->chapter > 1))
                 {
-                    stringId.replace("#","#note");
+                    assert(oldChildElement.attribute("TARGET"), "note_pane");
+                    assert(oldChildElement.childNodes().size(), 1);
+                    assert(oldChildElement.firstChildElement().tagName(), "SUP");
+                    assert(oldChildElement.firstChildElement().childNodes().size(), 1);
+
+                    QDomElement newChild = createElement(getDatabaseTagName("netNote"));
+
+                    newTreeParent.appendChild(newChild);
+
+                    QString stringId = oldChildElement.attribute("href");
+
+                    if(!stringId.contains("#note"))
+                    {
+                        stringId.replace("#","#note");
+                    }
+
+                    if(!noteIdMap.contains(stringId))
+                        qDebug() << "Title note ID not found: " << stringId;
+                    int noteId = noteIdMap.value(stringId);
+
+                    noteIdMap.remove(stringId);
+
+                    newChild.setAttribute("id", noteId);
+
+                    QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
+                    netNoteChapterCount++;
+                    newChild.appendChild(newChildChild);
                 }
-
-                if(!noteIdMap.contains(stringId))
-                    qDebug() << "Title note ID not found: " << stringId;
-                int noteId = noteIdMap.value(stringId);
-
-                newChild.setAttribute("id", noteId);
-
-                QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
-                netNoteChapterCount++;
-                newChild.appendChild(newChildChild);
-
             }
             else if(oldChildElement.tagName() == "span")
             {
@@ -345,20 +351,26 @@ void buildTitleChunk(QDomNode newTreeParent, QDomNode oldTreeParent)
 
 void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
 {    
+//    static bool logging = false;
+//    if(currentChunk != 0 && currentChunk->bookNumber == 40 && currentChunk->chapter == 2 && currentChunk->verse == 6)
+//    {
+//        logging = true;
+//    }
+//    if(logging)
+//    {
+//        qDebug() << oldTreeParent.childNodes().size();
+//    }
+
     for(int i=0; i<oldTreeParent.childNodes().size(); i++)
     {
         QDomNode oldChild = oldTreeParent.childNodes().at(i);
 
         if(oldChild.isText())
         {
-            //            QString data = oldChild.toText().data();
-            //            if(data.contains(QRegExp("\\(\\d+:\\d+\\)")))
-            //            {
-            //                qDebug() << data;
-            //                if(currentChunk != 0)
-            //                    qDebug() << currentChunk->bookNumber << " " << currentChunk->chapter << ":" << currentChunk->verse;
-            //            }
 
+            QString text = oldChild.toText().data();
+//            if(logging)
+//                qDebug() << "Text: " <<  text;
             QDomText newChildText = createTextNode(oldChild.toText().data());
             placeToAdd->appendChild(newChildText);
             assert(oldChild.childNodes().size(), 0);
@@ -368,35 +380,40 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
             QDomElement oldChildElement = oldChild.toElement();
             if(oldChildElement.tagName() == "a")
             {
+
                 if(oldChildElement.attribute("name").length() > 0)
                 {
                     assert(oldChildElement.childNodes().size(), 0);
                 }
                 else
                 {
-                    assert(oldChildElement.attribute("TARGET"), "note_pane");
-                    assert(oldChildElement.childNodes().size(), 1);
-                    assert(oldChildElement.firstChildElement().tagName(), "SUP");
-                    assert(oldChildElement.firstChildElement().childNodes().size(), 1);
-                    QDomElement newChild = createElement(getDatabaseTagName("netNote"));
-                    placeToAdd->appendChild(newChild);
-
-                    QString stringId = oldChildElement.attribute("href");
-
-                    if(!stringId.contains("#note"))
+                    if(!(LIMIT_NET_NOTES && currentChunk->chapter > 1 && currentChunk->verse > 3))
                     {
-                        stringId.replace("#","#note");
+                        assert(oldChildElement.attribute("TARGET"), "note_pane");
+                        assert(oldChildElement.childNodes().size(), 1);
+                        assert(oldChildElement.firstChildElement().tagName(), "SUP");
+                        assert(oldChildElement.firstChildElement().childNodes().size(), 1);
+                        QDomElement newChild = createElement(getDatabaseTagName("netNote"));
+                        placeToAdd->appendChild(newChild);
+
+                        QString stringId = oldChildElement.attribute("href");
+
+                        if(!stringId.contains("#note"))
+                        {
+                            stringId.replace("#","#note");
+                        }
+
+                        if(!noteIdMap.contains(stringId))
+                            qDebug() << "Verse note ID not found: " << stringId;
+
+                        int noteId = noteIdMap.value(stringId);
+                        noteIdMap.remove(stringId);
+
+                        newChild.setAttribute("id", noteId);
+                        QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
+                        netNoteChapterCount++;
+                        newChild.appendChild(newChildChild);
                     }
-
-                    if(!noteIdMap.contains(stringId))
-                        qDebug() << "Verse note ID not found: " << stringId;
-
-                    int noteId = noteIdMap.value(stringId);
-
-                    newChild.setAttribute("id", noteId);
-                    QDomText newChildChild = createTextNode(QString().setNum(netNoteChapterCount));
-                    netNoteChapterCount++;
-                    newChild.appendChild(newChildChild);
                 }
             }
             else if(oldChildElement.tagName() == "span")
@@ -420,8 +437,8 @@ void buildVerseChunk(QString paragraphClass, QDomNode oldTreeParent)
                     currentChunk->xmlDoc.firstChild().appendChild(newChildElement);
 //                    QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
 //                    placeToAdd = &tempPlaceToAdd;
-//                    placeToAdd = &(currentChunk->xmlDoc.firstChild().lastChild());
-                    placeToAdd = &newChildElement;
+                    placeToAdd = &(currentChunk->xmlDoc.firstChild().lastChild());
+//                    placeToAdd = &newChildElement;
 //                    const QDomNode& tempRef = currentChunk->xmlDoc.firstChild().lastChild();
 
                 }
@@ -562,8 +579,8 @@ void doParagraph(QDomElement paragraphElement)
             currentChunk->xmlDoc.firstChild().appendChild(newElement);
 //            QDomNode tempPlaceToAdd = currentChunk->xmlDoc.firstChild().lastChild();
 //            placeToAdd = &tempPlaceToAdd;
-//            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
-            placeToAdd = &newElement;
+            placeToAdd = &currentChunk->xmlDoc.firstChild().lastChild();
+//            placeToAdd = &newElement;
         }
         else
             placeToAdd = 0;
@@ -1351,12 +1368,15 @@ void importBibleChapter(QString baseBookName, QString chapterFilenameWithoutFile
         wholeFile.append("</p></body></html>");
     }
 
+    wholeFile.replace("</b> <b>", " ");
+
     QString errorMsg;
     int errorLine;
     int errorColumn;
     if(!doc.setContent(wholeFile, &errorMsg , &errorLine, &errorColumn))
     {
         file.close();
+        qDebug() << chapterFilename;
         qDebug() << "xml not well formed";
         qDebug() << errorMsg;
         qDebug() << errorLine;
@@ -1429,6 +1449,24 @@ QList<QString> getChapterFilenames(QString fileName)
     tocFile.close();
 
     return result;
+}
+void removeUnusedNotes()
+{
+    qDebug() << "removing unused notes";
+    QSqlQuery query;
+    query.prepare("delete from net_notes where id = :id");
+
+    foreach(int noteId, noteIdMap.values())
+    {
+        query.bindValue(":id", noteId);
+
+        if(!query.exec())
+        {
+            qDebug() << "failed: "<< query.lastError()  << endl;
+            exit(1);
+        }
+    }
+    qDebug() << "finished removing unused notes";
 }
 
 int main(int argc, char *argv[])
@@ -1601,6 +1639,7 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    qDebug() << "books: " << fileNames.size();
     for(int i=0; i<fileNames.size(); i++)
     {
         qDebug() << fileNames.at(i);
@@ -1616,7 +1655,6 @@ int main(int argc, char *argv[])
 
 
         QList<QString> chapterFilenames = getChapterFilenames(fileNames.at(i));
-
         foreach(QString chapterFilename, chapterFilenames)
         {
             importBibleChapter(fileNames.at(i), chapterFilename);
@@ -1626,6 +1664,8 @@ int main(int argc, char *argv[])
     setNormalisedChapterFieldAndPutInChaptersAndVerses();
 
     writeOutAllChunks(db, query);
+
+    removeUnusedNotes();
 
     query.exec("update bibles set parallel = id");
 
