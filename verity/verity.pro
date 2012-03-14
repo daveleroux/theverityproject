@@ -122,7 +122,6 @@ HEADERS += mainwindow.h \
     vbibleinterface.h \
     vlocationedit.h \
     vlocationdropdowns.h \
-    vlocationlineedit.h \
     biblereferenceevent.h \
     emptyparsingwordhandler.h \
     vwebhistory.h \
