@@ -2,20 +2,29 @@ a
 {
 	background-color: #d0d0d0;
 }
+table.searchResults {
+	
+}
+table.searchResults tr:hover {
+	background-color: #efefff;
+	cursor: hand;
+}
 table.evenstart tr, table.oddstart tr:nth-of-type(odd) 
 {
-	background-color:#f8fffa;
+	background-color: #f8fffa;
 }
 
 table.evenstart tr:nth-of-type(odd), table.oddstart tr
 {
-	background-color:#e6ebf2;
+	background-color: #e6ebf2;
 }
 
-table
+table.parallel
 {
 	table-layout: fixed;
 	width: 100%;
+	font-family: "Carlito";
+    font-size: 15px;
 }
 td
 {
@@ -34,8 +43,8 @@ td
 	color: #0000ff;
 	vertical-align: baseline;
 /*	font-size: 0.8em;*/
-	font-size: 14px;
-	font-family: "Sans";
+	font-size: 60%;
+        font-family: "FreeSans", Sans;
 	position: relative;
 	top: -0.4em;
 	cursor: pointer;
@@ -69,15 +78,15 @@ td
 {
 	display: block;
 }*/
-
 .greek
 {
-	font-family: "GentiumAlt";
+        font-family: "GFS Neohellenic", "GentiumAlt";
+	/*line-height: 130%;*/
 }
 .hebrew
 {
 	font-family: "SBL Hebrew";
-	font-size: 2em;
+    font-size: 1.5em;
 	line-height: 130%; /* why is this needed, why does it not inherit from bodyText */
 	
 }
@@ -165,7 +174,7 @@ td
 	color: #ff0000;
 	vertical-align: baseline;
 /*	font-size: 0.8em;*/
-	font-size: 14px;
+	font-size: 70%;
 	font-family: "Sans";
 	position: relative;
 	top: -0.4em;
