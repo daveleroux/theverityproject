@@ -7,12 +7,17 @@ QT += sql \
 TARGET = verity
 TEMPLATE = app
 
-INCLUDEPATH += /usr/include
-INCLUDEPATH += /Users/dave/Downloads/clucene-core-2.3.3.4/src/shared
-INCLUDEPATH += /Users/dave/Downloads/clucene-core-2.3.3.4/src/core
+INCLUDEPATH += /usr/include/clucene09
+LIBS += -L/usr/lib64/clucene09 -lclucene
 
-LIBS += -L/usr/lib -lclucene
+####
+# Bunch of old paths that should be removed
+#INCLUDEPATH += /Users/dave/Downloads/clucene-core-2.3.3.4/src/shared
+#INCLUDEPATH += /Users/dave/Downloads/clucene-core-2.3.3.4/src/core
+#INCLUDEPATH += /usr/lib64/clucene09 # except maybe this
 #LIBS += -L/Users/dave/Downloads/clucene-core-2.3.3.4/bin/Debug -lclucene-core -lclucene-shared
+#LIBS += -L/usr/lib -lclucene # and this?
+####
 
 SOURCES += main.cpp \
     mainwindow.cpp \
@@ -122,6 +127,7 @@ HEADERS += mainwindow.h \
     vbibleinterface.h \
     vlocationedit.h \
     vlocationdropdowns.h \
+    vlocationlineedit.h \
     biblereferenceevent.h \
     emptyparsingwordhandler.h \
     vwebhistory.h \
