@@ -7,16 +7,6 @@
 #include "javascriptclicklistener.h"
 
 
-struct SearchResult
-{
-    VerseReference verseReference;
-    QString verseContents;
-    SearchResult(VerseReference verseReference, QString verseContents)
-    {
-        this->verseReference = verseReference;
-        this->verseContents = verseContents;
-    }
-};
 
 class SearchDisplayBrowser : public VWebView
 {

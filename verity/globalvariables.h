@@ -1,7 +1,7 @@
 #ifndef GLOBALVARIABLES_H
 #define GLOBALVARIABLES_H
 #include <QString>
-
+#include "versereference.h"
 
 extern QString PROGRAM_NAME;
 
@@ -35,8 +35,20 @@ namespace EventType
         CLOSING,
         BIBLE_REFERENCE,
         SEARCH,
+        NEW_LOCATION,
     };
 }
+
+struct SearchResult
+{
+    VerseReference verseReference;
+    QString verseContents;
+    SearchResult(VerseReference verseReference, QString verseContents)
+    {
+        this->verseReference = verseReference;
+        this->verseContents = verseContents;
+    }
+};
 
 
 #endif // GLOBALVARIABLES_H

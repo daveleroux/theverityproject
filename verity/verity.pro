@@ -7,7 +7,8 @@ QT += sql \
 TARGET = verity
 TEMPLATE = app
 
-INCLUDEPATH += /usr/include/clucene09
+INCLUDEPATH += /usr/include/clucene09 \
+    /usr/lib64/clucene09
 LIBS += -L/usr/lib64/clucene09 -lclucene
 
 ####
@@ -76,7 +77,8 @@ SOURCES += main.cpp \
     basicwebhistoryitem.cpp \
     searchdisplaybrowser.cpp \
     searchevent.cpp \
-    netanalyzer.cpp
+    netanalyzer.cpp \
+    newlocationevent.cpp
 HEADERS += mainwindow.h \
     basetextunit.h \
     bibletextbrowser.h \
@@ -105,7 +107,6 @@ HEADERS += mainwindow.h \
     parallelgridconstructor.h \
     referencefilterproxymodel.h \
     minandmaxidsforchapter.h \
-    locationlineedit.h \
     scrolllistener.h \
     paralleldto.h \
     eventmanager.h \
@@ -135,7 +136,8 @@ HEADERS += mainwindow.h \
     basicwebhistoryitem.h \
     searchdisplaybrowser.h \
     searchevent.h \
-    netanalyzer.h
+    netanalyzer.h \
+    newlocationevent.h
 INSTALLS += target \
     datatarget
 target.path = /usr/bin

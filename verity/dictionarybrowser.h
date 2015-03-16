@@ -2,6 +2,7 @@
 #define DICTIONARYBROWSER_H
 
 #include <QTextBrowser>
+#include <QContextMenuEvent>
 #include "listener.h"
 #include "vwebview.h"
 #include "javascriptclicklistener.h"
@@ -17,6 +18,7 @@ private:
 
     JavascriptClickListener* javascriptClickListener;
     VWebHistory* webHistory;
+    QString currentStrongsNum;
 
 public:    
     DictionaryBrowser(QWidget* parent=0);
@@ -26,6 +28,7 @@ protected:
     void setNewContent(int strongsNum);
     void handleEvent(Event* event);
     QString transformToHtml(QString xml);
+    void contextMenuEvent(QContextMenuEvent* event);
 
 signals:
     void backwardAvailable(bool);

@@ -1,3 +1,4 @@
+
 #include "biblequerier.h"
 #include "globalvariables.h"
 #include <QtSql>
@@ -826,10 +827,10 @@ QBitArray BibleQuerier::getNormalisedMorphTag(int bibletextId, int wordId)
 
 
 
-//QStringList BibleQuerier::search(QString searchTerms)
-//{
-//    return instance()._search(searchTerms);
-//}
+QList<SearchResult> BibleQuerier::searchStrongs(QString searchTerms)
+{
+    return instance()._searchStrongs(searchTerms);
+}
 
 
 QString BibleQuerier::getNetNote(int id)
@@ -841,6 +842,64 @@ QString BibleQuerier::getNetNote(int id)
 QString BibleQuerier::getStrongsData(int strongsNum)
 {
     return instance()._getStrongsData(strongsNum);
+}
+
+
+QList<SearchResult> BibleQuerier::_searchStrongs(QString searchTerms)
+{
+    /*
+        searchTerms is in the format:
+        ---
+        .strongsnum
+    */
+    QList<SearchResult> searchResultList;
+
+    QString sqlQuery;
+    /*QString sqlQuery = "select book, chapter, verse, text from searchTermList.at(1)";
+    QString whereCondition;
+    for (int i = 0; i < eachWord.count(); i++)
+    {
+        whereCondition.append(" or text like(\"" + eachWord.at(i) + "\")");
+    }
+    whereCondition = " where" + whereCondition.mid(3);
+    sqlQuery = sqlQuery.append(whereCondition).append(" group by book, chapter, verse");
+
+
+    qDebug() << sqlQuery;*/
+
+
+    QSqlQuery query;
+    query.setForwardOnly(true);
+
+
+    //    if (!query.exec(sqlQuery.append(" order by t0.id asc")))
+
+    sqlQuery = "select id, book_number, chapter, verse, text from bibles as b, strongs_word as s where s.strongs_number='" + searchTerms + "' and b.text like('%wordId=\"'|| s.word_id || '\"%') limit 100";
+
+    qDebug() << sqlQuery;
+    if(!query.exec(sqlQuery))
+    {
+        qDebug() << "failed: " << query.lastError() << endl;
+        exit(1);
+    }
+
+
+    while(query.next())
+    {
+        int bookNumber = query.value(1).toInt();
+        int chapter = query.value(2).toInt();
+        int verse = query.value(3).toInt();
+        QString text = query.value(4).toString();
+
+        searchResultList.append(
+                    SearchResult(
+                        VerseReference(bookNumber, chapter, verse,
+                                       VerseReferenceParser::calculateStringRepresentation(bookNumber, chapter, verse)),
+                        text));
+
+    }
+    qDebug() << searchResultList.count();
+    return searchResultList;
 }
 
 

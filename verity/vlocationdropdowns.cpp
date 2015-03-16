@@ -17,6 +17,7 @@ VLocationDropDowns::VLocationDropDowns(QString activeText, QWidget *parent) :
 
     cmbBookSelector = new QComboBox(this);
     cmbBookSelector->addItems(availableBooks);
+    cmbBookSelector->setMaxVisibleItems(39);
     mainLayout->addWidget(cmbBookSelector);
 
     cmbChapterSelector = new QComboBox(this);

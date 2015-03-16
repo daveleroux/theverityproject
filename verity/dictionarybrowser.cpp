@@ -5,6 +5,7 @@
 #include "eventmanager.h"
 #include "biblequerier.h"
 #include "basicwebhistoryitem.h"
+#include "searchevent.h"
 
 
 #include <QtSql>
@@ -14,6 +15,7 @@
 #include <QTextBrowser>
 #include <QDebug>
 #include <QWebFrame>
+#include <QMenu>
 
 DictionaryBrowser::DictionaryBrowser(QWidget* parent) : VWebView(parent)
 {
@@ -135,6 +137,8 @@ void DictionaryBrowser::setNewContent(int strongsNum)
 
     BasicWebHistoryItem* item = new BasicWebHistoryItem(this, frameTop + transformToHtml(xml) + frameBottom);
     webHistory->display(item);
+
+    currentStrongsNum = QString::number(strongsNum);
 }
 
 void DictionaryBrowser::backward()
@@ -146,3 +150,29 @@ void DictionaryBrowser::forward()
     webHistory->forward();
 }
 
+
+void DictionaryBrowser::contextMenuEvent(QContextMenuEvent *event)
+{
+    QString t = "STRONGSSEARCH" + currentStrongsNum;
+
+    qDebug() << "Strongs number: " << currentStrongsNum;
+
+    //(new SearchEvent(t))->fire(); -- TODO: make it possible to search for all occurances of this word
+
+    /*QWebHitTestResult r = page()->mainFrame()->hitTestContent(event->pos());
+    if (r.linkUrl().isEmpty()) {
+        QMenu menu(this);
+        menu.addAction(pageAction(QWebPage::OpenLinkInNewWindow));
+        menu.addAction(tr("Open in New Tab"), this, SLOT(openLinkInNewTab()));
+        menu.addSeparator();
+        menu.addAction(pageAction(QWebPage::DownloadLinkToDisk));
+        // Add link to bookmarks...
+        menu.addSeparator();
+        menu.addAction(pageAction(QWebPage::CopyLinkToClipboard));
+        if (page()->settings()->testAttribute(QWebSettings::DeveloperExtrasEnabled))
+            menu.addAction(pageAction(QWebPage::InspectElement));
+        menu.exec(mapToGlobal(event->pos()));
+        return;
+    }*/
+    QWebView::contextMenuEvent(event);
+}

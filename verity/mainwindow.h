@@ -21,6 +21,7 @@ private:
     static QString MAIN_WINDOW_SETTING_GROUP;
     static QString GEOMETRY_SETTING;
     static QString WINDOW_STATE_SETTING;
+    static QString LAST_TEXT_SETTING;
 
 public:
 

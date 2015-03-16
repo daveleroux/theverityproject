@@ -10,6 +10,7 @@
 #include "globalvariables.h"
 #include <QFile>
 #include "versereferenceparser.h"
+#include "newlocationevent.h"
 
 ChapterDisplayer::ChapterDisplayer(VWebView* webView, QList<int> bibletextIds, int id, int normalisedChapter) : VWebHistoryItem(webView)
 {
@@ -472,6 +473,8 @@ void ChapterDisplayer::moved()
     QString title = PROGRAM_NAME;
     if(from.length() > 0)
     {
+        (new NewLocationEvent(VerseReferenceParser::parse(from)))->fire();
+
         title.append(" - ");
         title.append(from);
         if(to.length() > 0)

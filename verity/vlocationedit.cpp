@@ -16,6 +16,8 @@ VLocationEdit::VLocationEdit(QVector<QString> texts, QWidget *parent) :
     //    QVector<int> *bookChapterRange = new QVector<int>;
 
     mainLayout = new QHBoxLayout(this);
+    mainLayout->setSpacing(3);
+    mainLayout->setContentsMargins(3,3,3,3);
 
     stackedWidget = new QStackedWidget(this);
 

@@ -4,6 +4,7 @@
 // a NON-thread-safe singleton
 
 #include <QMap>
+#include "globalvariables.h"
 #include "versereference.h"
 #include "verselocation.h"
 #include "textspecificdata.h"
@@ -43,7 +44,7 @@ private:
     QStringList _getChapterRange(int bibletextId, VerseReference verseReference);
     QStringList _getVerseRange(int bibletextId, VerseReference verseReference);
 
-//    QStringList _search(QString searchTerms);
+    QList<SearchResult> _searchStrongs(QString searchTerms);
 
     QString asString(QList<int> list);
 
@@ -64,7 +65,7 @@ public:
     static QStringList getChapterRange(int bibletextId, VerseReference verseReference);
     static QStringList getVerseRange(int bibletextId, VerseReference verseReference);
 
-//    static QStringList search(QString searchTerms);
+    static QList<SearchResult> searchStrongs(QString searchTerms);
 
     static QList<int> getWordHandlerIds(int bibletextId);
     static int getStrongsNum(int bibletextId, int wordId);

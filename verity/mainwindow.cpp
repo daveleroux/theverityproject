@@ -15,6 +15,8 @@
 #include "netnotebrowser.h"
 #include "basicevent.h"
 #include "searchdisplaybrowser.h"
+#include "biblereferenceevent.h"
+#include "newlocationevent.h"
 
 #include <QApplication>
 #include <QDesktopWidget>
@@ -37,11 +39,13 @@ using namespace std;
 QString MainWindow::MAIN_WINDOW_SETTING_GROUP = "MainWindowSettingGroup";
 QString MainWindow::GEOMETRY_SETTING = "GeometrySetting";
 QString MainWindow::WINDOW_STATE_SETTING = "WindowStateSetting";
+QString MainWindow::LAST_TEXT_SETTING = "LastTextSetting";
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 {
     QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
     settings.beginGroup(MAIN_WINDOW_SETTING_GROUP);
+    qDebug() << settings.allKeys();
 
 
     //    resize(settings.value(SIZE_SETTING, QSize(1000, 700)).toSize());
@@ -62,7 +66,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
 
     setWindowTitle(PROGRAM_NAME);
-    setMinimumSize(1000, 700);
     bibleInterface = new VBibleInterface(this);
     setCentralWidget(bibleInterface);
     qDebug() << "central widget:" << DATA_PATH;
@@ -176,14 +179,18 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent), Listener()
 
     restoreState(settings.value(WINDOW_STATE_SETTING).toByteArray());
 
+    if (!settings.value(LAST_TEXT_SETTING).toString().isEmpty())
+    {
+        (new BibleReferenceEvent(VerseReferenceParser::parse(settings.value(LAST_TEXT_SETTING).toString())))->fire();
+    }
+
     settings.endGroup();
-
-
 
     wordClickedListener = new WordClickedListener();
     EventManager::addListener(EventType::WORD_CLICKED, wordClickedListener);
-
+    EventManager::addListener(EventType::NEW_LOCATION, this);
     EventManager::addListener(EventType::CLOSING, this);
+
 }
 
 MainWindow::~MainWindow()
@@ -315,6 +322,14 @@ void MainWindow::handleEvent(Event* event)
 
         settings.endGroup();
 
+    }
+    else if (event->getEventType() == EventType::NEW_LOCATION)
+    {
+        QSettings settings(PROGRAM_NAME, PROGRAM_NAME);
+        settings.beginGroup(MAIN_WINDOW_SETTING_GROUP);
+        NewLocationEvent* newLocationEvent = static_cast<NewLocationEvent*>(event);
+        settings.setValue(LAST_TEXT_SETTING, newLocationEvent->verseReference.stringRepresentation);
+        settings.endGroup();
     }
 }
 

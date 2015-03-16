@@ -9,6 +9,8 @@ VBibleInterface::VBibleInterface(QWidget *parent) :
     vbox->setContentsMargins(7,0,0,0);
     vbox->setSpacing(0);
 
+    vbox->setMargin(0);
+
 
     //this should be dynamic based on a variable passed to the constructor
     QVector<QString> texts;
@@ -17,6 +19,7 @@ VBibleInterface::VBibleInterface(QWidget *parent) :
     texts.append("wlc [fix this code!]");
 
     locationEdit = new VLocationEdit(texts, this);
+    locationEdit->setMaximumHeight(30);
     vbox->addWidget(locationEdit);
     bibleWebView = new BibleTextBrowser(this);
     vbox->addWidget(bibleWebView, 1);

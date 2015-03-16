@@ -1,6 +1,7 @@
 #include "searchdisplaybrowser.h"
 #include <QDebug>
 #include "eventmanager.h"
+#include "biblequerier.h"
 #include "searchevent.h"
 #include "versereferenceparser.h"
 #include "netanalyzer.h"
@@ -110,40 +111,48 @@ void SearchDisplayBrowser::display(QString searchTerm)
 QList<SearchResult> SearchDisplayBrowser::doActualSearch(QString searchTerm)
 {
     QList<SearchResult> result;
-
-    searchTerm = searchTerm.toLower();
-
-    NetAnalyzer* netAnalyzer = new NetAnalyzer();
-
-    Document doc;
-    try
+    if (searchTerm.left(13) == "STRONGSSEARCH")
     {
-        wchar_t *convertedTerm = convert(QString(searchTerm));
-        Query* query = QueryParser::parse(convertedTerm, _T("contentsToSearch"),netAnalyzer);
-        IndexSearcher searcher(INDEX_NAME.toLatin1().data());
-        Hits* hits = searcher.search(query);
+        //find strongs occurances
 
-        int max = hits->length() > 100? 100 : hits->length();
+        result.append(BibleQuerier::searchStrongs(searchTerm.mid(13)));
+    }
+    else
+    {
+        searchTerm = searchTerm.toLower();
 
-        qDebug() << max;
+        NetAnalyzer* netAnalyzer = new NetAnalyzer();
 
-        for(int i=0; i<max; i++)
+        Document doc;
+        try
         {
-            doc = hits->doc(i);
-            result.append(SearchResult(VerseReference(QString::fromWCharArray(doc.get(_T("book"))).toInt(),
-                                        QString::fromWCharArray(doc.get(_T("chapter"))).toInt(),
-                                        QString::fromWCharArray(doc.get(_T("verse"))).toInt(),
-                                        VerseReferenceParser::calculateStringRepresentation(QString::fromWCharArray(doc.get(_T("book"))).toInt(),
-                                                                                            QString::fromWCharArray(doc.get(_T("chapter"))).toInt(),
-                                                                                            QString::fromWCharArray(doc.get(_T("verse"))).toInt())),
-                    QString::fromWCharArray(doc.get(_T("contentsToDisplay")))));
+            wchar_t *convertedTerm = convert(QString(searchTerm));
+            Query* query = QueryParser::parse(convertedTerm, _T("contentsToSearch"),netAnalyzer);
+            IndexSearcher searcher(INDEX_NAME.toLatin1().data());
+            Hits* hits = searcher.search(query);
+
+            int max = hits->length() > 100? 100 : hits->length();
+
+            qDebug() << max;
+
+            for(int i=0; i<max; i++)
+            {
+                doc = hits->doc(i);
+                result.append(SearchResult(VerseReference(QString::fromWCharArray(doc.get(_T("book"))).toInt(),
+                                                          QString::fromWCharArray(doc.get(_T("chapter"))).toInt(),
+                                                          QString::fromWCharArray(doc.get(_T("verse"))).toInt(),
+                                                          VerseReferenceParser::calculateStringRepresentation(QString::fromWCharArray(doc.get(_T("book"))).toInt(),
+                                                                                                              QString::fromWCharArray(doc.get(_T("chapter"))).toInt(),
+                                                                                                              QString::fromWCharArray(doc.get(_T("verse"))).toInt())),
+                                           QString::fromWCharArray(doc.get(_T("contentsToDisplay")))));
+            }
+            delete[] convertedTerm;
         }
-        delete[] convertedTerm;
+        catch (CLuceneError e)
+        {
+            qDebug() << e.what();
+        }
+        delete netAnalyzer;
     }
-    catch (CLuceneError e)
-    {
-        qDebug() << e.what();
-    }
-    delete netAnalyzer;
     return result;
 }
