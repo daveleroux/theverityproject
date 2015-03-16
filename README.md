@@ -20,3 +20,5 @@ To be honest, at this point Verity's offerings over other Bible Software program
  - Continuous Scrolling (in other words, you can see multiple chapters)
  - Advanced Parallel View (which correctly lines verses up with their counterparts in other versions [often English translations have different verse numbers to the Hebrew manuscripts])
  - Open Source (Verity's source code is free to view and modify which means that anyone can make it better, even you!)
+
+![alt text](https://github.com/daveleroux/theverityproject/Screenshot.png "Overview Screenshot")
